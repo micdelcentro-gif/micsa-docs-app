@@ -540,16 +540,3 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
     </div>
   )
 }
-
-const TIPO_TITLES: Record<string, string> = {
-  cotizacion: 'Cotización Formal',
-  bitacora: 'Bitácora Diaria',
-  costos_adicionales: 'Costos Adicionales',
-  checklist_izaje: 'Checklist de Izaje',
-  orden_trabajo: 'Orden de Trabajo',
-  contrato: 'Contrato de Servicios',
-  requisicion: 'Requisición de Material',
-  entrega_epp: 'Entrega de EPP',
-  plan_izaje: 'Plan de Izaje',
-  reporte_avance: 'Reporte de Avance',
-}
