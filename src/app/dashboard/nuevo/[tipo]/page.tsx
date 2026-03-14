@@ -508,12 +508,12 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
   }
 
   // Generic preview for other doc types
-  const title = TIPO_TITLES[tipo] || tipo
+  const docTitle = TIPO_TITLES[tipo] || tipo
   return (
     <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 11, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%', position: 'relative' }}>
       <Watermark />
       <div style={{ padding: '16px 20px', flex: 1 }}>
-        <BHeader title={title} />
+        <BHeader title={docTitle} />
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14 }}>
           <tbody>
             {Object.entries(data).map(([k, v]) => v ? (
