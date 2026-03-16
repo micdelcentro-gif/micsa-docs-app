@@ -63,24 +63,322 @@ const SCHEMAS: Record<string, { title: string; sections: { label: string; fields
       { key: 'usuario_cliente', label: 'Nombre Usuario por Cliente', type: 'text' },
     ]},
   ]},
+  contrato: { title: 'Contrato de Prestación de Servicios', sections: [
+    { label: 'Datos del Contrato', fields: [
+      { key: 'num_contrato', label: 'N° de Contrato', type: 'text', placeholder: 'MICSA-CONT-001' },
+      { key: 'fecha', label: 'Fecha del Contrato', type: 'date' },
+      { key: 'lugar', label: 'Lugar de Celebración', type: 'text', placeholder: 'Monclova, Coahuila' },
+      { key: 'vigencia_inicio', label: 'Vigencia Desde', type: 'date' },
+      { key: 'vigencia_fin', label: 'Vigencia Hasta', type: 'date' },
+    ]},
+    { label: 'Datos del Cliente (Contratante)', fields: [
+      { key: 'cliente', label: 'Razón Social del Cliente', type: 'text', placeholder: 'CARRIER TRANSICOLD' },
+      { key: 'rfc_cliente', label: 'RFC del Cliente', type: 'text' },
+      { key: 'representante_cliente', label: 'Representante Legal', type: 'text' },
+      { key: 'domicilio_cliente', label: 'Domicilio Fiscal', type: 'text' },
+      { key: 'contacto_cliente', label: 'Contacto / Teléfono', type: 'text' },
+      { key: 'correo_cliente', label: 'Correo Electrónico', type: 'text' },
+    ]},
+    { label: 'Objeto del Contrato', fields: [
+      { key: 'descripcion_servicio', label: 'Descripción del Servicio', type: 'textarea', rows: 4, placeholder: 'Montaje e instalación de maquinaria industrial...' },
+      { key: 'ubicacion_obra', label: 'Ubicación de la Obra', type: 'text' },
+      { key: 'alcance_trabajo', label: 'Alcance del Trabajo', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Condiciones Económicas', fields: [
+      { key: 'monto_total', label: 'Monto Total (sin IVA)', type: 'number' },
+      { key: 'moneda', label: 'Moneda', type: 'text', placeholder: 'MXN' },
+      { key: 'forma_pago', label: 'Forma de Pago', type: 'textarea', rows: 2, placeholder: '50% anticipo, 50% al finalizar' },
+      { key: 'penalizaciones', label: 'Penalizaciones por Retraso', type: 'textarea', rows: 2 },
+      { key: 'comision_epp', label: 'Comisión EPP (%)', type: 'text', placeholder: '20' },
+    ]},
+    { label: 'Cláusulas Adicionales', fields: [
+      { key: 'clausula_confidencialidad', label: 'Cláusula de Confidencialidad', type: 'textarea', rows: 2 },
+      { key: 'clausula_seguridad', label: 'Cláusula de Seguridad Industrial', type: 'textarea', rows: 2 },
+      { key: 'clausula_cancelacion', label: 'Cláusula de Cancelación', type: 'textarea', rows: 2 },
+      { key: 'jurisdiccion', label: 'Jurisdicción Aplicable', type: 'text', placeholder: 'Monclova, Coahuila' },
+    ]},
+    { label: 'Firmas', fields: [
+      { key: 'firma_contratante', label: 'Nombre del Contratante', type: 'text' },
+      { key: 'firma_contratista', label: 'Nombre del Contratista (MICSA)', type: 'text' },
+      { key: 'testigo_1', label: 'Testigo 1', type: 'text' },
+      { key: 'testigo_2', label: 'Testigo 2', type: 'text' },
+    ]},
+  ]},
+  orden_trabajo: { title: 'Orden de Trabajo', sections: [
+    { label: 'Datos de la Orden', fields: [
+      { key: 'num_orden', label: 'N° de Orden', type: 'text', placeholder: 'OT-001' },
+      { key: 'fecha', label: 'Fecha de Emisión', type: 'date' },
+      { key: 'fecha_inicio', label: 'Fecha de Inicio', type: 'date' },
+      { key: 'fecha_fin', label: 'Fecha Estimada de Fin', type: 'date' },
+      { key: 'prioridad', label: 'Prioridad', type: 'text', placeholder: 'Alta / Media / Baja' },
+    ]},
+    { label: 'Cliente y Proyecto', fields: [
+      { key: 'cliente', label: 'Cliente', type: 'text' },
+      { key: 'proyecto', label: 'Proyecto / Referencia', type: 'text' },
+      { key: 'ubicacion', label: 'Ubicación / Planta', type: 'text' },
+      { key: 'solicitado_por', label: 'Solicitado por', type: 'text' },
+      { key: 'contacto', label: 'Contacto / Teléfono', type: 'text' },
+    ]},
+    { label: 'Descripción del Trabajo', fields: [
+      { key: 'tipo_trabajo', label: 'Tipo de Trabajo', type: 'text', placeholder: 'Montaje / Soldadura / Izaje / Mantenimiento' },
+      { key: 'descripcion', label: 'Descripción Detallada', type: 'textarea', rows: 4 },
+      { key: 'materiales_requeridos', label: 'Materiales Requeridos', type: 'textarea', rows: 3 },
+      { key: 'equipo_requerido', label: 'Equipo / Herramienta Requerida', type: 'textarea', rows: 2 },
+    ]},
+    { label: 'Personal Asignado', fields: [
+      { key: 'supervisor', label: 'Supervisor Asignado', type: 'text' },
+      { key: 'personal_asignado', label: 'Personal (nombres y puestos)', type: 'textarea', rows: 3 },
+      { key: 'num_trabajadores', label: 'Número de Trabajadores', type: 'number' },
+    ]},
+    { label: 'Observaciones y Firmas', fields: [
+      { key: 'observaciones', label: 'Observaciones', type: 'textarea', rows: 3 },
+      { key: 'aprobado_por', label: 'Aprobado por', type: 'text' },
+      { key: 'recibido_por', label: 'Recibido por (cliente)', type: 'text' },
+    ]},
+  ]},
+  requisicion: { title: 'Requisición de Material', sections: [
+    { label: 'Datos de la Requisición', fields: [
+      { key: 'num_requisicion', label: 'N° de Requisición', type: 'text', placeholder: 'REQ-001' },
+      { key: 'fecha', label: 'Fecha de Solicitud', type: 'date' },
+      { key: 'fecha_requerida', label: 'Fecha Requerida', type: 'date' },
+      { key: 'urgencia', label: 'Urgencia', type: 'text', placeholder: 'Normal / Urgente / Crítica' },
+    ]},
+    { label: 'Proyecto y Solicitante', fields: [
+      { key: 'proyecto', label: 'Proyecto / ET', type: 'text' },
+      { key: 'cliente', label: 'Cliente', type: 'text' },
+      { key: 'solicitado_por', label: 'Solicitado por', type: 'text' },
+      { key: 'departamento', label: 'Departamento', type: 'text', placeholder: 'Operaciones' },
+      { key: 'centro_costos', label: 'Centro de Costos', type: 'text' },
+    ]},
+    { label: 'Materiales Solicitados', fields: [
+      { key: 'material_1', label: 'Material 1 (descripción, cantidad, unidad)', type: 'text' },
+      { key: 'material_2', label: 'Material 2', type: 'text' },
+      { key: 'material_3', label: 'Material 3', type: 'text' },
+      { key: 'material_4', label: 'Material 4', type: 'text' },
+      { key: 'material_5', label: 'Material 5', type: 'text' },
+      { key: 'materiales_adicionales', label: 'Materiales adicionales', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Justificación y Aprobación', fields: [
+      { key: 'justificacion', label: 'Justificación', type: 'textarea', rows: 3 },
+      { key: 'proveedor_sugerido', label: 'Proveedor Sugerido', type: 'text' },
+      { key: 'presupuesto_estimado', label: 'Presupuesto Estimado', type: 'number' },
+      { key: 'aprobado_por', label: 'Aprobado por', type: 'text' },
+      { key: 'observaciones', label: 'Observaciones', type: 'textarea', rows: 2 },
+    ]},
+  ]},
+  entrega_epp: { title: 'Registro de Entrega de EPP', sections: [
+    { label: 'Datos del Registro', fields: [
+      { key: 'num_entrega', label: 'N° de Registro', type: 'text', placeholder: 'EPP-001' },
+      { key: 'fecha', label: 'Fecha de Entrega', type: 'date' },
+      { key: 'proyecto', label: 'Proyecto / ET', type: 'text' },
+      { key: 'cliente', label: 'Cliente / Planta', type: 'text' },
+    ]},
+    { label: 'Datos del Trabajador', fields: [
+      { key: 'nombre_trabajador', label: 'Nombre del Trabajador', type: 'text' },
+      { key: 'puesto', label: 'Puesto', type: 'text' },
+      { key: 'num_empleado', label: 'N° de Empleado', type: 'text' },
+      { key: 'area_trabajo', label: 'Área de Trabajo', type: 'text' },
+    ]},
+    { label: 'Equipo Entregado', fields: [
+      { key: 'casco', label: 'Casco de Seguridad', type: 'text', placeholder: 'Sí / No — Talla / Color' },
+      { key: 'lentes', label: 'Lentes de Seguridad', type: 'text', placeholder: 'Sí / No — Tipo' },
+      { key: 'guantes', label: 'Guantes', type: 'text', placeholder: 'Sí / No — Tipo / Talla' },
+      { key: 'botas', label: 'Botas de Seguridad', type: 'text', placeholder: 'Sí / No — Talla' },
+      { key: 'chaleco', label: 'Chaleco Reflejante', type: 'text', placeholder: 'Sí / No — Talla' },
+      { key: 'arnes', label: 'Arnés de Seguridad', type: 'text', placeholder: 'Sí / No — N° Serie' },
+      { key: 'careta_soldadura', label: 'Careta de Soldadura', type: 'text', placeholder: 'Sí / No — Tipo' },
+      { key: 'tapones_auditivos', label: 'Tapones Auditivos', type: 'text', placeholder: 'Sí / No' },
+      { key: 'respirador', label: 'Respirador / Mascarilla', type: 'text', placeholder: 'Sí / No — Tipo' },
+      { key: 'epp_adicional', label: 'EPP Adicional', type: 'textarea', rows: 2 },
+    ]},
+    { label: 'Condiciones y Firmas', fields: [
+      { key: 'condiciones', label: 'Condiciones de Entrega', type: 'textarea', rows: 2, placeholder: 'Equipo nuevo / Reposición / Cambio por deterioro' },
+      { key: 'compromiso', label: 'Compromiso del Trabajador', type: 'textarea', rows: 2, placeholder: 'Me comprometo a usar el EPP durante toda la jornada laboral...' },
+      { key: 'entregado_por', label: 'Entregado por', type: 'text' },
+      { key: 'recibido_por', label: 'Firma del Trabajador', type: 'text' },
+      { key: 'supervisor', label: 'Vo.Bo. Supervisor', type: 'text' },
+    ]},
+  ]},
+  costos_adicionales: { title: 'Reporte de Costos Adicionales', sections: [
+    { label: 'Datos del Reporte', fields: [
+      { key: 'num_reporte', label: 'N° de Reporte', type: 'text', placeholder: 'CA-001' },
+      { key: 'fecha', label: 'Fecha', type: 'date' },
+      { key: 'proyecto', label: 'Proyecto / ET', type: 'text' },
+      { key: 'cliente', label: 'Cliente', type: 'text' },
+      { key: 'orden_trabajo_ref', label: 'Orden de Trabajo Relacionada', type: 'text' },
+    ]},
+    { label: 'Descripción del Costo Adicional', fields: [
+      { key: 'motivo', label: 'Motivo del Costo Adicional', type: 'textarea', rows: 3, placeholder: 'Trabajos no contemplados en alcance original...' },
+      { key: 'descripcion_trabajos', label: 'Descripción de Trabajos Extra', type: 'textarea', rows: 4 },
+      { key: 'fecha_inicio_extra', label: 'Fecha Inicio Trabajos Extra', type: 'date' },
+      { key: 'fecha_fin_extra', label: 'Fecha Fin Trabajos Extra', type: 'date' },
+    ]},
+    { label: 'Desglose de Costos', fields: [
+      { key: 'costo_mano_obra', label: 'Costo Mano de Obra', type: 'number' },
+      { key: 'costo_materiales', label: 'Costo Materiales', type: 'number' },
+      { key: 'costo_equipo', label: 'Costo Equipo / Herramienta', type: 'number' },
+      { key: 'costo_transporte', label: 'Costo Transporte', type: 'number' },
+      { key: 'costo_otros', label: 'Otros Costos', type: 'number' },
+      { key: 'subtotal', label: 'Subtotal', type: 'number' },
+      { key: 'iva', label: 'IVA', type: 'number' },
+      { key: 'total', label: 'Total', type: 'number' },
+    ]},
+    { label: 'Autorización', fields: [
+      { key: 'justificacion', label: 'Justificación Detallada', type: 'textarea', rows: 3 },
+      { key: 'elaborado_por', label: 'Elaborado por', type: 'text' },
+      { key: 'autorizado_por_micsa', label: 'Autorizado por (MICSA)', type: 'text' },
+      { key: 'autorizado_por_cliente', label: 'Autorizado por (Cliente)', type: 'text' },
+      { key: 'observaciones', label: 'Observaciones', type: 'textarea', rows: 2 },
+    ]},
+  ]},
+  checklist_izaje: { title: 'Checklist de Seguridad para Izaje', sections: [
+    { label: 'Datos de la Operación', fields: [
+      { key: 'num_checklist', label: 'N° de Checklist', type: 'text', placeholder: 'CHK-IZ-001' },
+      { key: 'fecha', label: 'Fecha', type: 'date' },
+      { key: 'hora', label: 'Hora de Inspección', type: 'time' },
+      { key: 'proyecto', label: 'Proyecto / ET', type: 'text' },
+      { key: 'cliente', label: 'Cliente / Planta', type: 'text' },
+      { key: 'area_trabajo', label: 'Área de Trabajo', type: 'text' },
+    ]},
+    { label: 'Datos del Equipo de Izaje', fields: [
+      { key: 'tipo_grua', label: 'Tipo de Grúa / Equipo', type: 'text', placeholder: 'Grúa Hidráulica / Telescópica / Puente Grúa' },
+      { key: 'capacidad_grua', label: 'Capacidad de la Grúa (Ton)', type: 'text' },
+      { key: 'marca_modelo', label: 'Marca y Modelo', type: 'text' },
+      { key: 'num_serie_grua', label: 'N° Serie del Equipo', type: 'text' },
+      { key: 'operador', label: 'Nombre del Operador', type: 'text' },
+      { key: 'licencia_operador', label: 'N° Licencia del Operador', type: 'text' },
+    ]},
+    { label: 'Inspección Pre-Operación', fields: [
+      { key: 'cables_eslingas', label: 'Cables y Eslingas en buen estado', type: 'text', placeholder: 'Sí / No / N/A — Observaciones' },
+      { key: 'ganchos_seguros', label: 'Ganchos con seguro', type: 'text', placeholder: 'Sí / No / N/A' },
+      { key: 'estabilizadores', label: 'Estabilizadores desplegados', type: 'text', placeholder: 'Sí / No / N/A' },
+      { key: 'area_despejada', label: 'Área de izaje despejada', type: 'text', placeholder: 'Sí / No' },
+      { key: 'señalizacion', label: 'Señalización colocada', type: 'text', placeholder: 'Sí / No' },
+      { key: 'viento', label: 'Condiciones de viento aceptables', type: 'text', placeholder: 'Sí / No — Velocidad' },
+      { key: 'comunicacion', label: 'Comunicación radio/señales OK', type: 'text', placeholder: 'Sí / No' },
+      { key: 'lineas_electricas', label: 'Distancia a líneas eléctricas OK', type: 'text', placeholder: 'Sí / No — Distancia' },
+    ]},
+    { label: 'Datos de la Carga', fields: [
+      { key: 'descripcion_carga', label: 'Descripción de la Carga', type: 'text' },
+      { key: 'peso_carga', label: 'Peso de la Carga (Ton)', type: 'text' },
+      { key: 'dimensiones', label: 'Dimensiones de la Carga', type: 'text' },
+      { key: 'centro_gravedad', label: 'Centro de Gravedad Identificado', type: 'text', placeholder: 'Sí / No' },
+      { key: 'puntos_izaje', label: 'Puntos de Izaje Identificados', type: 'text', placeholder: 'Sí / No — Cantidad' },
+    ]},
+    { label: 'Autorización y Firmas', fields: [
+      { key: 'observaciones', label: 'Observaciones Generales', type: 'textarea', rows: 3 },
+      { key: 'rigger', label: 'Rigger / Maniobrista', type: 'text' },
+      { key: 'supervisor_izaje', label: 'Supervisor de Izaje', type: 'text' },
+      { key: 'supervisor_seguridad', label: 'Supervisor de Seguridad', type: 'text' },
+      { key: 'autoriza_cliente', label: 'Autoriza (Cliente)', type: 'text' },
+    ]},
+  ]},
+  plan_izaje: { title: 'Plan de Izaje', sections: [
+    { label: 'Datos del Plan', fields: [
+      { key: 'num_plan', label: 'N° de Plan de Izaje', type: 'text', placeholder: 'PI-001' },
+      { key: 'fecha', label: 'Fecha de Elaboración', type: 'date' },
+      { key: 'fecha_ejecucion', label: 'Fecha Programada de Ejecución', type: 'date' },
+      { key: 'proyecto', label: 'Proyecto / ET', type: 'text' },
+      { key: 'cliente', label: 'Cliente', type: 'text' },
+      { key: 'ubicacion', label: 'Ubicación / Planta', type: 'text' },
+    ]},
+    { label: 'Descripción de la Maniobra', fields: [
+      { key: 'descripcion_maniobra', label: 'Descripción General de la Maniobra', type: 'textarea', rows: 4 },
+      { key: 'objetivo', label: 'Objetivo del Izaje', type: 'textarea', rows: 2 },
+      { key: 'secuencia', label: 'Secuencia de Operaciones', type: 'textarea', rows: 4, placeholder: '1. Posicionar grúa\n2. Colocar eslingas\n3. Izar carga...' },
+    ]},
+    { label: 'Datos de la Carga', fields: [
+      { key: 'descripcion_carga', label: 'Descripción de la Carga', type: 'text' },
+      { key: 'peso_carga', label: 'Peso de la Carga (Ton)', type: 'text' },
+      { key: 'dimensiones_carga', label: 'Dimensiones (L x A x H)', type: 'text' },
+      { key: 'centro_gravedad', label: 'Centro de Gravedad', type: 'text' },
+      { key: 'altura_izaje', label: 'Altura de Izaje (m)', type: 'text' },
+      { key: 'radio_operacion', label: 'Radio de Operación (m)', type: 'text' },
+    ]},
+    { label: 'Equipo y Accesorios', fields: [
+      { key: 'tipo_grua', label: 'Tipo de Grúa', type: 'text' },
+      { key: 'capacidad_grua', label: 'Capacidad Nominal (Ton)', type: 'text' },
+      { key: 'capacidad_al_radio', label: 'Capacidad al Radio de Trabajo (Ton)', type: 'text' },
+      { key: 'porcentaje_carga', label: '% de Capacidad Utilizada', type: 'text' },
+      { key: 'eslingas', label: 'Eslingas (tipo, capacidad, cantidad)', type: 'textarea', rows: 2 },
+      { key: 'grilletes', label: 'Grilletes (capacidad, cantidad)', type: 'text' },
+      { key: 'accesorios_adicionales', label: 'Accesorios Adicionales', type: 'textarea', rows: 2 },
+    ]},
+    { label: 'Medidas de Seguridad', fields: [
+      { key: 'area_restringida', label: 'Área Restringida Definida', type: 'text', placeholder: 'Sí / No — Radio de restricción' },
+      { key: 'comunicaciones', label: 'Sistema de Comunicación', type: 'text', placeholder: 'Radio / Señales manuales' },
+      { key: 'condiciones_climaticas', label: 'Condiciones Climáticas Permitidas', type: 'textarea', rows: 2 },
+      { key: 'epp_requerido', label: 'EPP Requerido', type: 'textarea', rows: 2, placeholder: 'Casco, guantes, botas, chaleco...' },
+      { key: 'plan_emergencia', label: 'Plan de Emergencia', type: 'textarea', rows: 2 },
+      { key: 'riesgos_identificados', label: 'Riesgos Identificados', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Personal y Aprobación', fields: [
+      { key: 'operador_grua', label: 'Operador de Grúa', type: 'text' },
+      { key: 'rigger', label: 'Rigger / Maniobrista', type: 'text' },
+      { key: 'señalero', label: 'Señalero', type: 'text' },
+      { key: 'supervisor', label: 'Supervisor del Izaje', type: 'text' },
+      { key: 'elaborado_por', label: 'Elaborado por', type: 'text' },
+      { key: 'aprobado_por', label: 'Aprobado por (MICSA)', type: 'text' },
+      { key: 'aprobado_cliente', label: 'Aprobado por (Cliente)', type: 'text' },
+    ]},
+  ]},
+  reporte_avance: { title: 'Reporte de Avance de Obra', sections: [
+    { label: 'Datos del Reporte', fields: [
+      { key: 'num_reporte', label: 'N° de Reporte', type: 'text', placeholder: 'RA-001' },
+      { key: 'fecha', label: 'Fecha del Reporte', type: 'date' },
+      { key: 'periodo_inicio', label: 'Período Desde', type: 'date' },
+      { key: 'periodo_fin', label: 'Período Hasta', type: 'date' },
+      { key: 'num_reporte_consecutivo', label: 'Reporte N° (consecutivo)', type: 'text', placeholder: '1 de 5' },
+    ]},
+    { label: 'Datos del Proyecto', fields: [
+      { key: 'proyecto', label: 'Proyecto / ET', type: 'text' },
+      { key: 'cliente', label: 'Cliente', type: 'text' },
+      { key: 'ubicacion', label: 'Ubicación / Planta', type: 'text' },
+      { key: 'contrato_ref', label: 'N° de Contrato', type: 'text' },
+      { key: 'supervisor', label: 'Supervisor de Obra', type: 'text' },
+    ]},
+    { label: 'Avance General', fields: [
+      { key: 'avance_programado', label: 'Avance Programado (%)', type: 'text' },
+      { key: 'avance_real', label: 'Avance Real (%)', type: 'text' },
+      { key: 'desviacion', label: 'Desviación (%)', type: 'text' },
+      { key: 'resumen_avance', label: 'Resumen de Avance', type: 'textarea', rows: 4, placeholder: 'Descripción general del avance en el período...' },
+    ]},
+    { label: 'Actividades del Período', fields: [
+      { key: 'actividades_completadas', label: 'Actividades Completadas', type: 'textarea', rows: 4 },
+      { key: 'actividades_en_proceso', label: 'Actividades en Proceso', type: 'textarea', rows: 3 },
+      { key: 'actividades_pendientes', label: 'Actividades Pendientes', type: 'textarea', rows: 3 },
+      { key: 'actividades_proxima_semana', label: 'Plan Siguiente Período', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Recursos y Personal', fields: [
+      { key: 'personal_en_obra', label: 'Personal en Obra (cantidad)', type: 'number' },
+      { key: 'detalle_personal', label: 'Detalle del Personal', type: 'textarea', rows: 2 },
+      { key: 'equipo_en_obra', label: 'Equipo en Obra', type: 'textarea', rows: 2 },
+      { key: 'horas_trabajadas', label: 'Horas Trabajadas en Período', type: 'number' },
+    ]},
+    { label: 'Problemas y Observaciones', fields: [
+      { key: 'problemas', label: 'Problemas / Obstáculos', type: 'textarea', rows: 3 },
+      { key: 'acciones_correctivas', label: 'Acciones Correctivas', type: 'textarea', rows: 2 },
+      { key: 'incidentes_seguridad', label: 'Incidentes de Seguridad', type: 'textarea', rows: 2, placeholder: 'Sin incidentes / Descripción...' },
+      { key: 'observaciones', label: 'Observaciones Generales', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Firmas', fields: [
+      { key: 'elaborado_por', label: 'Elaborado por', type: 'text' },
+      { key: 'revisado_por', label: 'Revisado por (MICSA)', type: 'text' },
+      { key: 'recibido_cliente', label: 'Recibido por (Cliente)', type: 'text' },
+    ]},
+  ]},
 }
 
 // Default schema for other doc types
 function defaultSchema(tipo: string, title: string) {
-  return {
-    title,
-    sections: [{
-      label: 'Información General',
-      fields: [
-        { key: 'fecha', label: 'Fecha', type: 'date' },
-        { key: 'cliente', label: 'Cliente', type: 'text' },
-        { key: 'proyecto', label: 'Proyecto / Referencia', type: 'text' },
-        { key: 'supervisor', label: 'Supervisor', type: 'text' },
-        { key: 'descripcion', label: 'Descripción', type: 'textarea', rows: 4 },
-        { key: 'observaciones', label: 'Observaciones', type: 'textarea', rows: 3 },
-      ],
-    }],
-  }
+  return { title, sections: [{ label: 'Información General', fields: [
+    { key: 'fecha', label: 'Fecha', type: 'date' },
+    { key: 'cliente', label: 'Cliente', type: 'text' },
+    { key: 'proyecto', label: 'Proyecto / Referencia', type: 'text' },
+    { key: 'supervisor', label: 'Supervisor', type: 'text' },
+    { key: 'descripcion', label: 'Descripción', type: 'textarea', rows: 4 },
+    { key: 'observaciones', label: 'Observaciones', type: 'textarea', rows: 3 },
+  ], }], }
 }
 
 const TIPO_TITLES: Record<string, string> = {
@@ -130,8 +428,7 @@ function PhotoUploader({ documentoId, fotos, onFotosChange }: {
 
   return (
     <div>
-      <div
-        onClick={() => inputRef.current?.click()}
+      <div onClick={() => inputRef.current?.click()}
         className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 transition-colors"
       >
         {uploading ? (
@@ -144,23 +441,15 @@ function PhotoUploader({ documentoId, fotos, onFotosChange }: {
           </>
         )}
       </div>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        multiple
-        capture="environment"
-        className="hidden"
-        onChange={e => e.target.files && handleFiles(e.target.files)}
-      />
+      <input ref={inputRef} type="file" accept="image/*" multiple capture="environment"
+        className="hidden" onChange={e => e.target.files && handleFiles(e.target.files)} />
       {fotos.length > 0 && (
         <div className="grid grid-cols-3 gap-2 mt-3">
           {fotos.map((f, i) => (
             <div key={i} className="relative aspect-square">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={f.url} alt="" className="w-full h-full object-cover rounded-lg" />
-              <button
-                onClick={() => removePhoto(i)}
+              <button onClick={() => removePhoto(i)}
                 className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
               >×</button>
             </div>
@@ -214,6 +503,7 @@ export default function NuevoTipoPage() {
       estado: 'borrador',
       created_by: user?.id,
     }
+
     if (savedId) {
       const { folio: _f, ...updateData } = docData
       await supabase.from('documentos').update(updateData).eq('id', savedId)
@@ -250,15 +540,12 @@ export default function NuevoTipoPage() {
         <button onClick={() => router.back()} className="text-slate-400 hover:text-slate-600 text-xl">←</button>
         <h2 className="text-base font-bold text-slate-800 flex-1 truncate">{title}</h2>
         <div className="flex gap-2">
-          <button
-            onClick={() => setShowPreview(!showPreview)}
+          <button onClick={() => setShowPreview(!showPreview)}
             className="text-xs border border-slate-300 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-50"
           >
             {showPreview ? 'Editar' : 'Vista previa'}
           </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
+          <button onClick={handleSave} disabled={saving}
             className="text-xs bg-blue-900 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 disabled:opacity-60"
           >
             {saving ? 'Guardando…' : 'Guardar'}
@@ -276,8 +563,7 @@ export default function NuevoTipoPage() {
       {showPreview ? (
         /* PREVIEW */
         <div className="p-4">
-          <button
-            onClick={handlePrint}
+          <button onClick={handlePrint}
             className="w-full mb-4 bg-slate-800 text-white py-3 rounded-xl font-semibold text-sm no-print"
           >
             🖨️ Imprimir / Guardar PDF
@@ -327,17 +613,11 @@ export default function NuevoTipoPage() {
               <h3 className="text-sm font-semibold text-slate-700">📷 Evidencia Fotográfica</h3>
             </div>
             <div className="p-4">
-              <PhotoUploader
-                documentoId={savedId || undefined}
-                fotos={fotos}
-                onFotosChange={setFotos}
-              />
+              <PhotoUploader documentoId={savedId || undefined} fotos={fotos} onFotosChange={setFotos} />
             </div>
           </div>
 
-          <button
-            onClick={handleSave}
-            disabled={saving}
+          <button onClick={handleSave} disabled={saving}
             className="w-full bg-blue-900 text-white py-3 rounded-xl font-semibold disabled:opacity-60"
           >
             {saving ? 'Guardando…' : '💾 Guardar Documento'}
@@ -376,7 +656,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
       <img src={LOGO_B64} alt="Grupo MICSA" style={{ height: 60, width: 'auto', objectFit: 'contain', flexShrink: 0 }} />
       <div style={{ textAlign: 'center', flex: 1, padding: '0 12px' }}>
         <div style={{ fontWeight: 800, fontSize: 13, color: NAVY, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: "'Barlow Condensed',sans-serif" }}>{title}</div>
-          {folio && <div style={{ fontSize: 10, color: RED, fontWeight: 700, marginTop: 2 }}>{folio}</div>}
+        {folio && <div style={{ fontSize: 10, color: RED, fontWeight: 700, marginTop: 2 }}>{folio}</div>}
       </div>
       <div style={{ textAlign: 'right', fontSize: 8, color: '#666', lineHeight: 1.6, flexShrink: 0 }}>
         <div>REPSE: {MI.repse}</div>
@@ -396,7 +676,10 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
 
   const Watermark = () => (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={LOGO_B64} alt="" aria-hidden style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '55%', opacity: 0.05, pointerEvents: 'none', zIndex: 0, userSelect: 'none' }} />
+    <img src={LOGO_B64} alt="" aria-hidden style={{
+      position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+      width: '55%', opacity: 0.05, pointerEvents: 'none', zIndex: 0, userSelect: 'none'
+    }} />
   )
 
   if (tipo === 'cotizacion') {
@@ -405,7 +688,9 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
     const excluye = EXCLUYE_DEFAULT
     const monto = data.monto_usd
       ? `$${parseFloat(data.monto_usd).toLocaleString('en-US', { minimumFractionDigits: 2 })} USD MAS IVA`
-      : data.monto_mxn ? fmtMXN(parseFloat(data.monto_mxn)) + ' MAS IVA' : '—'
+      : data.monto_mxn
+      ? fmtMXN(parseFloat(data.monto_mxn)) + ' MAS IVA'
+      : '—'
 
     return (
       <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 11, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%', position: 'relative' }}>
@@ -509,11 +794,13 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
 
   // Generic preview for other doc types
   const docTitle = TIPO_TITLES[tipo] || tipo
+
   return (
     <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 11, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%', position: 'relative' }}>
       <Watermark />
       <div style={{ padding: '16px 20px', flex: 1 }}>
         <BHeader title={docTitle} />
+
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14 }}>
           <tbody>
             {Object.entries(data).map(([k, v]) => v ? (
@@ -524,6 +811,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
             ) : null)}
           </tbody>
         </table>
+
         {fotos.length > 0 && (
           <div>
             <div style={{ fontWeight: 800, marginBottom: 8, textTransform: 'uppercase', fontSize: 11 }}>Evidencia Fotográfica</div>
@@ -539,4 +827,4 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
       <Footer />
     </div>
   )
-}
+                  }
