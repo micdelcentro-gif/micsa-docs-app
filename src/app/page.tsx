@@ -1,3 +1,5 @@
+import MicsaDocs from './MicsaDocs'
+
 export default function Home() {
-  return null
+  return <MicsaDocs />
 }
