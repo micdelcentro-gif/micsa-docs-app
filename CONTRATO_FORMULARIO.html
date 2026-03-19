@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MICSA Docs - Contrato de Colaboracion Comercial</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  :root {
+    --navy:#1B3A5C; --navy-l:#2A5580; --navy-d:#0F2640;
+    --gold:#E8A838; --gold-h:#D4952E;
+    --bg:#F0F2F5; --card:#FFF; --bdr:#D1D5DB; --txt:#1F2937; --txt-l:#6B7280;
+    --ok:#059669; --ok-bg:#D1FAE5; --warn:#D97706; --warn-bg:#FEF3C7; --err:#DC2626; --err-bg:#FEE2E2;
+    --sh:0 1px 3px rgba(0,0,0,.1); --sh-lg:0 10px 15px -3px rgba(0,0,0,.1); --r:12px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+
+  .hdr{background:linear-gradient(135deg,var(--navy-d),var(--navy),var(--navy-l));color:#fff;padding:18px 0;box-shadow:var(--sh-lg);position:sticky;top:0;z-index:100}
+  .hdr-in{max-width:960px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between}
+  .hdr h1{font-size:20px;font-weight:700} .hdr h1 span{color:var(--gold)}
+  .hdr-sub{font-size:12px;color:rgba(255,255,255,.7);margin-top:2px}
+  .hdr-badge{background:var(--gold);color:var(--navy-d);padding:5px 14px;border-radius:20px;font-weight:700;font-size:12px}
+
+  .main{max-width:960px;margin:0 auto;padding:24px}
+
+  /* Tabs */
+  .tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--card);border-radius:var(--r);padding:4px;box-shadow:var(--sh)}
+  .tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:600;border-radius:8px;cursor:pointer;transition:.2s;color:var(--txt-l)}
+  .tab.active{background:var(--navy);color:#fff}
+  .tab:hover:not(.active){background:rgba(27,58,92,.08)}
+
+  .panel{display:none} .panel.active{display:block}
+
+  /* Sections */
+  .sec{background:var(--card);border-radius:var(--r);margin-bottom:16px;box-shadow:var(--sh);overflow:hidden;border:1px solid transparent;transition:.2s}
+  .sec:focus-within{border-color:var(--navy)}
+  .sec-h{background:linear-gradient(90deg,var(--navy),var(--navy-l));color:#fff;padding:12px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+  .sec-h .n{background:var(--gold);color:var(--navy-d);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
+  .sec-h h2{font-size:14px;font-weight:600;letter-spacing:.3px}
+  .sec-h .chv{margin-left:auto;transition:transform .3s;font-size:16px}
+  .sec-h.collapsed .chv{transform:rotate(-90deg)}
+  .sec-b{padding:18px} .sec-b.hidden{display:none}
+
+  /* Fields */
+  .fg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .fg.three{grid-template-columns:1fr 1fr 1fr}
+  .fg.one{grid-template-columns:1fr}
+  .fld{display:flex;flex-direction:column;gap:3px}
+  .fld.full{grid-column:1/-1}
+  .fld label{font-size:11px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.4px}
+  .fld label .req{color:var(--err)}
+  .fld input,.fld select,.fld textarea{border:1.5px solid var(--bdr);border-radius:8px;padding:9px 11px;font-family:inherit;font-size:13px;color:var(--txt);background:#FAFBFC;transition:.2s}
+  .fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,58,92,.1);background:#fff}
+  .fld textarea{resize:vertical;min-height:80px;line-height:1.5}
+
+  /* Clause editor */
+  .clause{background:#FAFBFC;border:1.5px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:10px;transition:.2s}
+  .clause:focus-within{border-color:var(--navy);background:#fff}
+  .clause-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .clause-hdr .cn{background:var(--navy);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px}
+  .clause-hdr input{flex:1;border:none;background:transparent;font-size:14px;font-weight:700;color:var(--txt);font-family:inherit}
+  .clause-hdr input:focus{outline:none}
+  .clause textarea{width:100%;border:1px solid #E5E7EB;border-radius:6px;padding:8px 10px;font-family:inherit;font-size:13px;min-height:70px;resize:vertical;background:#fff}
+  .clause textarea:focus{outline:none;border-color:var(--navy)}
+  .clause .bold-note{font-size:11px;color:var(--txt-l);margin-top:4px}
+
+  /* Preview */
+  .preview{background:#fff;border:1px solid #ddd;border-radius:var(--r);padding:40px 50px;max-width:800px;margin:0 auto;box-shadow:var(--sh-lg);font-family:'Times New Roman',serif;line-height:1.6}
+  .preview h1{font-family:'Inter',sans-serif;font-size:18px;text-align:center;margin-bottom:24px;letter-spacing:1px}
+  .preview h3{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;margin:18px 0 6px}
+  .preview p{font-size:14px;text-align:justify;margin-bottom:10px}
+  .preview .bold{font-weight:700}
+  .preview .sig-area{margin-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px}
+  .preview .sig-block{text-align:center}
+  .preview .sig-line{border-bottom:2px solid #333;height:50px;margin-bottom:6px}
+  .preview .sig-name{font-family:'Inter',sans-serif;font-size:13px;font-weight:700}
+  .preview .sig-role{font-family:'Inter',sans-serif;font-size:11px;color:#666}
+
+  /* Actions */
+  .acts{display:flex;gap:10px;justify-content:center;padding:20px 0 40px;flex-wrap:wrap}
+  .btn{padding:12px 28px;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.1s}
+  .btn:active{transform:scale(.97)}
+  .btn-p{background:linear-gradient(135deg,var(--navy),var(--navy-l));color:#fff;box-shadow:var(--sh-lg)}
+  .btn-a{background:linear-gradient(135deg,var(--gold),var(--gold-h));color:var(--navy-d);box-shadow:var(--sh-lg)}
+  .btn-o{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+  .btn-d{background:#fff;color:var(--err);border:2px solid var(--err)}
+
+  .toast{position:fixed;bottom:30px;right:30px;background:var(--navy);color:#fff;padding:14px 22px;border-radius:12px;box-shadow:var(--sh-lg);font-weight:600;font-size:13px;transform:translateY(100px);opacity:0;transition:.4s;z-index:200}
+  .toast.show{transform:translateY(0);opacity:1}
+
+  @media(max-width:768px){.fg,.fg.three{grid-template-columns:1fr}.preview{padding:20px}.preview .sig-area{grid-template-columns:1fr}}
+  @media print{.hdr{position:static}.btn,.acts,.tabs{display:none!important}.panel{display:block!important}.sec-b.hidden{display:block!important}body{background:#fff}.sec{box-shadow:none}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-in">
+    <div>
+      <h1><span>MICSA</span> Docs</h1>
+      <div class="hdr-sub">Generador de Contratos - Colaboracion Comercial y Comisiones</div>
+    </div>
+    <div class="hdr-badge">CON-2026</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('editor')">Editar Contrato</div>
+  <div class="tab" onclick="switchTab('preview')">Vista Previa</div>
+</div>
+
+<!-- ══════ EDITOR ══════ -->
+<div class="panel active" id="panelEditor">
+
+<!-- 1. Datos de las partes -->
+<div class="sec">
+  <div class="sec-h" onclick="toggle(this)">
+    <div class="n">1</div><h2>DATOS DE LAS PARTES</h2><div class="chv">&#9660;</div>
+  </div>
+  <div class="sec-b">
+    <div class="fg">
+      <div class="fld"><label>Razon Social del Patron <span class="req">*</span></label>
+        <input type="text" id="patron" value="GRUPO MICSA"></div>
+      <div class="fld"><label>Nombre Completo del Patron</label>
+        <input type="text" id="patronNombre" value="Jordan Nefthali Contreras Gonzalez"></div>
+      <div class="fld"><label>Nombre del Trabajador <span class="req">*</span></label>
+        <input type="text" id="trabajador" value="ROBERTO ULISES SIFUENTES FRAIRE"></div>
+      <div class="fld"><label>Puesto/Rol del Trabajador</label>
+        <input type="text" id="puestoTrabajador" value="Colaborador Comercial"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Datos del contrato -->
+<div class="sec">
+  <div class="sec-h" onclick="toggle(this)">
+    <div class="n">2</div><h2>DATOS DEL CONTRATO</h2><div class="chv">&#9660;</div>
+  </div>
+  <div class="sec-b">
+    <div class="fg three">
+      <div class="fld"><label>Fecha <span class="req">*</span></label>
+        <input type="date" id="fechaContrato"></div>
+      <div class="fld"><label>Lugar</label>
+        <input type="text" id="lugar" value="Monclova, Coahuila, Mexico"></div>
+      <div class="fld"><label>Folio</label>
+        <input type="text" id="folioContrato" value="CON-2026-0001" readonly style="background:#E8EDF2;font-weight:700;color:var(--navy)"></div>
+    </div>
+    <div class="fg" style="margin-top:14px">
+      <div class="fld"><label>Jurisdiccion</label>
+        <input type="text" id="jurisdiccion" value="tribunales competentes del Estado de Coahuila, Mexico"></div>
+      <div class="fld"><label>Empresa Patron (nombre legal)</label>
+        <input type="text" id="empresaPatron" value="Montajes e izajes del centro industrial contractor."></div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. Clausulas editables -->
+<div class="sec">
+  <div class="sec-h" onclick="toggle(this)">
+    <div class="n">3</div><h2>CLAUSULAS DEL CONTRATO</h2><div class="chv">&#9660;</div>
+  </div>
+  <div class="sec-b" id="clausulasBody">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- 4. Penalizacion y vigencia -->
+<div class="sec">
+  <div class="sec-h" onclick="toggle(this)">
+    <div class="n">4</div><h2>PENALIZACION, VIGENCIA Y CONDICIONES</h2><div class="chv">&#9660;</div>
+  </div>
+  <div class="sec-b">
+    <div class="fg">
+      <div class="fld"><label>Monto de Penalizacion (MXN)</label>
+        <input type="text" id="penalizacion" value="$5,000,000.00"></div>
+      <div class="fld"><label>Penalizacion en Letra</label>
+        <input type="text" id="penalizacionLetra" value="cinco millones de pesos mexicanos"></div>
+      <div class="fld"><label>Periodo de Confidencialidad Post-Empleo</label>
+        <input type="text" id="periodoConf" value="10 anos"></div>
+      <div class="fld"><label>Plazo de Pago de Comisiones</label>
+        <input type="text" id="plazoPago" value="10 dias habiles"></div>
+    </div>
+    <div class="fg one" style="margin-top:14px">
+      <div class="fld"><label>Comision EPP (%)</label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <input type="range" id="comisionEPP" min="5" max="50" value="20" style="flex:1;accent-color:var(--navy)" oninput="document.getElementById('comPct').textContent=this.value+'%'">
+          <span id="comPct" style="font-weight:800;font-size:18px;color:var(--navy);min-width:45px">20%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Firmas -->
+<div class="sec">
+  <div class="sec-h" onclick="toggle(this)">
+    <div class="n">5</div><h2>FIRMAS</h2><div class="chv">&#9660;</div>
+  </div>
+  <div class="sec-b">
+    <div class="fg">
+      <div class="fld">
+        <label>Firma del Patron (imagen)</label>
+        <div style="border:2px dashed var(--bdr);border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:#FAFBFC" onclick="document.getElementById('firmaPatronFile').click()" id="firmaPatronPreview">
+          <div style="font-size:28px;color:var(--navy);opacity:.5">&#9997;</div>
+          <div style="font-size:12px;color:var(--txt-l)">Click para subir firma</div>
+        </div>
+        <input type="file" id="firmaPatronFile" accept="image/*" style="display:none" onchange="previewFirma('patron',this)">
+      </div>
+      <div class="fld">
+        <label>Firma del Trabajador (imagen)</label>
+        <div style="border:2px dashed var(--bdr);border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:#FAFBFC" onclick="document.getElementById('firmaTrabajadorFile').click()" id="firmaTrabajadorPreview">
+          <div style="font-size:28px;color:var(--navy);opacity:.5">&#9997;</div>
+          <div style="font-size:12px;color:var(--txt-l)">Click para subir firma</div>
+        </div>
+        <input type="file" id="firmaTrabajadorFile" accept="image/*" style="display:none" onchange="previewFirma('trabajador',this)">
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /panelEditor -->
+
+<!-- ══════ PREVIEW ══════ -->
+<div class="panel" id="panelPreview">
+  <div class="preview" id="contractPreview">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ACTIONS -->
+<div class="acts">
+  <button class="btn btn-o" onclick="saveJSON()">&#128190; Guardar Borrador</button>
+  <button class="btn btn-a" onclick="window.print()">&#128424; Imprimir / PDF</button>
+  <button class="btn btn-p" onclick="switchTab('preview')">&#128065; Vista Previa</button>
+  <button class="btn btn-d" onclick="if(confirm('Limpiar todo?')){location.reload()}">&#128465; Reiniciar</button>
+</div>
+
+</div><!-- /main -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DEFAULT CLAUSES ──
+const defaultClauses = [
+  { num: "II", title: "OBJETO", text: "El presente contrato tiene por objeto establecer las condiciones bajo las cuales EL TRABAJADOR podra participar en la generacion de oportunidades comerciales para GRUPO MICSA relacionadas con la venta de equipos de proteccion personal (EPP), comercializacion de servicios industriales y generacion de nuevos clientes o proyectos para la empresa." },
+  { num: "III", title: "COMISION POR VENTAS DE EPP", text: "EL TRABAJADOR tendra derecho a recibir una comision equivalente al 20% (veinte por ciento) de la utilidad neta generada por cada venta de equipos de proteccion personal (EPP) obtenida directamente por su gestion comercial.\n\nPara efectos del presente contrato se entendera como utilidad neta el margen obtenido por GRUPO MICSA despues de descontar el costo del producto, gastos logisticos asociados y costos operativos directos de la venta." },
+  { num: "IV", title: "COMISIONES EN SERVICIOS Y PROYECTOS", text: "En el caso de servicios industriales, proyectos de instalacion, montajes, maniobras u otros servicios ofrecidos por GRUPO MICSA, la comision correspondiente sera determinada y autorizada por EL PATRON caso por caso, considerando el margen del proyecto, la complejidad operativa y la participacion real de EL TRABAJADOR en la generacion del negocio." },
+  { num: "V", title: "CONDICIONES PARA GENERAR COMISION", text: "La comision sera valida unicamente cuando:\n1. El cliente haya sido generado directamente por EL TRABAJADOR.\n2. La venta o proyecto haya sido aceptado y ejecutado por GRUPO MICSA.\n3. El cliente haya pagado completamente la factura correspondiente." },
+  { num: "VI", title: "MOMENTO DE PAGO DE LA COMISION", text: "Las comisiones se pagaran dentro de los 10 dias habiles posteriores a que GRUPO MICSA reciba el pago completo del cliente. En caso de cancelacion del proyecto, incumplimiento del cliente o falta de pago, no se generara comision." },
+  { num: "VII", title: "CONFIDENCIALIDAD", text: "EL TRABAJADOR reconoce que toda la informacion relacionada con clientes, proveedores, precios, cotizaciones, margenes de utilidad, estrategias comerciales, bases de datos y documentacion tecnica es propiedad exclusiva de GRUPO MICSA.\n\nEL TRABAJADOR se obliga a no divulgar ni utilizar dicha informacion sin autorizacion expresa. Esta obligacion permanecera vigente durante la relacion laboral y por un periodo de 10 anos posteriores a su terminacion." },
+  { num: "VIII", title: "PROPIEDAD DE CLIENTES", text: "Todo cliente generado o atendido durante la relacion laboral sera considerado propiedad comercial exclusiva de GRUPO MICSA, independientemente de quien haya realizado el contacto inicial." },
+  { num: "IX", title: "NO DESVIO DE NEGOCIOS", text: "EL TRABAJADOR se obliga a no negociar, cotizar o ejecutar de forma independiente proyectos o ventas con clientes conocidos a traves de GRUPO MICSA ni utilizar informacion comercial obtenida durante su empleo para beneficio personal o de terceros." },
+  { num: "X", title: "PENALIZACION", text: "El incumplimiento de las obligaciones de confidencialidad, no desvio de negocios o uso indebido de informacion dara lugar a una pena convencional minima de $5,000,000.00 MXN (cinco millones de pesos mexicanos), sin perjuicio de las acciones legales que correspondan." },
+  { num: "XI", title: "VIGENCIA", text: "El presente contrato permanecera vigente mientras exista relacion laboral entre las partes o hasta que alguna de ellas determine su terminacion." },
+  { num: "XII", title: "JURISDICCION", text: "Para la interpretacion y cumplimiento del presente contrato, las partes se someten a los tribunales competentes del Estado de Coahuila, Mexico, renunciando a cualquier otro fuero que pudiera corresponderles." },
+];
+
+let clauses = JSON.parse(JSON.stringify(defaultClauses));
+
+function renderClauses() {
+  const body = document.getElementById('clausulasBody');
+  body.innerHTML = clauses.map((c, i) => `
+    <div class="clause">
+      <div class="clause-hdr">
+        <span class="cn">${c.num}</span>
+        <input type="text" value="${c.title}" onchange="clauses[${i}].title=this.value">
+      </div>
+      <textarea onchange="clauses[${i}].text=this.value">${c.text}</textarea>
+      <div class="bold-note">Tip: Usa **texto** para negritas en la vista previa</div>
+    </div>
+  `).join('');
+}
+
+function renderPreview() {
+  const patron = document.getElementById('patron').value;
+  const trabajador = document.getElementById('trabajador').value;
+  const patronNombre = document.getElementById('patronNombre').value;
+  const fecha = document.getElementById('fechaContrato').value;
+  const lugar = document.getElementById('lugar').value;
+  const empresa = document.getElementById('empresaPatron').value;
+
+  const fechaStr = fecha ? new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', {day:'numeric',month:'long',year:'numeric'}) : '15 de marzo de 2026';
+
+  let html = `<h1>CONTRATO DE COLABORACION COMERCIAL Y COMISIONES</h1>`;
+  html += `<h3>I. PARTES</h3>`;
+  html += `<p>Por una parte <span class="bold">${patron}</span>, en lo sucesivo denominado <span class="bold">EL PATRON</span>, y por la otra <span class="bold">${trabajador}</span>, en lo sucesivo denominado <span class="bold">EL TRABAJADOR</span>, celebran el presente contrato bajo las siguientes clausulas.</p>`;
+
+  clauses.forEach(c => {
+    html += `<h3>${c.num}. ${c.title}</h3>`;
+    const paras = c.text.split('\n\n');
+    paras.forEach(p => {
+      let t = p.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<span class="bold">$1</span>');
+      html += `<p>${t}</p>`;
+    });
+  });
+
+  html += `<p style="margin-top:20px">Leido el presente contrato y enteradas las partes de su contenido y alcance legal, lo firman de conformidad.</p>`;
+  html += `<p class="bold">${lugar} - ${fechaStr}</p>`;
+
+  html += `<div class="sig-area">
+    <div class="sig-block">
+      <p style="text-align:left;font-size:12px;margin-bottom:4px">EL PATRON</p>
+      <p style="text-align:left;font-size:12px;margin-bottom:4px" class="bold">${empresa}</p>
+      <div class="sig-line"></div>
+      <div class="sig-name">${patronNombre}</div>
+    </div>
+    <div class="sig-block">
+      <p style="text-align:left;font-size:12px;margin-bottom:4px" class="bold">${trabajador}</p>
+      <p style="text-align:left;font-size:12px;margin-bottom:4px">EL TRABAJADOR</p>
+      <div class="sig-line"></div>
+      <div class="sig-role">FIRMA</div>
+    </div>
+  </div>`;
+
+  document.getElementById('contractPreview').innerHTML = html;
+}
+
+// ── TAB SWITCHING ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  if (tab === 'editor') {
+    document.querySelectorAll('.tab')[0].classList.add('active');
+    document.getElementById('panelEditor').classList.add('active');
+  } else {
+    document.querySelectorAll('.tab')[1].classList.add('active');
+    document.getElementById('panelPreview').classList.add('active');
+    renderPreview();
+  }
+}
+
+function toggle(hdr) {
+  hdr.classList.toggle('collapsed');
+  hdr.nextElementSibling.classList.toggle('hidden');
+}
+
+function previewFirma(who, input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const el = document.getElementById(who === 'patron' ? 'firmaPatronPreview' : 'firmaTrabajadorPreview');
+      el.innerHTML = `<img src="${e.target.result}" style="max-height:80px;max-width:200px">`;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function saveJSON() {
+  const data = { clauses, fields: {} };
+  document.querySelectorAll('input[id],select[id]').forEach(el => { data.fields[el.id] = el.value; });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `contrato_${document.getElementById('folioContrato').value}.json`;
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('Borrador guardado');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg;
+  t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+document.getElementById('fechaContrato').valueAsDate = new Date();
+renderClauses();
+</script>
+</body>
+</html>

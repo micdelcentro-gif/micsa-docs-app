@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MICSA Docs - Sistema de Control Documental</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --navy: #1B3A5C;
+            --gold: #E8A838;
+            --bg: #F0F2F5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg);
+        }
+
+        .sidebar {
+            background-color: var(--navy);
+            width: 260px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+            z-index: 50;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .sidebar-logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--gold);
+            letter-spacing: 1px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            color: #e5e7eb;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(232, 168, 56, 0.1);
+            border-left-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .nav-item.active {
+            background-color: rgba(232, 168, 56, 0.15);
+            border-left-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(232, 168, 56, 0.3);
+            color: #d1d5db;
+            font-size: 12px;
+        }
+
+        .sidebar-user {
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            background-color: var(--bg);
+        }
+
+        .progress-bar {
+            height: 4px;
+            background-color: #e5e7eb;
+            width: 100%;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--navy), var(--gold));
+            transition: width 0.3s ease;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+
+        .doc-card {
+            padding: 24px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            text-align: center;
+        }
+
+        .doc-card:hover {
+            border-color: var(--gold);
+        }
+
+        .doc-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .doc-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .doc-code {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--navy), #2d5a7b);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .section-number {
+            background-color: var(--gold);
+            color: var(--navy);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .chevron {
+            transition: transform 0.3s ease;
+            font-size: 20px;
+        }
+
+        .chevron.rotated {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            padding: 20px;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            background-color: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            background-color: white;
+            border-color: var(--navy);
+            box-shadow: 0 0 0 3px rgba(27, 58, 92, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .condition-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            background: white;
+        }
+
+        .condition-card-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .list-item {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            border-left: 3px solid var(--gold);
+        }
+
+        .list-item-input {
+            flex: 1;
+        }
+
+        .btn-remove {
+            padding: 6px 12px;
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-remove:hover {
+            background-color: #fca5a5;
+        }
+
+        .btn-add {
+            padding: 10px 16px;
+            background-color: #dbeafe;
+            color: #0284c7;
+            border: 2px dashed #0284c7;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add:hover {
+            background-color: #bfdbfe;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .photo-slot {
+            aspect-ratio: 1;
+            background-color: #f3f4f6;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 24px;
+            color: #9ca3af;
+            position: relative;
+        }
+
+        .photo-slot:hover {
+            border-color: var(--gold);
+            background-color: #fafaf9;
+        }
+
+        .photo-slot.filled {
+            background-size: cover;
+            background-position: center;
+            border: none;
+        }
+
+        .signature-block {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            background-color: #fafafa;
+        }
+
+        .signature-line {
+            height: 60px;
+            margin-bottom: 12px;
+            border: 2px dashed #d1d5db;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-color: white;
+            transition: all 0.2s ease;
+        }
+
+        .signature-line:hover {
+            border-color: var(--gold);
+            background-color: #fafaf9;
+        }
+
+        .signature-label {
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            padding: 20px 0;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--navy), #2d5a7b);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(27, 58, 92, 0.3);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: 12px 20px;
+            background-color: white;
+            color: var(--navy);
+            border: 2px solid var(--navy);
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--navy);
+            color: white;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background-color: white;
+            color: var(--navy);
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+
+        .btn-back:hover {
+            border-color: var(--navy);
+            background-color: #f9fafb;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 16px 20px;
+            background-color: #10b981;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast.hide {
+            animation: slideOut 0.3s ease;
+        }
+
+        .header-content {
+            padding: 32px 40px;
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 16px;
+            padding: 0 40px 40px 40px;
+        }
+
+        .form-container {
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .slider-container {
+            margin-top: 12px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background-color: #e5e7eb;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--navy), var(--gold));
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--navy), var(--gold));
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .slider-value {
+            display: inline-block;
+            background-color: var(--gold);
+            color: var(--navy);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 12px;
+        }
+
+        .clause-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            background-color: #f9fafb;
+        }
+
+        .clause-header {
+            font-weight: 600;
+            color: var(--navy);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .clause-text {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                position: relative;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar-nav {
+                display: flex;
+                gap: 10px;
+                padding: 10px 20px;
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .form-grid-2, .form-grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .photo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                padding: 0 20px 20px 20px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            .header-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function MiCSADocsApp() {
+            const [currentView, setCurrentView] = useState('dashboard');
+            const [selectedDocType, setSelectedDocType] = useState(null);
+            const [toast, setToast] = useState(null);
+            const [activeNav, setActiveNav] = useState('dashboard');
+
+            const showToast = (message) => {
+                setToast(message);
+                setTimeout(() => setToast(null), 3000);
+            };
+
+            const handleDocClick = (docType) => {
+                setSelectedDocType(docType);
+                setCurrentView('form');
+                setActiveNav('form');
+            };
+
+            const handleBackToDashboard = () => {
+                setCurrentView('dashboard');
+                setSelectedDocType(null);
+                setActiveNav('dashboard');
+            };
+
+            const handleGuardarBorrador = () => {
+                showToast('✓ Documento guardado como borrador');
+            };
+
+            const handleImprimir = () => {
+                window.print();
+            };
+
+            const handleVistaPrevia = () => {
+                showToast('✓ Abriendo vista previa...');
+            };
+
+            const handleNavClick = (view) => {
+                if (view === 'dashboard') {
+                    setCurrentView('dashboard');
+                    setSelectedDocType(null);
+                }
+                setActiveNav(view);
+            };
+
+            const documentTypes = [
+                { code: 'COT', name: 'Cotización', icon: '💰' },
+                { code: 'BIT', name: 'Bitácora Diaria', icon: '📋' },
+                { code: 'CA', name: 'Costos Adicionales', icon: '➕' },
+                { code: 'IZA', name: 'Checklist de Izaje', icon: '✅' },
+                { code: 'OT', name: 'Orden de Trabajo', icon: '🔧' },
+                { code: 'CON', name: 'Contrato', icon: '📄' },
+                { code: 'REQ', name: 'Requisición Material', icon: '🛒' },
+                { code: 'EPP', name: 'Entrega de EPP', icon: '🛡️' },
+                { code: 'PLI', name: 'Plan de Izaje', icon: '📚' },
+                { code: 'REP', name: 'Reporte de Avance', icon: '📊' },
+            ];
+
+            return (
+                <div style={{ display: 'flex' }}>
+                    {/* Sidebar */}
+                    <div className="sidebar">
+                        <div className="sidebar-header">
+                            <div className="sidebar-logo">MICSA</div>
+                        </div>
+                        <div className="sidebar-nav">
+                            <div
+                                className={`nav-item ${activeNav === 'dashboard' ? 'active' : ''}`}
+                                onClick={() => handleNavClick('dashboard')}
+                            >
+                                📊 Dashboard
+                            </div>
+                            <div
+                                className="nav-item"
+                                onClick={() => handleNavClick('nuevo')}
+                            >
+                                ➕ Nuevo Documento
+                            </div>
+                            <div
+                                className="nav-item"
+                                onClick={() => handleNavClick('recientes')}
+                            >
+                                ⏱️ Documentos Recientes
+                            </div>
+                        </div>
+                        <div className="sidebar-footer">
+                            <div className="sidebar-user">Ing. J. Gonzalez</div>
+                            <div>Usuario Autenticado</div>
+                        </div>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="main-content">
+                        {currentView === 'dashboard' ? (
+                            <Dashboard documentTypes={documentTypes} onDocClick={handleDocClick} />
+                        ) : (
+                            <FormView
+                                docType={selectedDocType}
+                                onBack={handleBackToDashboard}
+                                onGuardar={handleGuardarBorrador}
+                                onImprimir={handleImprimir}
+                                onVistaPrevia={handleVistaPrevia}
+                            />
+                        )}
+                    </div>
+
+                    {/* Toast */}
+                    {toast && (
+                        <div className="toast">
+                            {toast}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function Dashboard({ documentTypes, onDocClick }) {
+            return (
+                <div style={{ width: '100%' }}>
+                    <div className="header-content">
+                        <h1 className="header-title">MICSA Docs</h1>
+                        <p className="header-subtitle">Sistema de Control Documental</p>
+                    </div>
+                    <div className="dashboard-grid">
+                        {documentTypes.map((doc) => (
+                            <div
+                                key={doc.code}
+                                className="card doc-card"
+                                onClick={() => onDocClick(doc.code)}
+                            >
+                                <div className="doc-icon">{doc.icon}</div>
+                                <div className="doc-title">{doc.name}</div>
+                                <div className="doc-code">{doc.code}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        function FormView({ docType, onBack, onGuardar, onImprimir, onVistaPrevia }) {
+            const getFormComponent = () => {
+                switch (docType) {
+                    case 'BIT':
+                        return <BitacoraForm />;
+                    case 'CON':
+                        return <ContratoForm />;
+                    case 'COT':
+                        return <CotizacionForm />;
+                    case 'OT':
+                        return <OrdenTrabajoForm />;
+                    case 'REQ':
+                        return <RequisicionForm />;
+                    case 'EPP':
+                        return <EPPForm />;
+                    case 'CA':
+                        return <CostosAdicionalesForm />;
+                    case 'IZA':
+                        return <ChecklistIzajeForm />;
+                    case 'PLI':
+                        return <PlanIzajeForm />;
+                    case 'REP':
+                        return <ReporteAvanceForm />;
+                    default:
+                        return <GenericForm />;
+                }
+            };
+
+            return (
+                <div className="form-container">
+                    <button className="btn-back" onClick={onBack}>
+                        ← Volver al Dashboard
+                    </button>
+                    {getFormComponent()}
+                    <div className="action-buttons">
+                        <button className="btn-primary" onClick={onGuardar}>
+                            💾 Guardar Borrador
+                        </button>
+                        <button className="btn-secondary" onClick={onImprimir}>
+                            🖨️ Imprimir/PDF
+                        </button>
+                        <button className="btn-secondary" onClick={onVistaPrevia}>
+                            👁️ Vista Previa
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        function CollapsibleSection({ number, title, children, defaultOpen = true }) {
+            const [isOpen, setIsOpen] = useState(defaultOpen);
+
+            return (
+                <div className="form-section card" style={{ overflow: 'hidden', marginBottom: '20px' }}>
+                    <div
+                        className="section-header"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
+                        <div className="section-number">{number}</div>
+                        <div className="section-title">{title}</div>
+                        <div className={`chevron ${isOpen ? 'rotated' : ''}`}>▼</div>
+                    </div>
+                    {isOpen && <div className="section-content">{children}</div>}
+                </div>
+            );
+        }
+
+        function BitacoraForm() {
+            const today = new Date().toISOString().split('T')[0];
+            const [activities, setActivities] = useState([
+                'Desmontaje de Prensa OAK 150 toneladas',
+                'Desinstalación de pasarela de acero',
+                'Retiro de líneas transportadoras',
+                'Desmontaje de sistemas hidráulicos',
+                'Desinstalación de paneles de control',
+                'Embalaje y preparación para envío',
+            ]);
+            const [newActivity, setNewActivity] = useState('');
+
+            const addActivity = () => {
+                if (newActivity.trim()) {
+                    setActivities([...activities, newActivity]);
+                    setNewActivity('');
+                }
+            };
+
+            const removeActivity = (index) => {
+                setActivities(activities.filter((_, i) => i !== index));
+            };
+
+            return (
+                <div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--navy)', marginBottom: '8px' }}>
+                            Bitácora Diaria de Trabajo
+                        </div>
+                    </div>
+
+                    <CollapsibleSection number="1" title="Datos Generales">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Proyecto</label>
+                                <input type="text" className="form-input" defaultValue="Desmontaje Maquinaria - Planta CARRIER" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Cliente</label>
+                                <input type="text" className="form-input" defaultValue="CARRIER Mexico / AMSA GROUP" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Ubicación</label>
+                                <input type="text" className="form-input" defaultValue="Planta CARRIER - ZMM, N.L." />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Fecha</label>
+                                <input type="date" className="form-input" defaultValue={today} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Folio</label>
+                                <input type="text" className="form-input" defaultValue="BIT-CARRIER-2026-014" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Supervisor</label>
+                                <input type="text" className="form-input" defaultValue="Ing. J. Gonzalez" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Hora Inicio</label>
+                                <input type="time" className="form-input" defaultValue="07:00" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Hora Fin</label>
+                                <input type="time" className="form-input" defaultValue="18:00" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Número de Personas</label>
+                                <input type="number" className="form-input" defaultValue="14" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="2" title="Descripción de Trabajos">
+                        <div className="form-group">
+                            <label className="form-label">Descripción Detallada</label>
+                            <textarea className="form-textarea" defaultValue="Se realizó el desmontaje completo de maquinaria industrial incluido: prensa hidráulica OAK de 150 toneladas, pasarelas de acero, sistemas de transportación, circuitos hidráulicos y paneles de control eléctrico. Se utilizó grúa de 50 toneladas y equipo especializado. Todas las piezas fueron embaladas para transporte seguro." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="3" title="Actividades Realizadas">
+                        {activities.map((activity, index) => (
+                            <div key={index} className="list-item">
+                                <input type="text" className="form-input list-item-input" defaultValue={activity} />
+                                <button className="btn-remove" onClick={() => removeActivity(index)}>
+                                    Eliminar
+                                </button>
+                            </div>
+                        ))}
+                        <div style={{ marginTop: '16px' }}>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="Agregar nueva actividad..."
+                                    value={newActivity}
+                                    onChange={(e) => setNewActivity(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && addActivity()}
+                                    style={{ flex: 1 }}
+                                />
+                                <button className="btn-add" onClick={addActivity} style={{ whiteSpace: 'nowrap' }}>
+                                    + Agregar
+                                </button>
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="4" title="Condiciones del Sitio">
+                        <div className="form-grid-3">
+                            {['Pisos', 'Acceso', 'Iluminación', 'Seguridad', 'Clima', 'Mat. Peligrosos'].map((condition) => (
+                                <div key={condition} className="condition-card">
+                                    <div className="condition-card-label">{condition}</div>
+                                    <select className="form-select" style={{ marginBottom: '8px' }}>
+                                        <option>Seleccionar...</option>
+                                        <option>Excelente</option>
+                                        <option>Bueno</option>
+                                        <option>Regular</option>
+                                        <option>Deficiente</option>
+                                    </select>
+                                    <textarea className="form-textarea" placeholder="Observaciones..." style={{ minHeight: '60px' }} />
+                                </div>
+                            ))}
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="5" title="Recursos y Dependencias">
+                        <div className="form-group">
+                            <label className="form-label">Personal y Equipos</label>
+                            <textarea className="form-textarea" defaultValue="- 8 técnicos especializados en desmontaje industrial&#10;- 4 operadores de grúa certificados&#10;- 2 supervisores de seguridad&#10;- Grúa móvil de 50 toneladas&#10;- Equipo de soldadura portátil&#10;- Herramientas hidráulicas&#10;- Equipo de protección personal completo" />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="6" title="Seguridad">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Incidentes</label>
+                                <select className="form-select">
+                                    <option>No</option>
+                                    <option>Sí - Menor</option>
+                                    <option>Sí - Mayor</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Días Sin Accidentes</label>
+                                <input type="number" className="form-input" defaultValue="2156" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Permisos de Trabajo</label>
+                                <select className="form-select">
+                                    <option>Trabajo en Altura</option>
+                                    <option>Espacios Confinados</option>
+                                    <option>Excavación</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Observaciones de Seguridad</label>
+                            <textarea className="form-textarea" defaultValue="Se cumplió al 100% con los protocolos de seguridad. Personal capacitado en trabajos en altura. Se utilizó andamios certificados y arneses de seguridad." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="7" title="Evidencia Fotográfica">
+                        <div className="photo-grid">
+                            {[1, 2, 3, 4, 5, 6].map((i) => (
+                                <div key={i} className="photo-slot">📷</div>
+                            ))}
+                        </div>
+                        <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '12px', textAlign: 'center' }}>
+                            Haz clic para cargar fotográfía
+                        </p>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="8" title="Firmas">
+                        <div className="form-grid-2">
+                            <div className="signature-block">
+                                <div className="signature-line">_________________</div>
+                                <div className="signature-label">Supervisor de Campo</div>
+                                <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>Ing. J. Gonzalez</div>
+                            </div>
+                            <div className="signature-block">
+                                <div className="signature-line">_________________</div>
+                                <div className="signature-label">Responsable de Proyecto</div>
+                                <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>Cliente / AMSA GROUP</div>
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+                </div>
+            );
+        }
+
+        function ContratoForm() {
+            const today = new Date().toISOString().split('T')[0];
+            const [comision, setComision] = useState(20);
+            const [penalizacion, setPenalizacion] = useState(5000000);
+
+            const clauses = [
+                {
+                    num: 'I',
+                    titulo: 'PARTES',
+                    texto: 'Intervienen en este contrato: GRUPO MICSA, representada por Jordan Nefthali Contreras Gonzalez, como PATRÓN, y ROBERTO ULISES SIFUENTES FRAIRE, como TRABAJADOR.'
+                },
+                {
+                    num: 'II',
+                    titulo: 'RELACIÓN LABORAL',
+                    texto: 'Las partes reconocen que existe una relación de colaboración comercial bajo el marco de la Ley Federal del Trabajo.'
+                },
+                {
+                    num: 'III',
+                    titulo: 'OBJETO DEL CONTRATO',
+                    texto: 'El trabajador se compromete a prestar servicios de venta de Equipos de Protección Personal (EPP) en la región asignada.'
+                },
+                {
+                    num: 'IV',
+                    titulo: 'DURACIÓN',
+                    texto: 'El presente contrato será por tiempo indeterminado, pudiendo ser terminado por cualquiera de las partes con treinta (30) días naturales de anticipación.'
+                },
+                {
+                    num: 'V',
+                    titulo: 'COMPENSACIÓN',
+                    texto: 'El trabajador recibirá una comisión por cada venta realizada, de acuerdo a los términos establecidos en el presente contrato.'
+                },
+                {
+                    num: 'VI',
+                    titulo: 'COMISIÓN EPP',
+                    texto: 'Por cada venta de EPP realizada, el trabajador recibirá una comisión del (según se establezca en las condiciones del contrato)% sobre el monto total de la venta.'
+                },
+                {
+                    num: 'VII',
+                    titulo: 'CONFIDENCIALIDAD',
+                    texto: 'El trabajador se compromete a mantener en estricta confidencialidad toda información de GRUPO MICSA durante 10 años después de terminado este contrato.'
+                },
+                {
+                    num: 'VIII',
+                    titulo: 'RESPONSABILIDADES',
+                    texto: 'El trabajador es responsable de cumplir con las metas establecidas, mantener reportes mensuales de actividades y cumplir con la normatividad de GRUPO MICSA.'
+                },
+                {
+                    num: 'IX',
+                    titulo: 'PENALIDADES',
+                    texto: 'En caso de incumplimiento grave de los términos de este contrato, se aplicará una penalidad de $5,000,000.00 MXN.'
+                },
+                {
+                    num: 'X',
+                    titulo: 'TERMIANCIÓN',
+                    texto: 'Cualquiera de las partes puede terminar este contrato con causa justificada, comunicando por escrito con 30 días de anticipación.'
+                },
+                {
+                    num: 'XI',
+                    titulo: 'MODIFICACIONES',
+                    texto: 'Cualquier modificación al presente contrato deberá ser acordada por escrito y firmada por ambas partes.'
+                },
+                {
+                    num: 'XII',
+                    titulo: 'JURISDICCIÓN',
+                    texto: 'Este contrato se rige bajo las leyes del Estado de Coahuila, México, y ambas partes se someten a la jurisdicción de los tribunales competentes.'
+                },
+            ];
+
+            return (
+                <div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--navy)', marginBottom: '8px' }}>
+                            Contrato de Colaboración Comercial
+                        </div>
+                    </div>
+
+                    <CollapsibleSection number="1" title="Partes">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Patrón / Empresa</label>
+                                <input type="text" className="form-input" defaultValue="GRUPO MICSA" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Nombre Representante</label>
+                                <input type="text" className="form-input" defaultValue="Jordan Nefthali Contreras Gonzalez" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Trabajador / Colaborador</label>
+                                <input type="text" className="form-input" defaultValue="ROBERTO ULISES SIFUENTES FRAIRE" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="2" title="Datos del Contrato">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Fecha</label>
+                                <input type="date" className="form-input" defaultValue={today} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Lugar</label>
+                                <input type="text" className="form-input" defaultValue="Monclova, Coahuila, Mexico" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Folio</label>
+                                <input type="text" className="form-input" defaultValue="CON-2026-0001" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="3" title="Cláusulas del Contrato">
+                        {clauses.map((clause, index) => (
+                            <div key={index} className="clause-item">
+                                <div className="clause-header">
+                                    Cláusula {clause.num} - {clause.titulo}
+                                </div>
+                                <div className="clause-text">{clause.texto}</div>
+                                <textarea className="form-textarea" placeholder="Notas o cambios..." style={{ minHeight: '60px' }} />
+                            </div>
+                        ))}
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="4" title="Condiciones Económicas">
+                        <div className="form-group">
+                            <label className="form-label">Penalización por Incumplimiento</label>
+                            <div className="slider-container">
+                                <input
+                                    type="range"
+                                    min="1000000"
+                                    max="10000000"
+                                    step="100000"
+                                    className="slider"
+                                    value={penalizacion}
+                                    onChange={(e) => setPenalizacion(Number(e.target.value))}
+                                />
+                                <span className="slider-value">
+                                    ${(penalizacion / 1000000).toFixed(1)}M MXN
+                                </span>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Comisión de Venta EPP (%)</label>
+                            <div className="slider-container">
+                                <input
+                                    type="range"
+                                    min="5"
+                                    max="50"
+                                    className="slider"
+                                    value={comision}
+                                    onChange={(e) => setComision(Number(e.target.value))}
+                                />
+                                <span className="slider-value">{comision}%</span>
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Plazo de Pago</label>
+                            <select className="form-select">
+                                <option>30 días</option>
+                                <option>15 días</option>
+                                <option>Inmediato</option>
+                                <option>Fin de mes</option>
+                            </select>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="5" title="Firmas y Acuerdos">
+                        <div className="form-grid_2">
+                            <div className="signature-block">
+                                <label style={{ display: 'block', marginBottom: '12px', fontSize: '12px', fontWeight: '600', color: 'var(--navy)' }}>
+                                    Firma Patrón
+                                </label>
+                                <div className="signature-line">_________________</div>
+                                <div className="signature-label">Jordan Nefthali Contreras Gonzalez</div>
+                            </div>
+                            <div className="signature-block">
+                                <label style={{ display: 'block', marginBottom: '12px', fontSize: '12px', fontWeight: '600', color: 'var(--navy)' }}>
+                                    Firma Trabajador
+                                </label>
+                                <div className="signature-line">_________________</div>
+                                <div className="signature-label">Roberto Ulises Sifuentes Fraire</div>
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+                </div>
+            );
+        }
+
+        function CotizacionForm() {
+            const today = new Date().toISOString().split('T')[0];
+
+            return (
+                <div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--navy)', marginBottom: '8px' }}>
+                            Cotización de Servicios
+                        </div>
+                    </div>
+
+                    <CollapsibleSection number="1" title="Información General">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Número de Cotización</label>
+                                <input type="text" className="form-input" defaultValue="029" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Fecha</label>
+                                <input type="date" className="form-input" defaultValue={today} />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="2" title="Datos del Cliente">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Cliente</label>
+                                <input type="text" className="form-input" defaultValue="FORZA STEEL" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Planta / Ubicación</label>
+                                <input type="text" className="form-input" defaultValue="Planta Monterrey" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Atención a:</label>
+                                <input type="text" className="form-input" defaultValue="Ing. Martinez" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Contacto / Teléfono</label>
+                                <input type="text" className="form-input" defaultValue="81-1234-5678" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="3" title="Descripción del Servicio">
+                        <div className="form-group">
+                            <label className="form-label">Actividad / Servicio</label>
+                            <input type="text" className="form-input" defaultValue="Montaje de estructura metálica" />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Descripción Detallada</label>
+                            <textarea className="form-textarea" placeholder="Describir el alcance del trabajo, materiales, tiempo estimado, etc..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="4" title="Presupuesto">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Monto USD</label>
+                                <input type="number" className="form-input" placeholder="0.00" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Monto MXN</label>
+                                <input type="number" className="form-input" placeholder="0.00" />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Descripción del Precio</label>
+                            <textarea className="form-textarea" defaultValue="Material, mano de obra, transporte, logística y seguro. IVA incluido." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="5" title="Términos de Pago">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Forma de Pago</label>
+                                <input type="text" className="form-input" defaultValue="50% anticipo / 50% al finalizar" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Vigencia de la Cotización</label>
+                                <input type="text" className="form-input" defaultValue="15 días" />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Observaciones</label>
+                            <textarea className="form-textarea" placeholder="Notas adicionales, excepciones, etc..." />
+                        </div>
+                    </CollapsibleSection>
+                </div>
+            );
+        }
+
+        function OrdenTrabajoForm() {
+            const today = new Date().toISOString().split('T')[0];
+
+            return (
+                <div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--navy)', marginBottom: '8px' }}>
+                            Orden de Trabajo
+                        </div>
+                    </div>
+
+                    <CollapsibleSection number="1" title="Información General">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Número de Orden</label>
+                                <input type="text" className="form-input" placeholder="OT-2026-" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Fecha</label>
+                                <input type="date" className="form-input" defaultValue={today} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Prioridad</label>
+                                <select className="form-select">
+                                    <option>Normal</option>
+                                    <option>Alta</option>
+                                    <option>Urgente</option>
+                                </select>
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="2" title="Datos del Proyecto">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Cliente</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Proyecto</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Supervisor</label>
+                                <input type="text" className="form-input" defaultValue="Ing. J. Gonzalez" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="3" title="Descripción del Trabajo">
+                        <div className="form-group">
+                            <label className="form-label">Descripción</label>
+                            <textarea className="form-textarea" placeholder="Describir los trabajos a realizar, especificaciones técnicas, etc..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="4" title="Recursos Asignados">
+                        <div className="form-group">
+                            <label className="form-label">Personal y Equipos</label>
+                            <textarea className="form-textarea" placeholder="Detalle de recursos a utilizar..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="5" title="Observaciones">
+                        <div className="form-group">
+                            <label className="form-label">Notas Adicionales</label>
+                            <textarea className="form-textarea" placeholder="Observaciones finales..." />
+                        </div>
+                    </CollapsibleSection>
+                </div>
+            );
+        }
+
+        function RequisicionForm() {
+            const today = new Date().toISOString().split('T')[0];
+
+            return (
+                <div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--navy)', marginBottom: '8px' }}>
+                            Requisición de Material
+                        </div>
+                    </div>
+
+                    <CollapsibleSection number="1" title="Información General">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Folio de Requisición</label>
+                                <input type="text" className="form-input" placeholder="REQ-2026-" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Fecha</label>
+                                <input type="date" className="form-input" defaultValue={today} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Solicitante</label>
+                                <input type="text" className="form-input" defaultValue="Ing. J. Gonzalez" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="2" title="Proyecto">
+                        <div className="form-group">
+                            <label className="form-label">Proyecto</label>
+                            <input type="text" className="form-input" />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="3" title="Materiales Solicitados">
+                        <div className="form-group">
+                            <label className="form-label">Lista de Materiales</label>
+                            <textarea className="form-textarea" placeholder="Detalle cada material, cantidad, especificaciones..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="4" title="Destino y Justificación">
+                        <div className="form-group">
+                            <label className="form-label">Destino de los Materiales</label>
+                            <input type="text" className="form-input" />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Justificación</label>
+                            <textarea className="form-textarea" placeholder="Explicar por qué se requieren estos materiales..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="5" title="Observaciones">
+                        <div className="form-group">
+                            <label className="form-label">Notas</label>
+                            <textarea className="form-textarea" placeholder="Observaciones finales..." />
+                        </div>
+                    </CollapsibleSection>
+                </div>
+            );
+        }
+
+        function EPPForm() {
+            const today = new Date().toISOString().split('T')[0];
+
+            return (
+                <div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--navy)', marginBottom: '8px' }}>
+                            Entrega de Equipo de Protección Personal
+                        </div>
+                    </div>
+
+                    <CollapsibleSection number="1" title="Información General">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Folio de Entrega</label>
+                                <input type="text" className="form-input" placeholder="EPP-2026-" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Fecha de Entrega</label>
+                                <input type="date" className="form-input" defaultValue={today} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Proyecto</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="2" title="Trabajador">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Nombre del Trabajador</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Puesto</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">No. de Empleado</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="3" title="Equipos Entregados">
+                        <div className="form-group">
+                            <label className="form-label">Detalle de EPP Entregado</label>
+                            <textarea className="form-textarea" defaultValue="- Casco de protección (amarillo)&#10;- Lentes de seguridad&#10;- Guantes de trabajo (par)&#10;- Botas con punta de acero&#10;- Chaleco reflectivo&#10;- Cinturón de seguridad" />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="4" title="Condiciones de Uso">
+                        <div className="form-group">
+                            <label className="form-label">Instrucciones de Uso y Cuidado</label>
+                            <textarea className="form-textarea" defaultValue="El EPP debe ser utilizado durante todas las actividades de trabajo. Inspeccionar diariamente antes de usar. En caso de daño, reportar inmediatamente. Guardar en lugar seco." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="5" title="Firma de Entrega">
+                        <div className="form-grid_2">
+                            <div className="signature-block">
+                                <div className="signature-line">_________________</div>
+                                <div className="signature-label">Recibido Por</div>
+                            </div>
+                            <div className="signature-block">
+                                <div className="signature-line">_________________</div>
+                                <div className="signature-label">Entregado Por</div>
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+                </div>
+            );
+        }
+
+        function CostosAdicionalesForm() {
+            const today = new Date().toISOString().split('T')[0];
+
+            return (
+                <div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--navy)', marginBottom: '8px' }}>
+                            Costos Adicionales
+                        </div>
+                    </div>
+
+                    <CollapsibleSection number="1" title="Información General">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Folio</label>
+                                <input type="text" className="form-input" placeholder="CA-2026-" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Fecha</label>
+                                <input type="date" className="form-input" defaultValue={today} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Proyecto</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="2" title="Descripción de Costos Adicionales">
+                        <div className="form-group">
+                            <label className="form-label">Justificación</label>
+                            <textarea className="form-textarea" placeholder="Explicar los costos adicionales incurridos..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="3" title="Detalle de Costos">
+                        <div className="form-group">
+                            <label className="form-label">Desglose de Gastos</label>
+                            <textarea className="form-textarea" placeholder="Listado detallado de costos..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="4" title="Monto Total">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Monto en USD</label>
+                                <input type="number" className="form-input" placeholder="0.00" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Monto en MXN</label>
+                                <input type="number" className="form-input" placeholder="0.00" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="5" title="Autorización">
+                        <div className="form-group">
+                            <label className="form-label">Autorizado Por</label>
+                            <input type="text" className="form-input" />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Observaciones</label>
+                            <textarea className="form-textarea" placeholder="Notas finales..." />
+                        </div>
+                    </CollapsibleSection>
+                </div>
+            );
+        }
+
+        function ChecklistIzajeForm() {
+            const today = new Date().toISOString().split('T')[0];
+
+            return (
+                <div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--navy)', marginBottom: '8px' }}>
+                            Checklist de Izaje
+                        </div>
+                    </div>
+
+                    <CollapsibleSection number="1" title="Información General">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Folio</label>
+                                <input type="text" className="form-input" placeholder="IZA-2026-" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Fecha</label>
+                                <input type="date" className="form-input" defaultValue={today} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Supervisor</label>
+                                <input type="text" className="form-input" defaultValue="Ing. J. Gonzalez" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="2" title="Datos del Izaje">
+                        <div className="form-group">
+                            <label className="form-label">Descripción de Carga</label>
+                            <input type="text" className="form-input" />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Peso Estimado (Kg)</label>
+                            <input type="number" className="form-input" />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Tipo de Izaje</label>
+                            <select className="form-select">
+                                <option>Grúa móvil</option>
+                                <option>Grúa torre</option>
+                                <option>Polipasto</option>
+                                <option>Manual asistido</option>
+                            </select>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="3" title="Verificaciones Previas">
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            {['Equipo de Izaje Certificado', 'Inspección Visual OK', 'Amarres Seguros', 'Zona Despejada', 'Personal Capacitado', 'EPP Completo'].map((check) => (
+                                <label key={check} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                    <input type="checkbox" style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
+                                    <span style={{ fontSize: '13px' }}>{check}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="4" title="Observaciones">
+                        <div className="form-group">
+                            <label className="form-label">Notas Importantes</label>
+                            <textarea className="form-textarea" placeholder="Observaciones del izaje..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="5" title="Firma de Autorización">
+                        <div className="signature-block">
+                            <div className="signature-line">_________________</div>
+                            <div className="signature-label">Supervisor Responsable</div>
+                        </div>
+                    </CollapsibleSection>
+                </div>
+            );
+        }
+
+        function PlanIzajeForm() {
+            const today = new Date().toISOString().split('T')[0];
+
+            return (
+                <div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--navy)', marginBottom: '8px' }}>
+                            Plan de Izaje
+                        </div>
+                    </div>
+
+                    <CollapsibleSection number="1" title="Información General">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Folio</label>
+                                <input type="text" className="form-input" placeholder="PLI-2026-" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Fecha</label>
+                                <input type="date" className="form-input" defaultValue={today} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Proyecto</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="2" title="Descripción de Cargas">
+                        <div className="form-group">
+                            <label className="form-label">Detalle de Cargas a Izar</label>
+                            <textarea className="form-textarea" placeholder="Describir cada elemento a izar..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="3" title="Equipos de Izaje">
+                        <div className="form-group">
+                            <label className="form-label">Grúa / Equipos Disponibles</label>
+                            <textarea className="form-textarea" placeholder="Especificaciones y capacidades de equipos..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="4" title="Cronograma">
+                        <div className="form-group">
+                            <label className="form-label">Fechas Programadas</label>
+                            <textarea className="form-textarea" placeholder="Cronograma de izajes..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="5" title="Responsables">
+                        <div className="form-group">
+                            <label className="form-label">Ingeniero Responsable</label>
+                            <input type="text" className="form-input" defaultValue="Ing. J. Gonzalez" />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Observaciones Finales</label>
+                            <textarea className="form-textarea" placeholder="Notas del plan..." />
+                        </div>
+                    </CollapsibleSection>
+                </div>
+            );
+        }
+
+        function ReporteAvanceForm() {
+            const today = new Date().toISOString().split('T')[0];
+
+            return (
+                <div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--navy)', marginBottom: '8px' }}>
+                            Reporte de Avance
+                        </div>
+                    </div>
+
+                    <CollapsibleSection number="1" title="Información General">
+                        <div className="form-grid">
+                            <div className="form-group">
+                                <label className="form-label">Folio</label>
+                                <input type="text" className="form-input" placeholder="REP-2026-" />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Fecha del Reporte</label>
+                                <input type="date" className="form-input" defaultValue={today} />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">Proyecto</label>
+                                <input type="text" className="form-input" />
+                            </div>
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="2" title="Avance del Proyecto">
+                        <div className="form-group">
+                            <label className="form-label">Porcentaje de Avance Estimado (%)</label>
+                            <input type="number" className="form-input" placeholder="0" min="0" max="100" />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Descripción de Trabajos Realizados</label>
+                            <textarea className="form-textarea" placeholder="Detallar trabajos completados..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="3" title="Actividades Próximas">
+                        <div className="form-group">
+                            <label className="form-label">Próximas Actividades</label>
+                            <textarea className="form-textarea" placeholder="Describir los próximos trabajos a realizar..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="4" title="Incidencias y Observaciones">
+                        <div className="form-group">
+                            <label className="form-label">Problemas / Incidencias</label>
+                            <textarea className="form-textarea" placeholder="Reportar cualquier incidente o problema..." />
+                        </div>
+                        <div className="form-group">
+                            <label className="form-label">Observaciones Generales</label>
+                            <textarea className="form-textarea" placeholder="Notas adicionales..." />
+                        </div>
+                    </CollapsibleSection>
+
+                    <CollapsibleSection number="5" title="Firma">
+                        <div className="signature-block">
+                            <div className="signature-line">_________________</div>
+                            <div className="signature-label">Supervisor / Responsable</div>
+                        </div>
+                    </CollapsibleSection>
+                </div>
+            );
+        }
+
+        function GenericForm() {
+            return (
+                <div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--navy)', marginBottom: '8px' }}>
+                            Formulario Genérico
+                        </div>
+                    </div>
+                    <CollapsibleSection number="1" title="Sección General">
+                        <div className="form-group">
+                            <label className="form-label">Información</label>
+                            <textarea className="form-textarea" placeholder="Ingresa los datos requeridos..." />
+                        </div>
+                    </CollapsibleSection>
+                </div>
+            );
+        }
+
+        // Render the app
+        ReactDOM.render(<MiCSADocsApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>

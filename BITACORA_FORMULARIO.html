@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MICSA - Bitacora Diaria</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --navy: #1B3A5C;
+    --navy-light: #2A5580;
+    --navy-dark: #0F2640;
+    --accent: #E8A838;
+    --accent-hover: #D4952E;
+    --bg: #F0F2F5;
+    --card: #FFFFFF;
+    --border: #D1D5DB;
+    --text: #1F2937;
+    --text-light: #6B7280;
+    --success: #059669;
+    --success-bg: #D1FAE5;
+    --warning: #D97706;
+    --warning-bg: #FEF3C7;
+    --danger: #DC2626;
+    --danger-bg: #FEE2E2;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 50%, var(--navy-light) 100%);
+    color: white; padding: 20px 0; box-shadow: var(--shadow-lg); position: sticky; top: 0; z-index: 100;
+  }
+  .header-inner { max-width: 1000px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .header h1 span { color: var(--accent); }
+  .header-subtitle { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+  .header-badge { background: var(--accent); color: var(--navy-dark); padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 13px; }
+
+  /* ── MAIN ── */
+  .main { max-width: 1000px; margin: 0 auto; padding: 24px; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar { background: var(--card); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 24px; box-shadow: var(--shadow); }
+  .progress-bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .progress-bar-header span { font-size: 13px; font-weight: 600; color: var(--text-light); }
+  .progress-bar-header .pct { color: var(--navy); font-weight: 700; }
+  .progress-track { height: 8px; background: #E5E7EB; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--navy), var(--accent)); border-radius: 4px; transition: width 0.5s ease; }
+
+  /* ── SECTIONS ── */
+  .section {
+    background: var(--card); border-radius: var(--radius); margin-bottom: 20px;
+    box-shadow: var(--shadow); overflow: hidden; border: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .section:focus-within { border-color: var(--navy); }
+  .section-header {
+    background: linear-gradient(90deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: white; padding: 14px 20px; display: flex; align-items: center; gap: 10px; cursor: pointer;
+    user-select: none;
+  }
+  .section-header .num { background: var(--accent); color: var(--navy-dark); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+  .section-header h2 { font-size: 15px; font-weight: 600; letter-spacing: 0.3px; }
+  .section-header .chevron { margin-left: auto; transition: transform 0.3s; font-size: 18px; }
+  .section-header.collapsed .chevron { transform: rotate(-90deg); }
+  .section-body { padding: 20px; }
+  .section-body.hidden { display: none; }
+
+  /* ── FORM FIELDS ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 12px; font-weight: 600; color: var(--navy); text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-group label .req { color: var(--danger); }
+  .form-group input, .form-group select, .form-group textarea {
+    border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px;
+    font-family: inherit; font-size: 14px; color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s; background: #FAFBFC;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(27,58,92,0.1); background: white;
+  }
+  .form-group textarea { resize: vertical; min-height: 100px; line-height: 1.5; }
+  .form-group textarea.tall { min-height: 180px; }
+
+  /* ── ACTIVITIES TABLE ── */
+  .activities-list { width: 100%; }
+  .activity-item {
+    display: grid; grid-template-columns: 36px 1fr 120px 40px; gap: 8px; align-items: start;
+    padding: 10px 0; border-bottom: 1px solid #F3F4F6;
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-num { width: 36px; height: 36px; background: var(--navy); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; margin-top: 4px; }
+  .activity-item textarea { border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; font-family: inherit; font-size: 13px; min-height: 60px; resize: vertical; background: #FAFBFC; width: 100%; }
+  .activity-item textarea:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(27,58,92,0.1); background: white; }
+  .activity-item select { border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 6px; font-family: inherit; font-size: 12px; background: #FAFBFC; }
+  .btn-remove { width: 32px; height: 32px; border: none; background: var(--danger-bg); color: var(--danger); border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 700; margin-top: 4px; }
+  .btn-remove:hover { background: var(--danger); color: white; }
+
+  .btn-add {
+    display: flex; align-items: center; gap: 6px; padding: 10px 16px; border: 2px dashed var(--border);
+    border-radius: 8px; background: transparent; color: var(--navy); font-weight: 600; font-size: 13px;
+    cursor: pointer; width: 100%; justify-content: center; margin-top: 12px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-add:hover { border-color: var(--navy); background: rgba(27,58,92,0.04); }
+
+  /* ── PHOTO UPLOAD ── */
+  .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .photo-card {
+    border: 2px dashed var(--border); border-radius: 10px; overflow: hidden;
+    background: #FAFBFC; transition: border-color 0.2s; position: relative;
+  }
+  .photo-card.has-photo { border-style: solid; border-color: var(--navy); }
+  .photo-card .photo-preview { width: 100%; height: 160px; object-fit: cover; display: block; }
+  .photo-card .photo-placeholder {
+    height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--text-light); cursor: pointer; gap: 6px;
+  }
+  .photo-card .photo-placeholder:hover { background: rgba(27,58,92,0.04); }
+  .photo-card .photo-placeholder .icon { font-size: 28px; color: var(--navy); opacity: 0.5; }
+  .photo-card .photo-placeholder span { font-size: 12px; font-weight: 500; }
+  .photo-card input[type="file"] { display: none; }
+  .photo-card .caption-input {
+    width: 100%; border: none; border-top: 1px solid #E5E7EB; padding: 8px 10px;
+    font-family: inherit; font-size: 12px; color: var(--text); background: white;
+  }
+  .photo-card .caption-input:focus { outline: none; background: #FAFBFC; }
+  .photo-card .photo-remove {
+    position: absolute; top: 6px; right: 6px; width: 24px; height: 24px;
+    background: rgba(220,38,38,0.85); color: white; border: none; border-radius: 50%;
+    font-size: 14px; cursor: pointer; display: none; align-items: center; justify-content: center;
+  }
+  .photo-card.has-photo .photo-remove { display: flex; }
+
+  /* ── CONDITIONS TABLE ── */
+  .conditions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .condition-card {
+    border: 1.5px solid var(--border); border-radius: 10px; padding: 14px; background: #FAFBFC;
+  }
+  .condition-card label { font-size: 12px; font-weight: 700; color: var(--navy); text-transform: uppercase; display: block; margin-bottom: 6px; }
+  .condition-card select, .condition-card textarea {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 6px; padding: 8px 10px;
+    font-family: inherit; font-size: 13px; background: white;
+  }
+  .condition-card textarea { min-height: 50px; resize: vertical; margin-top: 6px; }
+  .condition-card select:focus, .condition-card textarea:focus { outline: none; border-color: var(--navy); }
+
+  /* ── BUTTONS ── */
+  .actions { display: flex; gap: 12px; justify-content: center; padding: 20px 0 40px; flex-wrap: wrap; }
+  .btn {
+    padding: 14px 32px; border: none; border-radius: 10px; font-family: inherit;
+    font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    transition: transform 0.1s, box-shadow 0.2s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); color: white; box-shadow: var(--shadow-lg); }
+  .btn-primary:hover { box-shadow: 0 12px 20px rgba(27,58,92,0.3); }
+  .btn-accent { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); color: var(--navy-dark); box-shadow: var(--shadow-lg); }
+  .btn-accent:hover { box-shadow: 0 12px 20px rgba(232,168,56,0.3); }
+  .btn-outline { background: white; color: var(--navy); border: 2px solid var(--navy); }
+  .btn-outline:hover { background: rgba(27,58,92,0.04); }
+  .btn-danger-outline { background: white; color: var(--danger); border: 2px solid var(--danger); }
+  .btn-danger-outline:hover { background: var(--danger-bg); }
+
+  /* ── SIGNATURE ── */
+  .signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 20px 0; }
+  .sig-block { text-align: center; }
+  .sig-line { border-bottom: 2px solid #333; margin-bottom: 8px; height: 60px; }
+  .sig-name { font-weight: 700; font-size: 14px; }
+  .sig-role { font-size: 12px; color: var(--text-light); }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 30px; right: 30px; background: var(--navy);
+    color: white; padding: 16px 24px; border-radius: 12px; box-shadow: var(--shadow-lg);
+    font-weight: 600; font-size: 14px; transform: translateY(100px); opacity: 0;
+    transition: transform 0.4s, opacity 0.4s; z-index: 200;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── PRINT ── */
+  @media print {
+    .header { position: static; }
+    .btn, .actions, .progress-bar, .btn-add, .btn-remove, .photo-remove { display: none !important; }
+    .section-body.hidden { display: block !important; }
+    body { background: white; }
+    .section { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+  }
+
+  @media (max-width: 768px) {
+    .form-grid, .form-grid.three { grid-template-columns: 1fr; }
+    .conditions-grid { grid-template-columns: 1fr; }
+    .photo-grid { grid-template-columns: 1fr 1fr; }
+    .signatures { grid-template-columns: 1fr; gap: 24px; }
+    .activity-item { grid-template-columns: 30px 1fr 40px; }
+    .activity-item select { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════ HEADER ══════ -->
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1><span>MICSA</span> Industrial del Centro</h1>
+      <div class="header-subtitle">Bitacora Diaria de Obra - Sistema de Control de Proyectos</div>
+    </div>
+    <div class="header-badge">BIT-2026</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ══════ PROGRESS ══════ -->
+<div class="progress-bar">
+  <div class="progress-bar-header">
+    <span>Progreso del formulario</span>
+    <span class="pct" id="progressPct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+</div>
+
+<!-- ══════ 1. DATOS GENERALES ══════ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="num">1</div>
+    <h2>DATOS GENERALES DEL PROYECTO</h2>
+    <div class="chevron">&#9660;</div>
+  </div>
+  <div class="section-body">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Proyecto <span class="req">*</span></label>
+        <input type="text" id="proyecto" value="Desmontaje y Relocalizacion de Maquinaria Industrial - Planta CARRIER" data-track>
+      </div>
+      <div class="form-group">
+        <label>Cliente <span class="req">*</span></label>
+        <input type="text" id="cliente" value="CARRIER Mexico / AMSA GROUP" data-track>
+      </div>
+      <div class="form-group">
+        <label>Ubicacion <span class="req">*</span></label>
+        <input type="text" id="ubicacion" value="Planta CARRIER - Zona Metropolitana de Monterrey, N.L." data-track>
+      </div>
+      <div class="form-group">
+        <label>Fecha <span class="req">*</span></label>
+        <input type="date" id="fecha" data-track>
+      </div>
+      <div class="form-group">
+        <label>Folio</label>
+        <input type="text" id="folio" value="BIT-CARRIER-2026-014" readonly style="background:#E8EDF2; font-weight:700; color:var(--navy);">
+      </div>
+      <div class="form-group">
+        <label>Supervisor MICSA <span class="req">*</span></label>
+        <input type="text" id="supervisor" value="Ing. J. Gonzalez" data-track>
+      </div>
+      <div class="form-group">
+        <label>Usuario/Representante Cliente</label>
+        <input type="text" id="rep_cliente" value="AMSA GROUP" data-track>
+      </div>
+    </div>
+    <div class="form-grid three" style="margin-top:16px;">
+      <div class="form-group">
+        <label>Hora Inicio</label>
+        <input type="time" id="hora_inicio" value="07:00" data-track>
+      </div>
+      <div class="form-group">
+        <label>Hora Fin</label>
+        <input type="time" id="hora_fin" value="18:00" data-track>
+      </div>
+      <div class="form-group">
+        <label>Num. Personas en Sitio</label>
+        <input type="number" id="num_personas" value="14" min="1" data-track>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 2. DESCRIPCION ══════ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="num">2</div>
+    <h2>DESCRIPCION GENERAL DE LOS TRABAJOS</h2>
+    <div class="chevron">&#9660;</div>
+  </div>
+  <div class="section-body">
+    <div class="form-group">
+      <label>Descripcion detallada del avance <span class="req">*</span></label>
+      <textarea id="descripcion" class="tall" data-track>El proyecto de desmontaje y relocalizacion de maquinaria pesada en la planta CARRIER se encuentra en fase intermedia de ejecucion. Se han intervenido las areas principales de produccion correspondientes a las lineas de prensado, ensamble, soldadura y extrusion, logrando el desmontaje parcial de los equipos criticos identificados en el alcance contractual. Se identificaron multiples equipos preparados para embarque, incluyendo prensas hidraulicas OAK Press, estructura de plataformas elevadas, lineas de ensamble sobre mesas niveladas, equipo tipo estrusora y modulos de ventilacion y ducteria.
+
+La ausencia de transporte oportuno ha generado acumulacion de modulos en las zonas de maniobra, lo cual limita la continuidad de las operaciones de desmontaje subsecuentes. La disponibilidad de transporte logistico constituye la ruta critica del proyecto en esta fase.</textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 3. ACTIVIDADES ══════ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="num">3</div>
+    <h2>ACTIVIDADES DETALLADAS REALIZADAS</h2>
+    <div class="chevron">&#9660;</div>
+  </div>
+  <div class="section-body">
+    <div class="activities-list" id="activitiesList">
+      <!-- Activities will be rendered here -->
+    </div>
+    <button class="btn-add" onclick="addActivity()">+ Agregar Actividad</button>
+  </div>
+</div>
+
+<!-- ══════ 4. CONDICIONES DEL SITIO ══════ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="num">4</div>
+    <h2>CONDICIONES DEL SITIO</h2>
+    <div class="chevron">&#9660;</div>
+  </div>
+  <div class="section-body">
+    <div class="conditions-grid">
+      <div class="condition-card">
+        <label>Estado de Pisos</label>
+        <select><option>Bueno</option><option>Regular</option><option>Malo</option></select>
+        <textarea placeholder="Observaciones del estado de pisos..." data-track>Concreto industrial con recubrimiento epoxido azul en buenas condiciones. Capacidad de carga adecuada para montacargas de 5 ton.</textarea>
+      </div>
+      <div class="condition-card">
+        <label>Acceso Vehicular</label>
+        <select><option>Adecuado</option><option>Restringido</option><option>Inadecuado</option></select>
+        <textarea placeholder="Condiciones de acceso..." data-track>Puertas de anden de 4m x 4.5m operativas. Acceso para trailer de 48 pies por patio trasero confirmado.</textarea>
+      </div>
+      <div class="condition-card">
+        <label>Iluminacion</label>
+        <select><option>Adecuada</option><option>Parcial</option><option>Insuficiente</option></select>
+        <textarea placeholder="Condiciones de iluminacion..." data-track>Natural y artificial (LED industrial) adecuada en nave principal. Requiere iluminacion portatil en cuartos de maquinas.</textarea>
+      </div>
+      <div class="condition-card">
+        <label>Seguridad</label>
+        <select><option>Controlada</option><option>Con Observaciones</option><option>Riesgo</option></select>
+        <textarea placeholder="Condiciones de seguridad..." data-track>Area restringida con control en caseta. Zonas delimitadas con cinta. EPP obligatorio: casco, lentes, guantes, botas, chaleco.</textarea>
+      </div>
+      <div class="condition-card">
+        <label>Clima</label>
+        <select><option>Favorable</option><option>Variable</option><option>Adverso</option></select>
+        <textarea placeholder="Condiciones climaticas..." data-track>Parcialmente nublado, 28C, sin lluvia. Condiciones favorables para trabajo exterior.</textarea>
+      </div>
+      <div class="condition-card">
+        <label>Materiales Peligrosos</label>
+        <select><option>No Identificados</option><option>Identificados - Controlados</option><option>Identificados - Requiere Atencion</option></select>
+        <textarea placeholder="Presencia de materiales peligrosos..." data-track>Aceites hidraulicos residuales en bases de prensas. Refrigerante R-410A en unidades CARRIER pendiente de recuperacion.</textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 5. RECURSOS Y DEPENDENCIAS ══════ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="num">5</div>
+    <h2>RECURSOS, EQUIPOS Y DEPENDENCIAS LOGISTICAS</h2>
+    <div class="chevron">&#9660;</div>
+  </div>
+  <div class="section-body">
+    <div class="form-group">
+      <label>Personal y Equipo en Sitio</label>
+      <textarea data-track>1 Superintendente, 2 Jefes de cuadrilla, 8 Tecnicos mecanicos, 2 Soldadores, 1 Electricista.
+Equipo: 2 Montacargas 3 ton, Puente grua PROSMEC Bi, 2 Plataformas de tijera, Oxicorte/Plasma, Herramienta electrica y neumatica.</textarea>
+    </div>
+    <div class="form-group" style="margin-top:12px;">
+      <label>Dependencias y Requerimientos Pendientes</label>
+      <textarea class="tall" data-track>- CRITICO: Trailer plana 48 pies para evacuacion de modulos acumulados (ruta critica)
+- Grua hidraulica 30 ton para retiro de prensas OAK Press y equipos pesados (Semana 3)
+- Unidad de recuperacion de refrigerante certificada EPA 608
+- Contenedores roll-off para segregacion de chatarra ferrosa/no ferrosa
+- Tanque de argon para equipo de soldadura MIG/TIG</textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 6. PROGRAMA ══════ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="num">6</div>
+    <h2>IMPACTO EN PROGRAMA Y AVANCE</h2>
+    <div class="chevron">&#9660;</div>
+  </div>
+  <div class="section-body">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Porcentaje de Avance General</label>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <input type="range" id="avanceRange" min="0" max="100" value="75" style="flex:1;accent-color:var(--navy);" oninput="document.getElementById('avancePct').textContent=this.value+'%'" data-track>
+          <span id="avancePct" style="font-weight:800;font-size:20px;color:var(--navy);min-width:50px;">75%</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Estatus del Programa</label>
+        <select data-track>
+          <option>En Tiempo</option>
+          <option selected>Con Retraso Controlado</option>
+          <option>Con Retraso Critico</option>
+          <option>Adelantado</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px;">
+      <label>Comentarios sobre el Programa</label>
+      <textarea data-track>La disponibilidad de transporte logistico (trailers) es el factor limitante principal. La acumulacion de equipos desmontados en zonas de maniobra restringe el acceso y las trayectorias de izaje para los equipos remanentes. Avance al 75% del alcance contractual.</textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 7. SEGURIDAD ══════ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="num">7</div>
+    <h2>SEGURIDAD E INCIDENTES</h2>
+    <div class="chevron">&#9660;</div>
+  </div>
+  <div class="section-body">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Incidentes en la Jornada</label>
+        <select id="incidentes" data-track>
+          <option selected>Sin incidentes</option>
+          <option>Cuasi-accidente</option>
+          <option>Accidente sin lesion</option>
+          <option>Accidente con lesion</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Dias sin Accidentes</label>
+        <input type="number" value="14" min="0" data-track>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px;">
+      <label>Permisos de Trabajo Vigentes</label>
+      <textarea data-track>Trabajo en alturas (NOM-009), Trabajo en caliente (NOM-027), Bloqueo y etiquetado LOTO (NOM-004), Manejo de sustancias quimicas (NOM-005). AST diario firmado por todo el personal.</textarea>
+    </div>
+    <div class="form-group" style="margin-top:12px;">
+      <label>Observaciones de Seguridad</label>
+      <textarea data-track>Jornada sin incidentes. Todo el personal con EPP completo (casco verde MICSA, chaleco, lentes, guantes de carnaza, botas con casquillo). Zonas de trabajo correctamente delimitadas con cinta de precaucion.</textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 8. OBSERVACIONES ══════ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="num">8</div>
+    <h2>OBSERVACIONES Y HALLAZGOS</h2>
+    <div class="chevron">&#9660;</div>
+  </div>
+  <div class="section-body">
+    <div class="form-group">
+      <label>Observaciones Generales, Hallazgos y Notas</label>
+      <textarea class="tall" data-track>- CRITICO: La falta de trailers genera acumulacion de equipos en zona de maniobra, limitando avance.
+- Aislamiento termico en ductos zona LCV/LCH requiere evaluacion para descartar asbesto.
+- Unidades CARRIER consola/manejadora contienen refrigerante R-410A pendiente de recuperacion EPA 608.
+- Cableado electrico retirado acumulado en zona designada; requiere segregacion y retiro oportuno.
+- Contenedores IBC con aceite hidraulico residual requieren manifiesto NOM-052-SEMARNAT.
+- Puente grua PROSMEC Bi operativo; solicitar certificado de inspeccion vigente.
+- Patio norte con capacidad para grua 30 ton; recomendar placas de apoyo.</textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ 9. EVIDENCIA FOTOGRAFICA ══════ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="num">9</div>
+    <h2>EVIDENCIA FOTOGRAFICA</h2>
+    <div class="chevron">&#9660;</div>
+  </div>
+  <div class="section-body">
+    <div class="photo-grid" id="photoGrid">
+      <!-- Photo slots rendered by JS -->
+    </div>
+    <button class="btn-add" onclick="addPhotoSlot()" style="margin-top:12px;">+ Agregar Foto</button>
+  </div>
+</div>
+
+<!-- ══════ 10. FIRMAS ══════ -->
+<div class="section">
+  <div class="section-header" onclick="toggleSection(this)">
+    <div class="num">10</div>
+    <h2>FIRMAS</h2>
+    <div class="chevron">&#9660;</div>
+  </div>
+  <div class="section-body">
+    <div class="signatures">
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <div class="sig-name">Ing. J. Gonzalez</div>
+        <div class="sig-role">Supervisor MICSA</div>
+        <div class="sig-role">MICSA Industrial del Centro S.A. de C.V.</div>
+      </div>
+      <div class="sig-block">
+        <div class="sig-line"></div>
+        <div class="sig-name">Representante del Cliente</div>
+        <div class="sig-role">AMSA GROUP / CARRIER Mexico</div>
+        <div class="sig-role">Planta Santa Catarina, N.L.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ ACTIONS ══════ -->
+<div class="actions">
+  <button class="btn btn-outline" onclick="saveLocal()">&#128190; Guardar Borrador</button>
+  <button class="btn btn-accent" onclick="printForm()">&#128424; Imprimir / PDF</button>
+  <button class="btn btn-primary" onclick="generateSummary()">&#128203; Generar Resumen</button>
+  <button class="btn btn-danger-outline" onclick="clearForm()">&#128465; Limpiar Todo</button>
+</div>
+
+</div><!-- /main -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── INITIAL DATA ──
+const defaultActivities = [
+  { text: "Desmontaje parcial de prensas hidraulicas OAK Press de la linea de estampado, incluyendo desconexion de sistemas hidraulicos, neumaticos y electricos. Equipos posicionados a nivel de piso mediante grua puente PROSMEC Bi.", status: "completada" },
+  { text: "Liberacion de estructuras metalicas tipo mezzanine con plataformas elevadas y barandales de seguridad. Desconexion de servicios auxiliares (aire comprimido, agua de enfriamiento, alimentacion electrica).", status: "completada" },
+  { text: "Preparacion de lineas de ensamble/soldadura sobre rieles para transporte. Desconexion de mangueras hidraulicas, lineas neumaticas y cableado de control. Posicionamiento sobre patines de deslizamiento.", status: "completada" },
+  { text: "Desmontaje y reubicacion de equipo tipo extrusora a zona de almacenamiento temporal. Desconexion de alimentaciones principales.", status: "completada" },
+  { text: "Retiro parcial de sistema de ducteria de ventilacion y extraccion. Desmontaje de secciones de ductos metalicos y ventiladores centrifugos.", status: "en curso" },
+  { text: "Desmontaje de guardas de seguridad, protecciones mecanicas y gabinetes de control electrico. Componentes segregados y clasificados por modulo de origen.", status: "completada" },
+  { text: "Colocacion de madera de estiba y material de proteccion (mantas industriales) para resguardo de equipos desmontados en piso.", status: "completada" },
+  { text: "Corte y retiro de anclajes de cimentacion en las areas liberadas de la nave industrial.", status: "en curso" },
+];
+
+let activities = [...defaultActivities];
+let photoCount = 6;
+
+// ── RENDER ACTIVITIES ──
+function renderActivities() {
+  const list = document.getElementById('activitiesList');
+  list.innerHTML = activities.map((a, i) => `
+    <div class="activity-item">
+      <div class="activity-num">${i + 1}</div>
+      <textarea onchange="activities[${i}].text=this.value; updateProgress()">${a.text}</textarea>
+      <select onchange="activities[${i}].status=this.value">
+        <option ${a.status==='completada'?'selected':''}>completada</option>
+        <option ${a.status==='en curso'?'selected':''}>en curso</option>
+        <option ${a.status==='pendiente'?'selected':''}>pendiente</option>
+      </select>
+      <button class="btn-remove" onclick="removeActivity(${i})" title="Eliminar">&#10005;</button>
+    </div>
+  `).join('');
+}
+
+function addActivity() {
+  activities.push({ text: '', status: 'pendiente' });
+  renderActivities();
+  const items = document.querySelectorAll('.activity-item textarea');
+  items[items.length - 1].focus();
+}
+
+function removeActivity(idx) {
+  if (activities.length > 1) {
+    activities.splice(idx, 1);
+    renderActivities();
+    updateProgress();
+  }
+}
+
+// ── PHOTO GRID ──
+function renderPhotoGrid() {
+  const grid = document.getElementById('photoGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < photoCount; i++) {
+    const card = document.createElement('div');
+    card.className = 'photo-card';
+    card.id = `photoCard${i}`;
+    card.innerHTML = `
+      <button class="photo-remove" onclick="removePhoto(${i})" title="Eliminar foto">&#10005;</button>
+      <div class="photo-placeholder" onclick="document.getElementById('photoInput${i}').click()">
+        <div class="icon">&#128247;</div>
+        <span>Foto ${i + 1}</span>
+      </div>
+      <input type="file" id="photoInput${i}" accept="image/*" onchange="previewPhoto(${i}, this)">
+      <input type="text" class="caption-input" placeholder="Descripcion de la foto..." value="">
+    `;
+    grid.appendChild(card);
+  }
+}
+
+function previewPhoto(idx, input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const card = document.getElementById(`photoCard${idx}`);
+      card.classList.add('has-photo');
+      const placeholder = card.querySelector('.photo-placeholder');
+      const existing = card.querySelector('.photo-preview');
+      if (existing) existing.remove();
+      const img = document.createElement('img');
+      img.className = 'photo-preview';
+      img.src = e.target.result;
+      img.onclick = () => document.getElementById(`photoInput${idx}`).click();
+      img.style.cursor = 'pointer';
+      card.insertBefore(img, placeholder);
+      placeholder.style.display = 'none';
+      updateProgress();
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function removePhoto(idx) {
+  const card = document.getElementById(`photoCard${idx}`);
+  card.classList.remove('has-photo');
+  const img = card.querySelector('.photo-preview');
+  if (img) img.remove();
+  card.querySelector('.photo-placeholder').style.display = '';
+  card.querySelector('input[type="file"]').value = '';
+  card.querySelector('.caption-input').value = '';
+  updateProgress();
+}
+
+function addPhotoSlot() {
+  photoCount++;
+  renderPhotoGrid();
+}
+
+// ── TOGGLE SECTIONS ──
+function toggleSection(header) {
+  header.classList.toggle('collapsed');
+  const body = header.nextElementSibling;
+  body.classList.toggle('hidden');
+}
+
+// ── PROGRESS ──
+function updateProgress() {
+  const fields = document.querySelectorAll('[data-track]');
+  let filled = 0;
+  fields.forEach(f => {
+    if (f.value && f.value.trim()) filled++;
+  });
+  const photosFilled = document.querySelectorAll('.photo-card.has-photo').length;
+  const total = fields.length + 3; // +3 for some photo credit
+  const pct = Math.min(100, Math.round(((filled + photosFilled) / total) * 100));
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+// ── SAVE/LOAD ──
+function saveLocal() {
+  const data = {};
+  document.querySelectorAll('input[id], textarea[id], select[id]').forEach(el => {
+    data[el.id] = el.value;
+  });
+  data.activities = activities;
+  try {
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `bitacora_${document.getElementById('fecha').value || 'borrador'}.json`;
+    a.click(); URL.revokeObjectURL(url);
+    showToast('Borrador guardado correctamente');
+  } catch(e) { showToast('Error al guardar'); }
+}
+
+function clearForm() {
+  if (confirm('Seguro que desea limpiar todos los campos? Esta accion no se puede deshacer.')) {
+    document.querySelectorAll('input:not([readonly]), textarea').forEach(el => {
+      if (el.type !== 'file' && el.type !== 'range') el.value = '';
+    });
+    activities = [{ text: '', status: 'pendiente' }];
+    renderActivities();
+    updateProgress();
+    showToast('Formulario limpiado');
+  }
+}
+
+function printForm() {
+  window.print();
+}
+
+function generateSummary() {
+  const proyecto = document.getElementById('proyecto').value;
+  const fecha = document.getElementById('fecha').value;
+  const folio = document.getElementById('folio').value;
+  const avance = document.getElementById('avanceRange').value;
+
+  const completadas = activities.filter(a => a.status === 'completada').length;
+  const enCurso = activities.filter(a => a.status === 'en curso').length;
+
+  const summary = `RESUMEN BITACORA ${folio}\n` +
+    `Fecha: ${fecha}\nProyecto: ${proyecto}\n` +
+    `Avance General: ${avance}%\n` +
+    `Actividades: ${completadas} completadas, ${enCurso} en curso, ${activities.length} total\n` +
+    `Fotos adjuntas: ${document.querySelectorAll('.photo-card.has-photo').length}`;
+
+  alert(summary);
+  showToast('Resumen generado');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── INIT ──
+document.getElementById('fecha').valueAsDate = new Date();
+renderActivities();
+renderPhotoGrid();
+setTimeout(updateProgress, 100);
+
+// Track progress on input changes
+document.addEventListener('input', e => {
+  if (e.target.matches('[data-track]')) updateProgress();
+});
+</script>
+</body>
+</html>
