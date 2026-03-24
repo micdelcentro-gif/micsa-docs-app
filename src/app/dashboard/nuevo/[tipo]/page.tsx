@@ -533,6 +533,29 @@ export default function NuevoTipoPage() {
     setTimeout(() => { w.focus(); w.print() }, 800)
   }
 
+    async function handleDocxDownload() {
+          try {
+                  const res = await fetch('/api/generate-docx', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ tipo, data, folio }),
+                  })
+                  if (!res.ok) throw new Error('Error generating DOCX')
+                  const blob = await res.blob()
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = `${folio || tipo || 'documento'}.docx`
+                  document.body.appendChild(a)
+                  a.click()
+                  document.body.removeChild(a)
+                  URL.revokeObjectURL(url)
+          } catch (err) {
+                  console.error('DOCX download error:', err)
+                  alert('Error al generar el archivo DOCX')
+          }
+    }
+
   return (
     <div className="max-w-lg mx-auto pb-4">
       {/* Header */}
@@ -556,7 +579,7 @@ export default function NuevoTipoPage() {
       {savedId && (
         <div className="mx-4 mt-3 bg-green-50 border border-green-200 text-green-700 rounded-lg px-3 py-2 text-sm flex items-center justify-between no-print">
           <span>✓ Guardado — <strong>{folio}</strong></span>
-          <button onClick={handlePrint} className="text-green-800 font-semibold underline text-xs">Imprimir PDF</button>
+          <button onClick={handlePrint} className="text-green-800 font-semibold underline text-xs">Imprimir PDF</button><button onClick={handleDocxDownload} className="text-blue-800 font-semibold underline text-xs ml-2">⬇ DOCX</button>
         </div>
       )}
 
@@ -568,6 +591,11 @@ export default function NuevoTipoPage() {
           >
             🖨️ Imprimir / Guardar PDF
           </button>
+                  <button onClick={handleDocxDownload}
+                              className="w-full mb-2 bg-blue-900 text-white py-3 rounded-xl font-semibold text-sm no-print"
+                            >
+                            ⬇ Descargar DOCX (Plantilla MICSA)
+                  </button>button></button>
           <div ref={printRef}>
             <DocumentPreview tipo={tipo} data={data} fotos={fotos} folio={folio} />
           </div>
