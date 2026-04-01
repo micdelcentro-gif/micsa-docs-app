@@ -15,6 +15,7 @@ const TIPO_LABELS: Record<TipoDoc | string, { label: string; icon: string; color
   entrega_epp:        { label: 'Entrega EPP',        icon: '🪖', color: 'bg-sky-100 text-sky-800'    },
   plan_izaje:         { label: 'Plan de Izaje',      icon: '🏗️', color: 'bg-teal-100 text-teal-800' },
   reporte_avance:     { label: 'Reporte Avance',     icon: '📊', color: 'bg-violet-100 text-violet-800' },
+  manual_integral_seguridad: { label: 'Manual Seguridad', icon: '🛡️', color: 'bg-indigo-100 text-indigo-800' },
 }
 
 const ESTADO_COLORS: Record<string, string> = {
