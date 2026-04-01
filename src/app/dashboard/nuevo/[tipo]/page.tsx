@@ -1151,6 +1151,74 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
 
   // Generic preview for other doc types
   const docTitle = TIPO_TITLES[tipo] || tipo
+  const isCorporate = ['manual_integral_seguridad','manual_operativo','propuesta_comercial','codigo_etica','manual_reclutamiento'].includes(tipo)
+
+  if (isCorporate) {
+    return (
+      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 11, color: '#fff', background: '#0a0a0a', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+        {/* Portada negra */}
+        <div style={{ background: '#0a0a0a', padding: '32px 28px 24px', borderBottom: '2px solid #fff', minHeight: 220, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-micsa-white.png" alt="MICSA" style={{ height: 48, filter: 'brightness(0) invert(1)' }} onError={(e) => { (e.target as HTMLImageElement).style.display='none' }} />
+            <div>
+              <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#fff' }}>MICSA</div>
+              <div style={{ fontSize: 9, letterSpacing: '0.2em', color: '#aaa', textTransform: 'uppercase' }}>Safety Division</div>
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 8, letterSpacing: '0.25em', color: '#888', textTransform: 'uppercase', marginBottom: 8 }}>Documento Corporativo</div>
+            <div style={{ fontWeight: 900, fontSize: 26, textTransform: 'uppercase', lineHeight: 1.1, color: '#fff', letterSpacing: '0.04em', marginBottom: 6 }}>{docTitle}</div>
+            <div style={{ fontSize: 10, color: '#ccc', letterSpacing: '0.06em' }}>Sistema de Gestión de Seguridad Patrimonial</div>
+          </div>
+        </div>
+        {/* Tabla de control */}
+        <div style={{ background: '#fff', color: '#111', padding: '14px 20px' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 10 }}>
+            <tbody>
+              <tr>
+                <td style={{ padding: '5px 8px', borderBottom: '1px solid #ddd', width: '30%', fontWeight: 700, color: '#444' }}>Elaboró:</td>
+                <td style={{ padding: '5px 8px', borderBottom: '1px solid #ddd' }}>{data.elaboro || '_______________'}</td>
+                <td style={{ padding: '5px 8px', borderBottom: '1px solid #ddd', width: '20%', fontWeight: 700, color: '#444' }}>Revisó:</td>
+                <td style={{ padding: '5px 8px', borderBottom: '1px solid #ddd' }}>{data.reviso || '_______________'}</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', borderBottom: '1px solid #ddd', fontWeight: 700, color: '#444' }}>Aprobó:</td>
+                <td style={{ padding: '5px 8px', borderBottom: '1px solid #ddd' }}>{data.aprobo || '_______________'}</td>
+                <td style={{ padding: '5px 8px', borderBottom: '1px solid #ddd', fontWeight: 700, color: '#444' }}>Fecha:</td>
+                <td style={{ padding: '5px 8px', borderBottom: '1px solid #ddd' }}>{data.fecha || '_______________'}</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '5px 8px', fontWeight: 700, color: '#444' }}>Versión:</td>
+                <td style={{ padding: '5px 8px' }}>{data.version || '1.0'}</td>
+                <td style={{ padding: '5px 8px', fontWeight: 700, color: '#444' }}>Páginas:</td>
+                <td style={{ padding: '5px 8px' }}>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        {/* Contenido por secciones */}
+        <div style={{ background: '#fff', color: '#111', padding: '8px 20px 20px', flex: 1 }}>
+          {schema.sections.map((sec) => (
+            <div key={sec.label} style={{ marginBottom: 16 }}>
+              <div style={{ background: '#0a0a0a', color: '#fff', fontWeight: 800, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '5px 10px', marginBottom: 8 }}>{sec.label}</div>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <tbody>
+                  {sec.fields.map((field) => data[field.key] ? (
+                    <tr key={field.key}>
+                      <td style={{ padding: '4px 8px', fontWeight: 700, fontSize: 10, color: '#555', width: '35%', verticalAlign: 'top', borderBottom: '1px solid #f0f0f0' }}>{field.label}:</td>
+                      <td style={{ padding: '4px 8px', fontSize: 10, color: '#111', borderBottom: '1px solid #f0f0f0', whiteSpace: 'pre-wrap' }}>{data[field.key]}</td>
+                    </tr>
+                  ) : null)}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
+        <Footer />
+      </div>
+    )
+  }
 
   return (
     <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 11, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%', position: 'relative' }}>
