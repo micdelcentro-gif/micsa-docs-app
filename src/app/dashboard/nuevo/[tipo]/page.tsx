@@ -367,6 +367,76 @@ const SCHEMAS: Record<string, { title: string; sections: { label: string; fields
       { key: 'recibido_cliente', label: 'Recibido por (Cliente)', type: 'text' },
     ]},
   ]},
+  manual_integral_seguridad: { title: 'Manual Integral de Seguridad Patrimonial', sections: [
+    { label: 'Datos del Documento', fields: [
+      { key: 'num_manual', label: 'N\u00b0 de Manual', type: 'text', placeholder: 'MIS-001' },
+      { key: 'version', label: 'Versi\u00f3n', type: 'text', placeholder: '1.0' },
+      { key: 'fecha', label: 'Fecha de Emisi\u00f3n', type: 'date' },
+      { key: 'vigencia_inicio', label: 'Vigencia Desde', type: 'date' },
+      { key: 'vigencia_fin', label: 'Vigencia Hasta', type: 'date' },
+      { key: 'elaborado_por', label: 'Elaborado por', type: 'text' },
+      { key: 'aprobado_por', label: 'Aprobado por', type: 'text' },
+    ]},
+    { label: 'Datos del Cliente y Sitio', fields: [
+      { key: 'cliente', label: 'Cliente / Empresa', type: 'text', placeholder: 'FORZA STEEL' },
+      { key: 'planta', label: 'Planta / Instalaci\u00f3n', type: 'text' },
+      { key: 'direccion', label: 'Direcci\u00f3n del Sitio', type: 'text' },
+      { key: 'contacto_cliente', label: 'Contacto Cliente', type: 'text' },
+      { key: 'telefono_cliente', label: 'Tel\u00e9fono / Ext.', type: 'text' },
+      { key: 'correo_cliente', label: 'Correo Electr\u00f3nico', type: 'text' },
+      { key: 'contrato_ref', label: 'N\u00b0 Contrato de Referencia', type: 'text' },
+    ]},
+    { label: 'Personal de Seguridad Asignado', fields: [
+      { key: 'supervisor_seguridad', label: 'Supervisor de Seguridad', type: 'text' },
+      { key: 'num_elementos', label: 'N\u00b0 de Elementos Asignados', type: 'number' },
+      { key: 'turno_diurno', label: 'Turno Diurno (horario)', type: 'text', placeholder: '06:00 - 14:00' },
+      { key: 'turno_vespertino', label: 'Turno Vespertino (horario)', type: 'text', placeholder: '14:00 - 22:00' },
+      { key: 'turno_nocturno', label: 'Turno Nocturno (horario)', type: 'text', placeholder: '22:00 - 06:00' },
+      { key: 'puesto_fijo', label: 'Puestos Fijos (descripci\u00f3n)', type: 'textarea', rows: 2 },
+      { key: 'rondines', label: 'Rondines (frecuencia y rutas)', type: 'textarea', rows: 2 },
+    ]},
+    { label: 'KPIs y M\u00e9tricas de Seguridad', fields: [
+      { key: 'cobertura_porcentaje', label: 'Cobertura del Sitio (%)', type: 'text', placeholder: '100' },
+      { key: 'tiempo_respuesta', label: 'Tiempo de Respuesta (min)', type: 'text', placeholder: '5' },
+      { key: 'frecuencia_rondines', label: 'Frecuencia de Rondines (por turno)', type: 'text', placeholder: '4' },
+      { key: 'incidentes_meta', label: 'Meta de Incidentes (mensual)', type: 'text', placeholder: '0' },
+      { key: 'horas_capacitacion', label: 'Horas de Capacitaci\u00f3n (mensual)', type: 'text', placeholder: '8' },
+    ]},
+    { label: 'Secciones del Manual (activas)', fields: [
+      { key: 'sec_I_objetivo', label: 'I. Objetivo y Alcance', type: 'text', placeholder: 'S\u00ed' },
+      { key: 'sec_II_politicas', label: 'II. Pol\u00edticas Generales de Seguridad', type: 'text', placeholder: 'S\u00ed' },
+      { key: 'sec_III_funciones', label: 'III. Funciones del Personal', type: 'text', placeholder: 'S\u00ed' },
+      { key: 'sec_IV_epp', label: 'IV. Uso de EPP', type: 'text', placeholder: 'S\u00ed' },
+      { key: 'sec_V_accesos', label: 'V. Control de Accesos', type: 'text', placeholder: 'S\u00ed' },
+      { key: 'sec_VI_rondines', label: 'VI. Rondines y Patrullaje', type: 'text', placeholder: 'S\u00ed' },
+      { key: 'sec_VII_incidentes', label: 'VII. Protocolo de Incidentes', type: 'text', placeholder: 'S\u00ed' },
+      { key: 'sec_VIII_evacuacion', label: 'VIII. Plan de Evacuaci\u00f3n', type: 'text', placeholder: 'S\u00ed' },
+      { key: 'sec_IX_comunicacion', label: 'IX. Comunicaci\u00f3n y Reportes', type: 'text', placeholder: 'S\u00ed' },
+      { key: 'sec_X_sanciones', label: 'X. Sanciones y Disciplina', type: 'text', placeholder: 'S\u00ed' },
+      { key: 'sec_XI_capacitacion', label: 'XI. Capacitaci\u00f3n', type: 'text', placeholder: 'S\u00ed' },
+      { key: 'sec_XII_revision', label: 'XII. Revisi\u00f3n y Actualizaci\u00f3n', type: 'text', placeholder: 'S\u00ed' },
+    ]},
+    { label: 'Observaciones por Secci\u00f3n Clave', fields: [
+      { key: 'obs_objetivo', label: 'Obs. \u2014 Objetivo y Alcance', type: 'textarea', rows: 2 },
+      { key: 'obs_accesos', label: 'Obs. \u2014 Control de Accesos', type: 'textarea', rows: 2 },
+      { key: 'obs_incidentes', label: 'Obs. \u2014 Protocolo de Incidentes', type: 'textarea', rows: 2 },
+      { key: 'obs_comunicacion', label: 'Obs. \u2014 Comunicaci\u00f3n y Reportes', type: 'textarea', rows: 2 },
+      { key: 'observaciones_generales', label: 'Observaciones Generales', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Contactos de Emergencia', fields: [
+      { key: 'contacto_emergencia_1', label: 'Emergencia 1 (nombre, tel)', type: 'text', placeholder: 'Supervisor MICSA' },
+      { key: 'contacto_emergencia_2', label: 'Emergencia 2 (nombre, tel)', type: 'text', placeholder: 'Gerente de Planta' },
+      { key: 'tel_policia', label: 'Polic\u00eda / Seguridad P\u00fablica', type: 'text', placeholder: '911' },
+      { key: 'tel_bomberos', label: 'Bomberos', type: 'text', placeholder: '068' },
+      { key: 'tel_ambulancia', label: 'Ambulancia / Cruz Roja', type: 'text', placeholder: '065' },
+    ]},
+    { label: 'Firmas y Autorizaci\u00f3n', fields: [
+      { key: 'firma_supervisor', label: 'Firma Supervisor MICSA', type: 'text' },
+      { key: 'firma_cliente', label: 'Firma Responsable Cliente', type: 'text' },
+      { key: 'firma_gerente', label: 'Firma Gerente Operativo MICSA', type: 'text' },
+    ]},
+  ]},
+
 }
 
 // Default schema for other doc types
@@ -392,6 +462,7 @@ const TIPO_TITLES: Record<string, string> = {
   entrega_epp: 'Entrega de EPP',
   plan_izaje: 'Plan de Izaje',
   reporte_avance: 'Reporte de Avance',
+  manual_integral_seguridad: 'Manual Integral Seguridad',
 }
 
 /* ─── PHOTO UPLOADER ─────────────────────────────────────── */
@@ -595,7 +666,7 @@ export default function NuevoTipoPage() {
                               className="w-full mb-2 bg-blue-900 text-white py-3 rounded-xl font-semibold text-sm no-print"
                             >
                             ⬇ Descargar DOCX (Plantilla MICSA)
-                  </button>button></button>
+                  </button>
           <div ref={printRef}>
             <DocumentPreview tipo={tipo} data={data} fotos={fotos} folio={folio} />
           </div>
