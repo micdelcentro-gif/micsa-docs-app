@@ -1,10 +1,11 @@
 'use client'
+
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -15,9 +16,14 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    // Si el usuario no incluye @, agregar el dominio automaticamente
+    const email = username.includes('@') ? username : username + '@micsadelcentro.com'
+
     const { error } = await supabase.auth.signInWithPassword({ email, password })
+
     if (error) {
-      setError('Credenciales incorrectas. Verifica tu correo y contraseña.')
+      setError('Credenciales incorrectas. Verifica tu usuario y contrasena.')
       setLoading(false)
     } else {
       router.push('/dashboard')
@@ -28,6 +34,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-blue-950 p-4">
       <div className="w-full max-w-sm">
+
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center bg-white rounded-2xl px-6 py-4 shadow-2xl mb-4">
@@ -40,7 +47,7 @@ export default function LoginPage() {
 
         {/* Form */}
         <div className="bg-white rounded-2xl shadow-2xl p-6">
-          <h1 className="text-xl font-bold text-slate-800 mb-6 text-center">Iniciar Sesión</h1>
+          <h1 className="text-xl font-bold text-slate-800 mb-6 text-center">Iniciar Sesion</h1>
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 mb-4 text-sm">
@@ -50,18 +57,18 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Correo</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Usuario</label>
               <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
                 required
-                placeholder="usuario@micsadelcentro.com"
+                placeholder="admin"
                 className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Contrasena</label>
               <input
                 type="password"
                 value={password}
@@ -75,13 +82,13 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full bg-blue-900 hover:bg-blue-800 disabled:opacity-60 text-white font-semibold py-3 rounded-lg transition-colors"
             >
-              {loading ? 'Entrando…' : 'Entrar'}
+              {loading ? 'Entrando...' : 'Entrar'}
             </button>
           </form>
         </div>
 
         <p className="text-center text-blue-300 text-xs mt-6">
-          Tu Socio Estratégico en Instalación de Maquinaria
+          Tu Socio Estrategico en Instalacion de Maquinaria
         </p>
       </div>
     </div>
