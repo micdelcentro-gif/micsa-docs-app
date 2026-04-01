@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
                   })
                   const buffer = await Packer.toBuffer(doc)
                   const filename = `${folio || tipo || 'documento'}.docx`
-                  return new NextResponse(buffer, {
+                  return new NextResponse(new Uint8Array(buffer), {
                               status: 200,
                               headers: {
                                             'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
