@@ -451,6 +451,137 @@ function defaultSchema(tipo: string, title: string) {
   ], }], }
 }
 
+
+// ── MANUAL OPERATIVO ──────────────────────────────────────────────────────────
+const SCHEMA_MANUAL_OPERATIVO = {
+  title: 'Manual Operativo',
+  sections: [
+    { label: 'Datos Generales', fields: [
+      { key: 'fecha', label: 'Fecha de emisión', type: 'date' },
+      { key: 'version', label: 'Versión', type: 'text' },
+      { key: 'elaboro', label: 'Elaboró', type: 'text' },
+      { key: 'aprobo', label: 'Aprobó', type: 'text' },
+    ]},
+    { label: 'Cultura Organizacional', fields: [
+      { key: 'mision', label: 'Misión', type: 'textarea', rows: 3 },
+      { key: 'vision', label: 'Visión', type: 'textarea', rows: 3 },
+      { key: 'valores', label: 'Valores', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Marco Legal', fields: [
+      { key: 'marco_legal', label: 'Normativa aplicable', type: 'textarea', rows: 4 },
+    ]},
+    { label: 'Estructura Organizacional', fields: [
+      { key: 'estructura', label: 'Descripción de la estructura', type: 'textarea', rows: 4 },
+    ]},
+    { label: 'Procedimientos Operativos', fields: [
+      { key: 'procedimientos', label: 'Procedimientos principales', type: 'textarea', rows: 5 },
+      { key: 'control_accesos', label: 'Control de accesos', type: 'textarea', rows: 3 },
+      { key: 'cctv', label: 'Circuito cerrado CCTV', type: 'textarea', rows: 3 },
+      { key: 'rondas', label: 'Rondas y recorridos', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Observaciones', fields: [
+      { key: 'observaciones', label: 'Observaciones generales', type: 'textarea', rows: 3 },
+    ]},
+  ],
+}
+
+// ── PROPUESTA COMERCIAL ───────────────────────────────────────────────────────
+const SCHEMA_PROPUESTA_COMERCIAL = {
+  title: 'Propuesta Comercial',
+  sections: [
+    { label: 'Datos del Cliente', fields: [
+      { key: 'fecha', label: 'Fecha', type: 'date' },
+      { key: 'cliente', label: 'Nombre del cliente / empresa', type: 'text' },
+      { key: 'contacto', label: 'Contacto', type: 'text' },
+      { key: 'correo', label: 'Correo electrónico', type: 'text' },
+      { key: 'telefono', label: 'Teléfono', type: 'text' },
+    ]},
+    { label: 'Presentación', fields: [
+      { key: 'presentacion', label: 'Presentación de MICSA', type: 'textarea', rows: 4 },
+      { key: 'experiencia', label: 'Experiencia y trayectoria', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Servicios Propuestos', fields: [
+      { key: 'servicios', label: 'Servicios ofrecidos', type: 'textarea', rows: 5 },
+      { key: 'alcance', label: 'Alcance del servicio', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Diferenciadores', fields: [
+      { key: 'diferenciadores', label: 'Ventajas competitivas', type: 'textarea', rows: 3 },
+      { key: 'certificaciones', label: 'Certificaciones y avales', type: 'textarea', rows: 2 },
+    ]},
+    { label: 'Inversión', fields: [
+      { key: 'inversion', label: 'Descripción de la inversión', type: 'textarea', rows: 3 },
+      { key: 'vigencia', label: 'Vigencia de la propuesta', type: 'text' },
+      { key: 'condiciones', label: 'Condiciones de pago', type: 'textarea', rows: 2 },
+    ]},
+  ],
+}
+
+// ── CÓDIGO DE ÉTICA ───────────────────────────────────────────────────────────
+const SCHEMA_CODIGO_ETICA = {
+  title: 'Código de Ética y Reglamento',
+  sections: [
+    { label: 'Datos Generales', fields: [
+      { key: 'fecha', label: 'Fecha de emisión', type: 'date' },
+      { key: 'version', label: 'Versión', type: 'text' },
+      { key: 'elaboro', label: 'Elaboró', type: 'text' },
+    ]},
+    { label: 'Principios Éticos', fields: [
+      { key: 'principios', label: 'Principios y valores éticos', type: 'textarea', rows: 5 },
+      { key: 'conducta', label: 'Código de conducta', type: 'textarea', rows: 4 },
+    ]},
+    { label: 'Reglamento Interior', fields: [
+      { key: 'obligaciones', label: 'Obligaciones del empleado', type: 'textarea', rows: 4 },
+      { key: 'prohibiciones', label: 'Conductas prohibidas', type: 'textarea', rows: 4 },
+      { key: 'horarios', label: 'Horarios y asistencia', type: 'textarea', rows: 3 },
+      { key: 'uniforme', label: 'Uniforme y presentación', type: 'textarea', rows: 2 },
+    ]},
+    { label: 'Sistema Disciplinario', fields: [
+      { key: 'faltas_leves', label: 'Faltas leves', type: 'textarea', rows: 3 },
+      { key: 'faltas_graves', label: 'Faltas graves', type: 'textarea', rows: 3 },
+      { key: 'sanciones', label: 'Sanciones aplicables', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Compromiso', fields: [
+      { key: 'compromiso', label: 'Declaración de compromiso', type: 'textarea', rows: 3 },
+      { key: 'firma_empleado', label: 'Nombre y firma del empleado', type: 'text' },
+    ]},
+  ],
+}
+
+// ── MANUAL RECLUTAMIENTO ──────────────────────────────────────────────────────
+const SCHEMA_MANUAL_RECLUTAMIENTO = {
+  title: 'Manual de Reclutamiento',
+  sections: [
+    { label: 'Datos Generales', fields: [
+      { key: 'fecha', label: 'Fecha', type: 'date' },
+      { key: 'version', label: 'Versión', type: 'text' },
+      { key: 'elaboro', label: 'Elaboró', type: 'text' },
+    ]},
+    { label: 'Perfil del Elemento', fields: [
+      { key: 'puesto', label: 'Puesto solicitado', type: 'text' },
+      { key: 'requisitos', label: 'Requisitos del perfil', type: 'textarea', rows: 4 },
+      { key: 'habilidades', label: 'Habilidades requeridas', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Proceso de Reclutamiento', fields: [
+      { key: 'fuentes', label: 'Fuentes de reclutamiento', type: 'textarea', rows: 3 },
+      { key: 'proceso', label: 'Etapas del proceso', type: 'textarea', rows: 4 },
+      { key: 'documentos', label: 'Documentación requerida', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Evaluaciones', fields: [
+      { key: 'evaluaciones', label: 'Tipos de evaluación', type: 'textarea', rows: 3 },
+      { key: 'criterios', label: 'Criterios de selección', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Capacitación e Inducción', fields: [
+      { key: 'induccion', label: 'Programa de inducción', type: 'textarea', rows: 3 },
+      { key: 'capacitacion', label: 'Plan de capacitación inicial', type: 'textarea', rows: 3 },
+    ]},
+    { label: 'Alta del Elemento', fields: [
+      { key: 'alta_imss', label: 'Alta IMSS', type: 'text' },
+      { key: 'alta_repse', label: 'Alta REPSE', type: 'text' },
+      { key: 'observaciones', label: 'Observaciones', type: 'textarea', rows: 2 },
+    ]},
+  ],
+}
+
 const TIPO_TITLES: Record<string, string> = {
   cotizacion: 'Cotización Formal',
   bitacora: 'Bitácora Diaria',
