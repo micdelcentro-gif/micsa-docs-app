@@ -13,6 +13,7 @@ const TIPOS = [
   { id: 'entrega_epp',        icon: '🪖', label: 'Entrega de EPP',        color: '#2b6cb0' },
   { id: 'plan_izaje',         icon: '🏗️', label: 'Plan de Izaje',        color: '#276749' },
   { id: 'reporte_avance',     icon: '📊', label: 'Reporte de Avance',     color: '#553c9a' },
+  { id: 'manual_integral_seguridad', icon: '🛡️', label: 'Manual Integral Seguridad', color: '#1a3a6b' },
 ]
 
 export default function NuevoPage() {
