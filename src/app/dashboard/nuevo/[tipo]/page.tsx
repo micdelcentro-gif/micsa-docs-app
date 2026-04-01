@@ -463,6 +463,10 @@ const TIPO_TITLES: Record<string, string> = {
   plan_izaje: 'Plan de Izaje',
   reporte_avance: 'Reporte de Avance',
   manual_integral_seguridad: 'Manual Integral Seguridad',
+  manual_operativo: 'Manual Operativo',
+  propuesta_comercial: 'Propuesta Comercial',
+  codigo_etica: 'Código de Ética y Reglamento',
+  manual_reclutamiento: 'Manual de Reclutamiento',
 }
 
 /* ─── PHOTO UPLOADER ─────────────────────────────────────── */
