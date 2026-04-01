@@ -4,6 +4,8 @@ export type TipoDoc =
   | 'cotizacion' | 'bitacora' | 'costos_adicionales' | 'checklist_izaje'
   | 'orden_trabajo' | 'contrato' | 'requisicion' | 'entrega_epp'
   | 'plan_izaje' | 'reporte_avance'
+  | 'manual_integral' | 'manual_operativo' | 'propuesta_comercial'
+  | 'codigo_etica' | 'manual_reclutamiento'
 
 export interface Profile {
   id: string

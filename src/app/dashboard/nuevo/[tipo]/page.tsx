@@ -63,6 +63,268 @@ const SCHEMAS: Record<string, { title: string; sections: { label: string; fields
       { key: 'usuario_cliente', label: 'Nombre Usuario por Cliente', type: 'text' },
     ]},
   ]},
+
+  /* ─── MANUAL INTEGRAL — Seguridad Patrimonial v2.0 ─── */
+  manual_integral: { title: 'Manual Integral — Sistema de Gestión de Seguridad Patrimonial', sections: [
+    { label: 'Control del Documento', fields: [
+      { key: 'codigo_doc', label: 'Código del Documento', type: 'text', placeholder: 'SGC-MI-001' },
+      { key: 'version', label: 'Versión', type: 'text', placeholder: '2.0' },
+      { key: 'fecha', label: 'Fecha de Emisión', type: 'date' },
+      { key: 'elaboro', label: 'Elaboró', type: 'text' },
+      { key: 'reviso', label: 'Revisó', type: 'text' },
+      { key: 'aprobo', label: 'Aprobó', type: 'text' },
+      { key: 'paginas', label: 'Páginas', type: 'text' },
+    ]},
+    { label: 'I. Introducción y Alcance', fields: [
+      { key: 'recursos_humanos', label: 'Recursos Humanos Capacitados', type: 'textarea', rows: 2, placeholder: 'Personal seleccionado, evaluado y capacitado con DC3.' },
+      { key: 'procesos_estandarizados', label: 'Procesos Estandarizados', type: 'textarea', rows: 2, placeholder: 'Protocolos documentados, auditables y replicables.' },
+      { key: 'tecnologia_control', label: 'Tecnología de Control', type: 'textarea', rows: 2, placeholder: 'CCTV, control de accesos, QR/NFC para rondas, bitácora digital.' },
+      { key: 'prevencion_activa', label: 'Prevención Activa', type: 'textarea', rows: 2, placeholder: 'Análisis de riesgos, disuasión y control preventivo.' },
+      { key: 'integracion_cliente', label: 'Integración con el Cliente', type: 'textarea', rows: 2, placeholder: 'Se integra con logística, producción y seguridad industrial.' },
+      { key: 'proteccion_integral', label: 'Protección Integral', type: 'textarea', rows: 2, placeholder: 'Activos físicos, personal, información y continuidad operativa.' },
+    ]},
+    { label: 'II. Filosofía y Cultura Operativa', fields: [
+      { key: 'disciplina_real', label: 'Disciplina Real', type: 'textarea', rows: 2, placeholder: 'Cumplimiento sin desviaciones. Sin supervisión constante.' },
+      { key: 'criterio_campo', label: 'Criterio en Campo', type: 'textarea', rows: 2, placeholder: 'Decisiones correctas bajo presión. Inteligencia operativa.' },
+      { key: 'respeto_operativo', label: 'Respeto Operativo', type: 'textarea', rows: 2, placeholder: 'Reconocimiento de jerarquías y procesos del cliente.' },
+      { key: 'confiabilidad', label: 'Confiabilidad', type: 'textarea', rows: 2, placeholder: 'Selección, formación y seguimiento de cada elemento.' },
+    ]},
+    { label: 'III. Sistema de Gestión PDCA', fields: [
+      { key: 'planear', label: 'PLANEAR — Análisis y Diseño', type: 'textarea', rows: 2, placeholder: 'Análisis de riesgos, vulnerabilidades, definición de consignas.' },
+      { key: 'ejecutar', label: 'EJECUTAR — Implementación', type: 'textarea', rows: 2, placeholder: 'Implementación de protocolos, control de accesos, despliegue.' },
+      { key: 'verificar', label: 'VERIFICAR — Medición', type: 'textarea', rows: 2, placeholder: 'Auditorías semanales/mensuales, revisión de KPIs.' },
+      { key: 'actuar', label: 'ACTUAR — Mejora Continua', type: 'textarea', rows: 2, placeholder: 'Correcciones operativas, ajustes de protocolos.' },
+    ]},
+    { label: 'IV. Cadena de Mando', fields: [
+      { key: 'director_ops', label: 'Director de Operaciones', type: 'textarea', rows: 2, placeholder: 'Control total del servicio. Toma de decisiones críticas.' },
+      { key: 'supervisores', label: 'Supervisores', type: 'textarea', rows: 2, placeholder: 'Validan operación en sitio. Detectan riesgos.' },
+      { key: 'jefe_turno', label: 'Jefe de Turno', type: 'textarea', rows: 2, placeholder: 'Líder operativo. Primera autoridad. Pase de novedades.' },
+      { key: 'elementos_ops', label: 'Elementos Operativos', type: 'textarea', rows: 2, placeholder: 'Ejecutan consignas. Controlan accesos. Primera línea.' },
+      { key: 'operador_cctv', label: 'Operador CCTV', type: 'textarea', rows: 2, placeholder: 'Monitoreo de cámaras, detección de anomalías.' },
+    ]},
+    { label: 'V. Procedimientos Críticos', fields: [
+      { key: 'control_accesos', label: 'Control de Accesos', type: 'textarea', rows: 2, placeholder: 'Validación de identidad, registro obligatorio.' },
+      { key: 'ingreso_proveedores', label: 'Ingreso de Proveedores', type: 'textarea', rows: 2, placeholder: 'Validación INE, confirmación área interna, revisión EPP.' },
+      { key: 'salida_materiales', label: 'Salida de Materiales', type: 'textarea', rows: 2, placeholder: 'Validación documental, inspección física, registro.' },
+      { key: 'enemigo_interno', label: 'Enemigo Interno', type: 'textarea', rows: 2, placeholder: 'Evaluación de personal, control de accesos internos.' },
+      { key: 'protocolo_rondas', label: 'Protocolo de Rondas', type: 'textarea', rows: 2, placeholder: 'Checkpoints QR/NFC. Cada 60 min diurno, 45 min nocturno.' },
+      { key: 'operacion_cctv', label: 'Operación CCTV', type: 'textarea', rows: 2, placeholder: 'Monitoreo activo, detección de eventos, respaldo 30 días.' },
+    ]},
+    { label: 'VI. Gestión de Incidentes', fields: [
+      { key: 'nivel_1', label: 'Nivel 1 — Incidente Leve', type: 'textarea', rows: 2, placeholder: 'Novedad operativa menor. Registro en bitácora.' },
+      { key: 'nivel_2', label: 'Nivel 2 — Incidente Moderado', type: 'textarea', rows: 2, placeholder: 'Daño a propiedad, acceso no autorizado. Evidencia fotográfica.' },
+      { key: 'nivel_3', label: 'Nivel 3 — Incidente Crítico', type: 'textarea', rows: 2, placeholder: 'Robo, agresión, intrusión. Protocolo 4A completo.' },
+    ]},
+    { label: 'VII. Sistema de Control y KPIs', fields: [
+      { key: 'kpi_cobertura', label: 'Cobertura', type: 'text', placeholder: '100% de puestos cubiertos' },
+      { key: 'kpi_rondines', label: 'Rondines Completados', type: 'text', placeholder: 'Meta: >95%' },
+      { key: 'kpi_respuesta', label: 'Tiempo de Respuesta', type: 'text', placeholder: 'Meta: <3 minutos' },
+      { key: 'kpi_accesos', label: 'Accesos Incorrectos', type: 'text', placeholder: 'Meta: 0' },
+      { key: 'auditoria_semanal', label: 'Auditoría Semanal', type: 'textarea', rows: 2, placeholder: 'Validación: consignas, formatos, presencia, uniforme.' },
+      { key: 'auditoria_mensual', label: 'Auditoría Mensual', type: 'textarea', rows: 2, placeholder: 'Reporte ejecutivo: KPIs, tendencias, recomendaciones.' },
+    ]},
+    { label: 'VIII. Sistema Disciplinario', fields: [
+      { key: 'falta_leve', label: 'Falta Leve — Advertencia', type: 'textarea', rows: 2, placeholder: 'Retardo, uniforme incompleto, omisión menor.' },
+      { key: 'falta_moderada', label: 'Falta Moderada — Suspensión', type: 'textarea', rows: 2, placeholder: 'Reincidencia, celular en servicio, ronda incompleta.' },
+      { key: 'falta_grave', label: 'Falta Grave — Baja Inmediata', type: 'textarea', rows: 2, placeholder: 'Abandono, sustancias, agresión, robo, negligencia.' },
+    ]},
+    { label: 'IX. Marco Legal y Blindaje', fields: [
+      { key: 'cuip', label: 'CUIP Obligatorio', type: 'textarea', rows: 2, placeholder: 'Cédula Única de Identificación de Personal.' },
+      { key: 'dc3', label: 'DC3 - Capacitación', type: 'textarea', rows: 2, placeholder: 'Constancias registradas ante STPS.' },
+      { key: 'examenes_medicos', label: 'Exámenes Médicos', type: 'textarea', rows: 2, placeholder: 'General, antidoping, agudeza visual. Renovación anual.' },
+      { key: 'repse', label: 'REPSE Vigente', type: 'textarea', rows: 2, placeholder: 'Registro como Prestadora de Servicios Especializados.' },
+    ]},
+    { label: 'Observaciones Adicionales', fields: [
+      { key: 'observaciones', label: 'Observaciones', type: 'textarea', rows: 4 },
+    ]},
+  ]},
+
+  /* ─── MANUAL OPERATIVO INTEGRAL ─── */
+  manual_operativo: { title: 'Manual Operativo — Sistema Integral de Gestión de Seguridad Patrimonial', sections: [
+    { label: 'Control del Documento', fields: [
+      { key: 'codigo_doc', label: 'Código del Documento', type: 'text', placeholder: 'SGC-MO-001' },
+      { key: 'version', label: 'Versión', type: 'text', placeholder: '1.0' },
+      { key: 'fecha', label: 'Fecha de Emisión', type: 'date' },
+      { key: 'elaboro', label: 'Elaboró', type: 'text' },
+      { key: 'reviso', label: 'Revisó', type: 'text' },
+      { key: 'aprobo', label: 'Aprobó', type: 'text' },
+    ]},
+    { label: 'Cultura Organizacional', fields: [
+      { key: 'proposito', label: 'Propósito', type: 'textarea', rows: 2, placeholder: 'Proteger activos, instalaciones y personal mediante control operativo.' },
+      { key: 'mision', label: 'Misión', type: 'textarea', rows: 2, placeholder: 'Brindar seguridad patrimonial bajo estándares industriales.' },
+      { key: 'vision', label: 'Visión', type: 'textarea', rows: 2, placeholder: 'Empresa de gestión integral de seguridad para corporativos.' },
+    ]},
+    { label: 'Marco Legal y Normativo', fields: [
+      { key: 'ley_federal', label: 'Ley Federal de Seguridad Privada', type: 'textarea', rows: 2, placeholder: 'Regulación federal para control y legalidad.' },
+      { key: 'reglamento_sspc', label: 'Reglamento de la SSPC', type: 'textarea', rows: 2, placeholder: 'Cumplimiento con lineamientos de la SSPC.' },
+      { key: 'normatividad_repse', label: 'Normatividad REPSE', type: 'textarea', rows: 2, placeholder: 'Registro ante IMSS y SAT para subcontratación legal.' },
+      { key: 'expedientes', label: 'Expedientes Completos', type: 'textarea', rows: 2, placeholder: 'INE, CURP, antecedentes, médico, DC3.' },
+      { key: 'control_version', label: 'Control de Versión Documental', type: 'textarea', rows: 2, placeholder: 'Versión, fecha, responsable, firma de validación.' },
+    ]},
+    { label: 'Estructura Organizacional', fields: [
+      { key: 'director_ops', label: 'Director de Operaciones', type: 'textarea', rows: 2, placeholder: 'Responsable de la estrategia operativa.' },
+      { key: 'coordinador_zona', label: 'Coordinador de Zona', type: 'textarea', rows: 2, placeholder: 'Supervisión de múltiples sitios.' },
+      { key: 'supervisor_sitio', label: 'Supervisor de Sitio', type: 'textarea', rows: 2, placeholder: 'Control directo de la operación en planta.' },
+      { key: 'jefe_turno', label: 'Jefe de Turno', type: 'textarea', rows: 2, placeholder: 'Líder operativo durante su turno.' },
+      { key: 'elemento_operativo', label: 'Elemento Operativo', type: 'textarea', rows: 2, placeholder: 'Ejecuta protocolos de seguridad.' },
+      { key: 'operador_cctv', label: 'Operador CCTV', type: 'textarea', rows: 2, placeholder: 'Monitoreo de cámaras y detección de anomalías.' },
+    ]},
+    { label: 'Procedimientos Operativos', fields: [
+      { key: 'inicio_turno', label: '5.1 Inicio de Turno', type: 'textarea', rows: 2, placeholder: 'Revisión de equipo, pase de novedades, verificación bitácora.' },
+      { key: 'cambio_turno', label: '5.2 Cambio de Turno', type: 'textarea', rows: 2, placeholder: 'Entrega formal de novedades, equipo y llaves.' },
+      { key: 'reporte_novedades', label: '5.3 Reporte de Novedades', type: 'textarea', rows: 2, placeholder: 'Comunicación inmediata al supervisor.' },
+      { key: 'uso_radio', label: '5.4 Uso de Radio', type: 'textarea', rows: 2, placeholder: 'Canal asignado, códigos de comunicación.' },
+      { key: 'registro_bitacora', label: '5.5 Registro en Bitácora', type: 'textarea', rows: 2, placeholder: 'Anotación cronológica: hora, evento, responsable, firma.' },
+      { key: 'entrega_turno', label: '5.6 Entrega de Turno', type: 'textarea', rows: 2, placeholder: 'Verificación de áreas, conteo de llaves, firma.' },
+    ]},
+    { label: 'Control de Accesos', fields: [
+      { key: 'personal_interno', label: 'Personal Interno', type: 'textarea', rows: 2, placeholder: 'Verificación de gafete, registro biométrico.' },
+      { key: 'visitantes', label: 'Visitantes', type: 'textarea', rows: 2, placeholder: 'Identificación oficial, registro en bitácora, gafete temporal.' },
+      { key: 'proveedores', label: 'Proveedores', type: 'textarea', rows: 2, placeholder: 'Orden de compra, inspección de vehículo.' },
+      { key: 'vehiculos', label: 'Vehículos', type: 'textarea', rows: 2, placeholder: 'Revisión de cajuela/carga, número de placas.' },
+      { key: 'material_salida', label: 'Material de Salida', type: 'textarea', rows: 2, placeholder: 'Pase de salida autorizado, verificación física.' },
+    ]},
+    { label: 'Operación CCTV', fields: [
+      { key: 'monitoreo_activo', label: 'Monitoreo Activo', type: 'textarea', rows: 2, placeholder: 'Revisión continua: accesos, perímetro, almacenes.' },
+      { key: 'deteccion_eventos', label: 'Detección de Eventos', type: 'textarea', rows: 2, placeholder: 'Movimientos sospechosos, accesos no autorizados.' },
+      { key: 'respaldo_video', label: 'Respaldo de Video', type: 'textarea', rows: 2, placeholder: 'Retención mínima 30 días. Servidor local y nube.' },
+      { key: 'mantenimiento_cctv', label: 'Mantenimiento', type: 'textarea', rows: 2, placeholder: 'Limpieza mensual de lentes. Verificación de ángulos.' },
+    ]},
+    { label: 'Protocolo de Rondas', fields: [
+      { key: 'frecuencia_rondas', label: 'Frecuencia', type: 'text', placeholder: 'Diurno: cada 60 min / Nocturno: cada 45 min' },
+      { key: 'ruta_asignada', label: 'Ruta Asignada', type: 'textarea', rows: 2, placeholder: 'Recorrido predefinido con checkpoints QR/NFC.' },
+      { key: 'registro_automatico', label: 'Registro Automático', type: 'textarea', rows: 2, placeholder: 'Hora y ubicación GPS al escanear cada punto.' },
+      { key: 'prohibiciones_ronda', label: 'Prohibiciones', type: 'textarea', rows: 2, placeholder: 'No celular, no audífonos, no alterar ruta.' },
+    ]},
+    { label: 'Observaciones', fields: [
+      { key: 'observaciones', label: 'Observaciones Generales', type: 'textarea', rows: 4 },
+    ]},
+  ]},
+
+  /* ─── PROPUESTA COMERCIAL ─── */
+  propuesta_comercial: { title: 'Propuesta Comercial — MICSA Safety Division', sections: [
+    { label: 'Datos del Documento', fields: [
+      { key: 'fecha', label: 'Fecha', type: 'date' },
+      { key: 'version', label: 'Versión', type: 'text', placeholder: '1.0' },
+      { key: 'confidencial', label: 'Clasificación', type: 'text', placeholder: 'DOCUMENTO CONFIDENCIAL' },
+    ]},
+    { label: 'Datos del Cliente', fields: [
+      { key: 'cliente', label: 'Cliente / Empresa', type: 'text', placeholder: 'Nombre de la empresa' },
+      { key: 'planta', label: 'Planta / Ubicación', type: 'text' },
+      { key: 'atencion', label: 'Atención', type: 'text' },
+      { key: 'contacto', label: 'Contacto / Tel', type: 'text' },
+      { key: 'correo_cliente', label: 'Correo', type: 'text' },
+    ]},
+    { label: 'Presentación Corporativa', fields: [
+      { key: 'quienes_somos', label: 'Quiénes Somos', type: 'textarea', rows: 3, placeholder: 'MICSA Safety Division — empresa de gestión integral de seguridad patrimonial...' },
+      { key: 'propuesta_valor', label: 'Propuesta de Valor', type: 'textarea', rows: 3, placeholder: 'No vendemos guardias. Implementamos: control operativo, gestión de riesgos, protección patrimonial.' },
+    ]},
+    { label: 'Servicios Ofertados', fields: [
+      { key: 'seguridad_fisica', label: 'Seguridad Física', type: 'textarea', rows: 2, placeholder: 'Elementos operativos capacitados, supervisión 24/7.' },
+      { key: 'control_accesos', label: 'Control de Accesos', type: 'textarea', rows: 2, placeholder: 'Personal, visitantes, proveedores, vehículos, materiales.' },
+      { key: 'monitoreo_cctv', label: 'Monitoreo CCTV', type: 'textarea', rows: 2, placeholder: 'Operadores dedicados, respaldo de video, detección proactiva.' },
+      { key: 'rondas', label: 'Sistema de Rondas', type: 'textarea', rows: 2, placeholder: 'QR/NFC, GPS automático, frecuencia programada.' },
+      { key: 'gestion_incidentes', label: 'Gestión de Incidentes', type: 'textarea', rows: 2, placeholder: 'Protocolo 4A, clasificación por niveles, escalamiento.' },
+      { key: 'reporteo', label: 'Sistema de Reporteo', type: 'textarea', rows: 2, placeholder: 'Diario, semanal, mensual. KPIs medibles.' },
+    ]},
+    { label: 'Diferenciadores', fields: [
+      { key: 'cumplimiento_legal', label: 'Cumplimiento Legal', type: 'textarea', rows: 2, placeholder: 'REPSE vigente, CUIP, DC3, Ley Federal de Seguridad Privada.' },
+      { key: 'nivel_gestion', label: 'Nivel de Gestión', type: 'textarea', rows: 2, placeholder: 'Nivel 4: Gestión Integral. Procesos definidos, KPIs activos, mejora continua.' },
+      { key: 'tecnologia', label: 'Tecnología', type: 'textarea', rows: 2, placeholder: 'Bitácora digital, rondas QR/NFC, reportes automatizados.' },
+    ]},
+    { label: 'Inversión', fields: [
+      { key: 'descripcion_servicio', label: 'Descripción del Servicio', type: 'textarea', rows: 3 },
+      { key: 'monto_mensual', label: 'Inversión Mensual (sin IVA)', type: 'text' },
+      { key: 'num_elementos', label: 'Número de Elementos', type: 'text' },
+      { key: 'esquema_turnos', label: 'Esquema de Turnos', type: 'text', placeholder: '24x7, 12x12, etc.' },
+      { key: 'forma_pago', label: 'Forma de Pago', type: 'textarea', rows: 2 },
+      { key: 'vigencia', label: 'Vigencia de la Propuesta', type: 'text', placeholder: '15 días' },
+    ]},
+    { label: 'Observaciones', fields: [
+      { key: 'observaciones', label: 'Notas Adicionales', type: 'textarea', rows: 3 },
+    ]},
+  ]},
+
+  /* ─── CÓDIGO DE ÉTICA Y REGLAMENTO ─── */
+  codigo_etica: { title: 'Código de Ética y Reglamento Interno — MICSA', sections: [
+    { label: 'Control del Documento', fields: [
+      { key: 'codigo_doc', label: 'Código del Documento', type: 'text', placeholder: 'SGC-CE-001' },
+      { key: 'version', label: 'Versión', type: 'text', placeholder: '1.0' },
+      { key: 'fecha', label: 'Fecha de Emisión', type: 'date' },
+      { key: 'elaboro', label: 'Elaboró', type: 'text' },
+      { key: 'aprobo', label: 'Aprobó', type: 'text' },
+    ]},
+    { label: 'Principios Éticos', fields: [
+      { key: 'integridad', label: 'Integridad', type: 'textarea', rows: 2, placeholder: 'Actuar con honestidad en cada acción dentro y fuera de la operación.' },
+      { key: 'confidencialidad', label: 'Confidencialidad', type: 'textarea', rows: 2, placeholder: 'Protección absoluta de la información del cliente y de la empresa.' },
+      { key: 'respeto', label: 'Respeto', type: 'textarea', rows: 2, placeholder: 'Trato digno a compañeros, superiores, clientes y proveedores.' },
+      { key: 'responsabilidad', label: 'Responsabilidad', type: 'textarea', rows: 2, placeholder: 'Cumplir con las funciones asignadas sin excusas ni evasiones.' },
+      { key: 'lealtad', label: 'Lealtad', type: 'textarea', rows: 2, placeholder: 'Compromiso con la empresa, el cliente y el equipo.' },
+      { key: 'profesionalismo', label: 'Profesionalismo', type: 'textarea', rows: 2, placeholder: 'Imagen, puntualidad, disciplina y ejecución impecable.' },
+    ]},
+    { label: 'Reglamento Interior de Trabajo', fields: [
+      { key: 'horarios', label: 'Horarios y Puntualidad', type: 'textarea', rows: 2, placeholder: 'Presentarse 15 minutos antes. Tolerancia cero en tardanzas.' },
+      { key: 'uniforme', label: 'Uniforme y Presentación', type: 'textarea', rows: 2, placeholder: 'Uniforme completo, limpio, con gafete visible en todo momento.' },
+      { key: 'uso_celular', label: 'Uso de Celular', type: 'textarea', rows: 2, placeholder: 'Prohibido durante el servicio. Solo en caso de emergencia.' },
+      { key: 'sustancias', label: 'Sustancias Prohibidas', type: 'textarea', rows: 2, placeholder: 'Tolerancia cero: alcohol, drogas, sustancias que alteren juicio.' },
+      { key: 'relaciones_cliente', label: 'Relaciones con el Cliente', type: 'textarea', rows: 2, placeholder: 'Profesionales en todo momento. Sin familiaridad excesiva.' },
+      { key: 'redes_sociales', label: 'Redes Sociales', type: 'textarea', rows: 2, placeholder: 'Prohibido publicar información o imágenes del sitio de trabajo.' },
+    ]},
+    { label: 'Sistema Disciplinario', fields: [
+      { key: 'falta_leve', label: 'Falta Leve — Advertencia Verbal', type: 'textarea', rows: 2, placeholder: 'Retardo menor, uniforme incompleto, omisión menor.' },
+      { key: 'falta_moderada', label: 'Falta Moderada — Suspensión', type: 'textarea', rows: 2, placeholder: 'Reincidencia, uso de celular, incumplimiento de ronda.' },
+      { key: 'falta_grave', label: 'Falta Grave — Baja Inmediata', type: 'textarea', rows: 2, placeholder: 'Abandono de puesto, consumo de sustancias, robo, agresión.' },
+    ]},
+    { label: 'Compromisos del Elemento', fields: [
+      { key: 'compromiso', label: 'Declaración de Compromiso', type: 'textarea', rows: 3, placeholder: 'El firmante se compromete a cumplir con el presente código de ética y reglamento...' },
+      { key: 'nombre_elemento', label: 'Nombre del Elemento', type: 'text' },
+      { key: 'firma_fecha', label: 'Fecha de Firma', type: 'date' },
+    ]},
+  ]},
+
+  /* ─── MANUAL DE RECLUTAMIENTO ─── */
+  manual_reclutamiento: { title: 'Manual de Reclutamiento y Selección — MICSA', sections: [
+    { label: 'Control del Documento', fields: [
+      { key: 'codigo_doc', label: 'Código del Documento', type: 'text', placeholder: 'SGC-RH-001' },
+      { key: 'version', label: 'Versión', type: 'text', placeholder: '1.0' },
+      { key: 'fecha', label: 'Fecha de Emisión', type: 'date' },
+      { key: 'elaboro', label: 'Elaboró', type: 'text' },
+      { key: 'aprobo', label: 'Aprobó', type: 'text' },
+    ]},
+    { label: 'Perfil del Elemento Operativo', fields: [
+      { key: 'edad', label: 'Rango de Edad', type: 'text', placeholder: '22 a 45 años' },
+      { key: 'escolaridad', label: 'Escolaridad Mínima', type: 'text', placeholder: 'Secundaria terminada' },
+      { key: 'experiencia', label: 'Experiencia', type: 'textarea', rows: 2, placeholder: 'Preferente en seguridad patrimonial, fuerzas armadas o industria.' },
+      { key: 'aptitudes', label: 'Aptitudes Requeridas', type: 'textarea', rows: 2, placeholder: 'Disciplina, criterio bajo presión, buena condición física.' },
+      { key: 'documentacion', label: 'Documentación Obligatoria', type: 'textarea', rows: 3, placeholder: 'INE, CURP, acta de nacimiento, comprobante de domicilio, antecedentes no penales, cartilla militar (si aplica), carta de recomendación.' },
+    ]},
+    { label: 'Proceso de Reclutamiento', fields: [
+      { key: 'fuentes', label: 'Fuentes de Reclutamiento', type: 'textarea', rows: 2, placeholder: 'Referidos internos, bolsas de empleo, redes sociales, ferias.' },
+      { key: 'filtro_inicial', label: 'Filtro Inicial', type: 'textarea', rows: 2, placeholder: 'Revisión de documentación, validación de identidad, historial.' },
+      { key: 'entrevista', label: 'Entrevista Presencial', type: 'textarea', rows: 2, placeholder: 'Evaluación de actitud, presentación, comunicación, criterio.' },
+      { key: 'investigacion', label: 'Investigación de Antecedentes', type: 'textarea', rows: 2, placeholder: 'Verificación de referencias laborales, antecedentes penales, domicilio.' },
+    ]},
+    { label: 'Evaluaciones', fields: [
+      { key: 'examen_medico', label: 'Examen Médico', type: 'textarea', rows: 2, placeholder: 'General, antidoping, agudeza visual, prueba de esfuerzo.' },
+      { key: 'examen_psicometrico', label: 'Examen Psicométrico', type: 'textarea', rows: 2, placeholder: 'Evaluación de personalidad, inteligencia y comportamiento.' },
+      { key: 'prueba_campo', label: 'Prueba de Campo', type: 'textarea', rows: 2, placeholder: 'Evaluación práctica de condición física y criterio operativo.' },
+    ]},
+    { label: 'Capacitación Inicial', fields: [
+      { key: 'induccion', label: 'Inducción Corporativa', type: 'textarea', rows: 2, placeholder: 'Cultura organizacional, código de ética, reglamento interno.' },
+      { key: 'capacitacion_operativa', label: 'Capacitación Operativa', type: 'textarea', rows: 2, placeholder: 'Protocolos de acceso, rondas, bitácora, uso de radio.' },
+      { key: 'capacitacion_cliente', label: 'Capacitación Específica del Sitio', type: 'textarea', rows: 2, placeholder: 'Consignas del cliente, mapa de planta, zonas críticas.' },
+      { key: 'dc3', label: 'Constancia DC3', type: 'textarea', rows: 2, placeholder: 'Registro ante STPS al completar la capacitación.' },
+    ]},
+    { label: 'Alta del Elemento', fields: [
+      { key: 'alta_imss', label: 'Alta ante IMSS', type: 'textarea', rows: 2, placeholder: 'Registro antes del primer día de trabajo.' },
+      { key: 'contrato', label: 'Contrato Individual', type: 'textarea', rows: 2, placeholder: 'Contrato por tiempo determinado, con posibilidad de renovación.' },
+      { key: 'expediente_completo', label: 'Expediente Digital Completo', type: 'textarea', rows: 2, placeholder: 'Todos los documentos escaneados y almacenados en sistema.' },
+      { key: 'asignacion_sitio', label: 'Asignación de Sitio', type: 'text', placeholder: 'Planta / Cliente asignado' },
+    ]},
+    { label: 'Observaciones', fields: [
+      { key: 'observaciones', label: 'Observaciones', type: 'textarea', rows: 3 },
+    ]},
+  ]},
 }
 
 // Default schema for other doc types
@@ -94,6 +356,11 @@ const TIPO_TITLES: Record<string, string> = {
   entrega_epp: 'Entrega de EPP',
   plan_izaje: 'Plan de Izaje',
   reporte_avance: 'Reporte de Avance',
+  manual_integral: 'Manual Integral — Seguridad Patrimonial',
+  manual_operativo: 'Manual Operativo Integral',
+  propuesta_comercial: 'Propuesta Comercial',
+  codigo_etica: 'Código de Ética y Reglamento',
+  manual_reclutamiento: 'Manual de Reclutamiento',
 }
 
 /* ─── PHOTO UPLOADER ─────────────────────────────────────── */

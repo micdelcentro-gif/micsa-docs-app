@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-const TIPOS = [
+const TIPOS_OPERATIVOS = [
   { id: 'cotizacion',         icon: '💼', label: 'Cotización Formal',     color: '#c8a84b' },
   { id: 'bitacora',           icon: '📋', label: 'Bitácora Diaria',       color: '#1a3a6b' },
   { id: 'costos_adicionales', icon: '➕', label: 'Costos Adicionales',    color: '#2d6a4f' },
@@ -15,6 +15,14 @@ const TIPOS = [
   { id: 'reporte_avance',     icon: '📊', label: 'Reporte de Avance',     color: '#553c9a' },
 ]
 
+const TIPOS_CORPORATIVOS = [
+  { id: 'manual_integral',       icon: '🛡️', label: 'Manual Integral',          color: '#0a1628' },
+  { id: 'manual_operativo',      icon: '📖', label: 'Manual Operativo',          color: '#1a3a6b' },
+  { id: 'propuesta_comercial',   icon: '📈', label: 'Propuesta Comercial',       color: '#c8a84b' },
+  { id: 'codigo_etica',          icon: '⚖️', label: 'Código de Ética',           color: '#2d6a4f' },
+  { id: 'manual_reclutamiento',  icon: '👥', label: 'Manual Reclutamiento',      color: '#6b46c1' },
+]
+
 export default function NuevoPage() {
   const router = useRouter()
 
@@ -25,14 +33,27 @@ export default function NuevoPage() {
         <h2 className="text-lg font-bold text-slate-800">Nuevo Documento</h2>
       </div>
 
-      <p className="text-sm text-slate-500 mb-4">Selecciona el tipo de documento:</p>
-
-      <div className="grid grid-cols-2 gap-3">
-        {TIPOS.map(tipo => (
+      <p className="text-sm text-slate-500 mb-3">Documentos Operativos</p>
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        {TIPOS_OPERATIVOS.map(tipo => (
           <Link
             key={tipo.id}
             href={`/dashboard/nuevo/${tipo.id}`}
             className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 hover:border-blue-300 active:scale-95 transition-all flex flex-col items-center text-center gap-2"
+          >
+            <span className="text-3xl">{tipo.icon}</span>
+            <span className="text-xs font-semibold text-slate-700 leading-tight">{tipo.label}</span>
+          </Link>
+        ))}
+      </div>
+
+      <p className="text-sm text-slate-500 mb-3">Documentos Corporativos — Safety Division</p>
+      <div className="grid grid-cols-2 gap-3">
+        {TIPOS_CORPORATIVOS.map(tipo => (
+          <Link
+            key={tipo.id}
+            href={`/dashboard/nuevo/${tipo.id}`}
+            className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 hover:border-amber-300 active:scale-95 transition-all flex flex-col items-center text-center gap-2"
           >
             <span className="text-3xl">{tipo.icon}</span>
             <span className="text-xs font-semibold text-slate-700 leading-tight">{tipo.label}</span>
