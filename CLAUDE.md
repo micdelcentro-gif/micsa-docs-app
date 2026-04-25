@@ -51,6 +51,20 @@ indice_paquete, expediente_financiero, carta_formal_direccion,
 carta_respuesta_hallazgos, anexo_hallazgos
 ```
 
+## Pre-llenado automático de formularios
+
+`DEFAULTS` es una constante de módulo en `[tipo]/page.tsx` (fuera del componente).
+Para agregar datos pre-llenados a un tipo nuevo:
+
+```ts
+const DEFAULTS: Record<string, Record<string, string>> = {
+  expediente_financiero: { proyecto: '...', cliente: '...', ... },
+  nuevo_tipo: { campo1: 'valor', campo2: 'valor' },
+}
+```
+
+`useState` se inicializa con función lazy: `() => DEFAULTS[tipo] ?? {}`
+
 ## Patrón para agregar una plantilla nueva
 
 1. Agregar schema en `SCHEMAS` (objeto en `[tipo]/page.tsx`)
