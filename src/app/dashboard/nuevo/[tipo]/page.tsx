@@ -825,6 +825,9 @@ const SCHEMA_MANUAL_RECLUTAMIENTO = {
       { key: 'declaracion', label: 'Declaración Final', type: 'textarea', rows: 4, placeholder: 'GRUPO MICSA declara que los trabajos fueron ejecutados conforme a los más altos estándares...' },
       { key: 'firmante', label: 'Firmante', type: 'text', placeholder: 'Jordan Nefthali González — Dirección General' },
     ]},
+    { label: 'VI. Transcripción / Notas', fields: [
+      { key: 'transcripcion', label: 'Área de inyección libre — pega aquí correos, actas, declaraciones o cualquier texto', type: 'textarea', rows: 12, placeholder: 'Pega aquí el contenido que deseas incluir en el expediente: correos, actas de reunión, declaraciones, transcripciones de llamadas, evidencias textuales, etc.' },
+    ]},
   ]},
   carta_formal_direccion: { title: 'Carta Formal Dirección → Cliente', sections: [
     { label: 'Encabezado', fields: [
@@ -1149,9 +1152,9 @@ export default function NuevoTipoPage() {
       <title>${title}</title>
       <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
       <style>
-        *{box-sizing:border-box;margin:0;padding:0}
+        *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
         body{font-family:'IBM Plex Sans',sans-serif;background:white}
-        @media print{@page{margin:0;size:A4}}
+        @media print{@page{margin:0;size:A4}body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
       </style>
     </head><body>${html}</body></html>`)
     w.document.close()
@@ -1751,6 +1754,11 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
               </div>
             </div>
           </div>
+          {/* TRANSCRIPCIÓN */}
+          {data.transcripcion && (<>
+            <SEC n="VI" title="Transcripción / Notas Adicionales" />
+            <div style={{ fontSize:9.5, lineHeight:1.8, whiteSpace:'pre-wrap', wordBreak:'break-word', marginBottom:10, color:'#222', padding:'10px 14px', background:'#f8f9fa', border:'1px solid #dde3f0', borderLeft:'4px solid #1a2a4a', borderRadius:'0 4px 4px 0', fontFamily:"'IBM Plex Sans',monospace" }}>{data.transcripcion}</div>
+          </>)}
         </div>
         <Footer email={MI.emailCot} />
       </div>
