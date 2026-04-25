@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { ALCANCES_DEFAULT, INCLUYE_DEFAULT, EXCLUYE_DEFAULT, COND_DEFAULT, NOTA_SUP, LETTERS, LOGO_B64, MI, NAVY, RED, GOLD, fmtDate, fmtMXN } from '@/lib/constants'
@@ -1087,11 +1087,15 @@ export default function NuevoTipoPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  const [data, setData] = useState<Record<string, string>>(() => DEFAULTS[tipo] ?? {})
+  const [data, setData] = useState<Record<string, string>>({})
   const [fotos, setFotos] = useState<{ url: string; path: string; name: string }[]>([])
   const [saving, setSaving] = useState(false)
   const [savedId, setSavedId] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
+
+  useEffect(() => {
+    if (DEFAULTS[tipo]) setData(prev => Object.keys(prev).length === 0 ? DEFAULTS[tipo] : prev)
+  }, [tipo])
   const printRef = useRef<HTMLDivElement>(null)
 
   const title = TIPO_TITLES[tipo] || tipo
@@ -1646,56 +1650,105 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
     const fmtN = (v: string | undefined) => v ? parseFloat(v).toLocaleString('es-MX', { minimumFractionDigits: 2 }) : '0.00'
     const montos = [1,2,3].map(n => parseFloat(data[`fase${n}_monto`]||'0'))
     const total = montos.reduce((a,b) => a+b, 0)
+    const montoFinal = parseFloat(data.monto_reclamado || String(total)) || 0
     const hechos = [1,2,3,4,5].map(n => data[`hecho${n}`]).filter(Boolean)
-    const SEC = ({ title }: { title: string }) => (
-      <div style={{ background: '#0a0a0a', color: '#F5B800', fontWeight: 800, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 10px', marginBottom: 8, marginTop: 14 }}>{title}</div>
+    const fechaFmt = data.fecha ? new Date(data.fecha+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}) : '25 de abril de 2026'
+    const SEC = ({ n, title }: { n: string; title: string }) => (
+      <div style={{ display:'flex', alignItems:'center', gap:10, margin:'16px 0 8px' }}>
+        <div style={{ background:'#F5B800', color:'#0a0a0a', fontWeight:900, fontSize:9, padding:'3px 7px', borderRadius:2, letterSpacing:'0.1em', flexShrink:0 }}>{n}</div>
+        <div style={{ fontWeight:800, fontSize:10.5, color:'#1a2a4a', letterSpacing:'0.06em', textTransform:'uppercase', borderBottom:'2px solid #F5B800', paddingBottom:2, flex:1 }}>{title}</div>
+      </div>
     )
     return (
-      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 10.5, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+      <div style={{ fontFamily:"'IBM Plex Sans',sans-serif", fontSize:10.5, color:'#111', background:'white', display:'flex', flexDirection:'column', minHeight:'100%' }}>
         <Watermark />
-        <div style={{ padding: '14px 20px', flex: 1 }}>
-          <Header />
-          <div style={{ textAlign: 'center', margin: '10px 0 8px' }}>
-            <div style={{ fontWeight: 900, fontSize: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>EXPEDIENTE TÉCNICO-FINANCIERO</div>
-            <div style={{ fontStyle: 'italic', fontSize: 10, color: '#555' }}>{data.proyecto || 'Reclamación Económica'}</div>
+        {/* BANNER HEADER */}
+        <div style={{ background:'#0a1628', padding:'16px 20px 12px' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-micsa-white.png" alt="MICSA" style={{ height:36, filter:'brightness(0) invert(1)' }} onError={(e)=>{(e.target as HTMLImageElement).style.display='none'}} />
+            <div style={{ textAlign:'right' }}>
+              <div style={{ fontSize:8, color:'#aaa', letterSpacing:'0.2em', textTransform:'uppercase' }}>RFC: {MI.rfc || 'MIC230126855'}</div>
+              <div style={{ fontSize:8, color:'#666', marginTop:2 }}>{fechaFmt}</div>
+            </div>
           </div>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 10, fontSize: 10 }}>
-            <tbody>
-              {[['FOLIO', data.folio_exp||folio||'—'],['CLIENTE', data.cliente||'—'],['FECHA', data.fecha ? new Date(data.fecha+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}) : '—'],['ELABORÓ', data.elaboro||'—'],['VERSIÓN', data.version||'V1.0']].map(([k,v]) => (
-                <tr key={k}><td style={{ padding:'4px 8px',fontWeight:700,width:'28%',border:'1px solid #ddd',background:'#f8f8f8',fontSize:9.5 }}>{k}:</td><td style={{ padding:'4px 8px',border:'1px solid #ddd' }}>{v}</td></tr>
-              ))}
-            </tbody>
-          </table>
-          {data.resumen && (<><SEC title="I. Resumen Ejecutivo" /><p style={{ margin:'0 0 8px',lineHeight:1.7,textAlign:'justify',fontSize:10 }}>{data.resumen}</p></>)}
-          <SEC title="II. Fases Ejecutadas" />
-          <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:8, fontSize:10 }}>
-            <thead><tr style={{ background:'#111', color:'#fff' }}><th style={{ padding:'5px 8px',textAlign:'left' }}>Fase</th><th style={{ padding:'5px 8px',textAlign:'left' }}>Descripción</th><th style={{ padding:'5px 8px',textAlign:'right',width:'22%' }}>Monto (MXN)</th></tr></thead>
+          <div style={{ marginTop:14, borderTop:'1px solid #2a3a5a', paddingTop:12 }}>
+            <div style={{ fontSize:7, letterSpacing:'0.3em', color:'#F5B800', textTransform:'uppercase', marginBottom:4 }}>Documento Técnico-Financiero Formal</div>
+            <div style={{ fontWeight:900, fontSize:20, color:'#fff', letterSpacing:'0.04em', textTransform:'uppercase', lineHeight:1.1 }}>EXPEDIENTE TÉCNICO-FINANCIERO</div>
+            <div style={{ fontSize:10, color:'#aaa', marginTop:4, fontStyle:'italic' }}>{data.proyecto || 'Reclamación Económica — Carrier CMXA'}</div>
+          </div>
+        </div>
+        {/* FICHA CONTROL */}
+        <div style={{ background:'#f0f4ff', borderBottom:'3px solid #F5B800', padding:'10px 20px' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'6px 20px', fontSize:9.5 }}>
+            {[['FOLIO',data.folio_exp||folio||'MICSA-EXP-0001'],['CLIENTE',data.cliente||'Carrier México CMXA'],['FECHA',fechaFmt],['ELABORÓ',data.elaboro||'Jordan Nefthali González'],['VERSIÓN',data.version||'V1.0'],['ESTADO','PENDIENTE DE PAGO']].map(([k,v])=>(
+              <div key={k}><span style={{ fontWeight:700, color:'#1a2a4a', textTransform:'uppercase', fontSize:8.5, letterSpacing:'0.08em' }}>{k}: </span><span style={{ color:'#333' }}>{v}</span></div>
+            ))}
+          </div>
+        </div>
+        <div style={{ padding:'12px 20px', flex:1 }}>
+          {/* RESUMEN */}
+          {data.resumen && (<><SEC n="I" title="Resumen Ejecutivo" /><p style={{ margin:'0 0 10px',lineHeight:1.75,textAlign:'justify',fontSize:10,color:'#222' }}>{data.resumen}</p></>)}
+          {/* FASES + MONTO */}
+          <SEC n="II" title="Fases Ejecutadas y Estructura Financiera" />
+          <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:0, fontSize:10 }}>
+            <thead>
+              <tr style={{ background:'#1a2a4a', color:'#fff' }}>
+                <th style={{ padding:'6px 10px',textAlign:'left',width:'8%',fontSize:9 }}>FASE</th>
+                <th style={{ padding:'6px 10px',textAlign:'left',fontSize:9 }}>DESCRIPCIÓN</th>
+                <th style={{ padding:'6px 10px',textAlign:'right',width:'24%',fontSize:9 }}>MONTO (MXN)</th>
+              </tr>
+            </thead>
             <tbody>
               {[1,2,3].map(n => data[`fase${n}_desc`] ? (
-                <tr key={n} style={{ background: n%2===0 ? '#f9f9f9':'#fff' }}>
-                  <td style={{ padding:'4px 8px',border:'1px solid #ddd',fontWeight:700 }}>Fase {n}</td>
-                  <td style={{ padding:'4px 8px',border:'1px solid #ddd' }}>{data[`fase${n}_desc`]}</td>
-                  <td style={{ padding:'4px 8px',border:'1px solid #ddd',textAlign:'right' }}>${fmtN(data[`fase${n}_monto`])}</td>
+                <tr key={n} style={{ background: n%2===0 ? '#f7f9ff':'#fff' }}>
+                  <td style={{ padding:'6px 10px',border:'1px solid #e0e6ff',fontWeight:800,color:'#1a2a4a',textAlign:'center' }}>{n}</td>
+                  <td style={{ padding:'6px 10px',border:'1px solid #e0e6ff',lineHeight:1.5 }}>{data[`fase${n}_desc`]}</td>
+                  <td style={{ padding:'6px 10px',border:'1px solid #e0e6ff',textAlign:'right',fontWeight:600 }}>${fmtN(data[`fase${n}_monto`])}</td>
                 </tr>
               ) : null)}
-              <tr style={{ background:'#0a0a0a',color:'#fff' }}><td colSpan={2} style={{ padding:'6px 8px',fontWeight:900,textAlign:'right' }}>TOTAL RECLAMADO</td><td style={{ padding:'6px 8px',textAlign:'right',fontWeight:900 }}>${fmtN(String(data.monto_reclamado||total))}</td></tr>
             </tbody>
           </table>
+          {/* MONTO DESTACADO */}
+          <div style={{ background:'linear-gradient(135deg,#0a1628 0%,#1a2a4a 100%)', padding:'14px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+            <div>
+              <div style={{ fontSize:8, letterSpacing:'0.25em', color:'#F5B800', textTransform:'uppercase', marginBottom:3 }}>Monto Total Reclamado</div>
+              <div style={{ fontSize:7.5, color:'#aaa' }}>Exigible de manera inmediata</div>
+            </div>
+            <div style={{ textAlign:'right' }}>
+              <div style={{ fontWeight:900, fontSize:22, color:'#F5B800', letterSpacing:'0.02em' }}>${fmtN(String(montoFinal))}</div>
+              <div style={{ fontSize:8, color:'#aaa', letterSpacing:'0.1em' }}>PESOS MEXICANOS</div>
+            </div>
+          </div>
+          {/* HECHOS */}
           {hechos.length > 0 && (<>
-            <SEC title="III. Matriz de Hechos" />
-            {hechos.map((h,i) => (
-              <div key={i} style={{ display:'flex', gap:8, marginBottom:4, fontSize:10 }}>
-                <div style={{ minWidth:18, fontWeight:800, color:'#F5B800' }}>{i+1}.</div>
-                <div style={{ lineHeight:1.7 }}>{h}</div>
-              </div>
-            ))}
+            <SEC n="III" title="Matriz de Hechos" />
+            <div style={{ display:'flex', flexDirection:'column', gap:6, marginBottom:10 }}>
+              {hechos.map((h,i) => (
+                <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start', background: i%2===0?'#f7f9ff':'#fff', padding:'6px 10px', borderLeft:'3px solid #F5B800', borderRadius:'0 4px 4px 0' }}>
+                  <div style={{ minWidth:20, height:20, background:'#1a2a4a', color:'#F5B800', fontWeight:900, fontSize:9, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50%', flexShrink:0 }}>{i+1}</div>
+                  <div style={{ fontSize:10, lineHeight:1.65, color:'#222' }}>{h}</div>
+                </div>
+              ))}
+            </div>
           </>)}
-          {data.impacto && (<><SEC title="IV. Impacto Financiero" /><div style={{ fontSize:10,lineHeight:1.7,whiteSpace:'pre-line',marginBottom:8 }}>{data.impacto}</div></>)}
-          {data.declaracion && (<><SEC title="V. Declaración" /><p style={{ fontStyle:'italic',fontSize:10,lineHeight:1.7,textAlign:'justify',padding:'8px 12px',border:'1px solid #ddd',background:'#fafafa',marginBottom:12 }}>{data.declaracion}</p></>)}
-          <div style={{ marginTop:20, textAlign:'center' }}>
-            <div style={{ borderTop:'1.5px solid #111',paddingTop:6,marginTop:36,display:'inline-block',minWidth:200 }}>
-              <div style={{ fontWeight:800, fontSize:10 }}>Por GRUPO MICSA</div>
-              <div style={{ fontSize:9.5, color:'#444', whiteSpace:'pre-line' }}>{data.firmante||'Jordan Nefthali González\nDirección General'}</div>
+          {/* IMPACTO */}
+          {data.impacto && (<>
+            <SEC n="IV" title="Impacto Financiero" />
+            <div style={{ fontSize:10, lineHeight:1.75, whiteSpace:'pre-line', marginBottom:10, color:'#222', padding:'8px 12px', background:'#fffbf0', borderLeft:'3px solid #F5B800' }}>{data.impacto}</div>
+          </>)}
+          {/* DECLARACIÓN */}
+          {data.declaracion && (<>
+            <SEC n="V" title="Declaración Final" />
+            <div style={{ fontSize:10, lineHeight:1.75, textAlign:'justify', padding:'10px 14px', border:'1px solid #1a2a4a', background:'#f0f4ff', marginBottom:14, borderRadius:4, color:'#1a2a4a', fontStyle:'italic' }}>{data.declaracion}</div>
+          </>)}
+          {/* FIRMA */}
+          <div style={{ display:'flex', justifyContent:'flex-end', marginTop:20 }}>
+            <div style={{ textAlign:'center', minWidth:220 }}>
+              <div style={{ borderTop:'2px solid #1a2a4a', paddingTop:8, marginTop:36 }}>
+                <div style={{ fontWeight:900, fontSize:10, color:'#1a2a4a', letterSpacing:'0.06em' }}>POR GRUPO MICSA</div>
+                <div style={{ fontSize:9.5, color:'#555', whiteSpace:'pre-line', marginTop:2 }}>{data.firmante||'Jordan Nefthali González\nDirección General'}</div>
+              </div>
             </div>
           </div>
         </div>
