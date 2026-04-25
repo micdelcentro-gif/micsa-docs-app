@@ -15,6 +15,12 @@ const TIPO_LABELS: Record<TipoDoc | string, { label: string; icon: string; color
   entrega_epp:        { label: 'Entrega EPP',        icon: '🪖', color: 'bg-sky-100 text-sky-800'    },
   plan_izaje:         { label: 'Plan de Izaje',      icon: '🏗️', color: 'bg-teal-100 text-teal-800' },
   reporte_avance:     { label: 'Reporte Avance',     icon: '📊', color: 'bg-violet-100 text-violet-800' },
+  cotizacion_fimpress: { label: 'Cot. Soporte Técnico', icon: '⚙️', color: 'bg-yellow-100 text-yellow-800' },
+  indice_paquete: { label: 'Índice Corporativo', icon: '📑', color: 'bg-slate-100 text-slate-800' },
+  expediente_financiero: { label: 'Expediente Financiero', icon: '📂', color: 'bg-blue-100 text-blue-800' },
+  carta_formal_direccion: { label: 'Carta Formal', icon: '✉️', color: 'bg-slate-100 text-slate-800' },
+  carta_respuesta_hallazgos: { label: 'Respuesta Hallazgos', icon: '🔍', color: 'bg-green-100 text-green-800' },
+  anexo_hallazgos: { label: 'Anexo Fotográfico', icon: '📷', color: 'bg-violet-100 text-violet-800' },
 }
 
 const ESTADO_COLORS: Record<string, string> = {
