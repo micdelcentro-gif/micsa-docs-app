@@ -1053,6 +1053,33 @@ function PhotoUploader({ documentoId, fotos, onFotosChange }: {
   )
 }
 
+/* ─── DEFAULTS PRE-LLENADO ───────────────────────────────── */
+const DEFAULTS: Record<string, Record<string, string>> = {
+  expediente_financiero: {
+    proyecto: 'Reubicación de Celdas LCV4 y LCH',
+    cliente: 'Carrier México CMXA',
+    folio_exp: 'MICSA-EXP-0001',
+    elaboro: 'Jordan Nefthali González — Dirección General',
+    version: 'V1.0',
+      resumen: 'GRUPO MICSA ejecutó servicios especializados de desmantelamiento, maniobras, izaje y soporte técnico dentro de las instalaciones de Carrier México CMXA, correspondientes al proyecto de reubicación de celdas LCV4 y LCH.\n\nLa ejecución incluyó movilización de personal técnico especializado, uso de equipos de elevación y maniobra, desmantelamiento controlado de componentes industriales, maniobras internas en condiciones de espacio restringido, coordinación operativa en sitio con interferencias activas y soporte técnico continuo durante fases críticas del proyecto.',
+      monto_reclamado: '1715728.92',
+      fase1_desc: 'Ejecución directa del servicio — desmantelamiento, izaje y maniobras en sitio',
+      fase1_monto: '980000',
+      fase2_desc: 'Costos por interferencias operativas, standby y reactivaciones no programadas',
+      fase2_monto: '485728.92',
+      fase3_desc: 'Saldos contractuales pendientes y fases adicionales ejecutadas',
+      fase3_monto: '250000',
+      hecho1: 'El servicio fue ejecutado físicamente dentro de las instalaciones de Carrier México CMXA con recursos humanos y técnicos propios de GRUPO MICSA.',
+      hecho2: 'Se presentaron interferencias operativas por áreas no liberadas, dependencias de terceros para actividades críticas y alteraciones en la secuencia de trabajo planificada.',
+      hecho3: 'Periodos de espera operativa (standby) con personal y equipo movilizado y reactivaciones no programadas que implicaron doble movilización.',
+      hecho4: 'El resultado del trabajo ejecutado permanece actualmente en el sitio y forma parte del estado operativo del proyecto de Carrier.',
+      hecho5: 'AMISA, intermediario contractual, no ha realizado el pago correspondiente. El monto de $1,715,728.92 MXN permanece pendiente de liquidación.',
+      impacto: 'Pérdida de productividad por interferencias operativas.\nExtensión del tiempo de ejecución más allá del programa original.\nIncremento de costos operativos por standby y doble movilización.\nNecesidad de refuerzo de cuadrillas y recursos no contemplados.\n\nCarrier México CMXA es el beneficiario directo del servicio. Mantiene el resultado del trabajo realizado y utiliza el avance generado como parte del proyecto.\n\nEl incumplimiento del intermediario (AMISA) no extingue la obligación de pago. El beneficiario del servicio no puede retener el pago de un trabajo ya ejecutado.',
+      declaracion: 'GRUPO MICSA declara que los trabajos fueron ejecutados conforme a las condiciones disponibles en sitio. Las desviaciones fueron externas al control del contratista y los costos fueron absorbidos para sostener la operación.\n\nEl cliente recibió el beneficio del servicio. No existe fundamento técnico, operativo ni contractual para la retención del pago.\n\nEl pago no está sujeto a validación futura ni a condiciones internas entre terceros. Es una obligación derivada de un servicio ya prestado y exigible de manera inmediata.',
+      firmante: 'Jordan Nefthali González — Dirección General',
+    },
+}
+
 /* ─── MAIN PAGE ──────────────────────────────────────────── */
 export default function NuevoTipoPage() {
   const params = useParams()
@@ -1060,7 +1087,7 @@ export default function NuevoTipoPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  const [data, setData] = useState<Record<string, string>>({})
+  const [data, setData] = useState<Record<string, string>>(() => DEFAULTS[tipo] ?? {})
   const [fotos, setFotos] = useState<{ url: string; path: string; name: string }[]>([])
   const [saving, setSaving] = useState(false)
   const [savedId, setSavedId] = useState<string | null>(null)
@@ -1114,6 +1141,7 @@ export default function NuevoTipoPage() {
     if (!w) return
     w.document.write(`<!DOCTYPE html><html><head>
       <meta charset="utf-8">
+      <base href="${window.location.origin}">
       <title>${title}</title>
       <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
       <style>
@@ -1123,7 +1151,8 @@ export default function NuevoTipoPage() {
       </style>
     </head><body>${html}</body></html>`)
     w.document.close()
-    setTimeout(() => { w.focus(); w.print() }, 800)
+    w.onload = () => { w.focus(); w.print() }
+    setTimeout(() => { if (!w.closed) { w.focus(); w.print() } }, 2000)
   }
 
     async function handleDocxDownload() {
