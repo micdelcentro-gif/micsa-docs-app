@@ -18,6 +18,12 @@ const TIPOS = [
   { id: 'propuesta_comercial', icon: '📈', label: 'Propuesta Comercial', color: '#2d6a4f' },
   { id: 'codigo_etica', icon: '⚖️', label: 'Código de Ética', color: '#0a1628' },
   { id: 'manual_reclutamiento', icon: '👥', label: 'Manual Reclutamiento', color: '#6b46c1' },
+  { id: 'cotizacion_fimpress', icon: '⚙️', label: 'Cot. Soporte Técnico — 3 Especialistas', color: '#92400e' },
+  { id: 'indice_paquete', icon: '📑', label: 'Índice Paquete Corporativo', color: '#1a1a1a' },
+  { id: 'expediente_financiero', icon: '📂', label: 'Expediente Técnico-Financiero', color: '#1a3a6b' },
+  { id: 'carta_formal_direccion', icon: '✉️', label: 'Carta Formal Dirección', color: '#0a1628' },
+  { id: 'carta_respuesta_hallazgos', icon: '🔍', label: 'Carta Respuesta Hallazgos', color: '#2d6a4f' },
+  { id: 'anexo_hallazgos', icon: '📷', label: 'Anexo F — Análisis Fotográfico', color: '#553c9a' },
 ]
 
 export default function NuevoPage() {
