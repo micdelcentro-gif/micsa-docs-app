@@ -1056,6 +1056,93 @@ function PhotoUploader({ documentoId, fotos, onFotosChange }: {
   )
 }
 
+/* ─── PARSER DE TEXTO LIBRE (client-side, sin costo) ────────── */
+function normalizar(s: string) {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9\s]/g, ' ').trim()
+}
+
+function parsearTextoLibre(texto: string, campos: { key: string; label: string }[]): Record<string, string> {
+  const resultado: Record<string, string> = {}
+
+  // 1. Extraer bloques markdown: ### **Label**\nValor
+  const mdRegex = /#{1,4}\s*\*{0,2}([^*\n#]+)\*{0,2}\s*\n+([\s\S]*?)(?=\n#{1,4}|\n---|\z|$)/g
+  const bloques: { label: string; valor: string }[] = []
+  let m: RegExpExecArray | null
+  while ((m = mdRegex.exec(texto)) !== null) {
+    const label = m[1].trim()
+    const valor = m[2].replace(/\n+/g, '\n').trim()
+    if (label && valor) bloques.push({ label, valor })
+  }
+
+  // 2. Extraer pares "Label: Valor" de línea simple
+  const lineaRegex = /^([A-ZÁÉÍÓÚÑa-záéíóúñ][^\n:]{2,40}):\s*(.+)$/gm
+  while ((m = lineaRegex.exec(texto)) !== null) {
+    bloques.push({ label: m[1].trim(), valor: m[2].trim() })
+  }
+
+  // 3. Mapa de alias comunes → key de campo
+  const ALIAS: Record<string, string> = {
+    fecha: 'fecha', 'fecha del documento': 'fecha', date: 'fecha',
+    cliente: 'cliente', 'cliente final': 'cliente', company: 'cliente', empresa: 'cliente',
+    proyecto: 'proyecto', 'proyecto / referencia': 'proyecto', 'referencia': 'proyecto',
+    supervisor: 'supervisor',
+    descripcion: 'descripcion', description: 'descripcion',
+    observaciones: 'observaciones', notas: 'observaciones', notes: 'observaciones',
+    monto: 'monto_reclamado', 'monto total': 'monto_reclamado', 'total adeudado': 'monto_reclamado', importe: 'monto_reclamado',
+    folio: 'folio_exp', 'numero de folio': 'folio_exp',
+    'elaboro': 'elaboro', 'elaborado por': 'elaboro', autor: 'elaboro',
+    version: 'version',
+    resumen: 'resumen', summary: 'resumen', 'resumen ejecutivo': 'resumen',
+    declaracion: 'declaracion', 'declaracion final': 'declaracion',
+    firmante: 'firmante', firma: 'firmante',
+    impacto: 'impacto', 'impacto financiero': 'impacto',
+    destinatario: 'destinatario_nombre', 'nombre destinatario': 'destinatario_nombre',
+    cargo: 'destinatario_cargo', puesto: 'destinatario_cargo',
+    asunto: 'asunto',
+    parrafo1: 'parrafo1', 'parrafo 1': 'parrafo1',
+    parrafo2: 'parrafo2', 'parrafo 2': 'parrafo2',
+    parrafo3: 'parrafo3', 'parrafo 3': 'parrafo3',
+  }
+
+  // 4. Para cada bloque, intentar mapear a un campo
+  for (const bloque of bloques) {
+    const normLabel = normalizar(bloque.label)
+    // a) Alias exacto
+    const keyAlias = ALIAS[normLabel]
+    if (keyAlias) { resultado[keyAlias] = bloque.valor; continue }
+    // b) Coincidencia con label del campo del schema
+    let mejorKey = ''
+    let mejorScore = 0
+    for (const campo of campos) {
+      const normCampo = normalizar(campo.label)
+      const palabrasBloque = normLabel.split(/\s+/).filter(p => p.length > 2)
+      const palabrasCampo = normCampo.split(/\s+/).filter(p => p.length > 2)
+      const coincidencias = palabrasBloque.filter(p => palabrasCampo.includes(p)).length
+      const score = coincidencias / Math.max(palabrasBloque.length, 1)
+      if (score > mejorScore && score >= 0.4) { mejorScore = score; mejorKey = campo.key }
+    }
+    if (mejorKey && !resultado[mejorKey]) resultado[mejorKey] = bloque.valor
+  }
+
+  // 5. Detectar fecha suelta si no se capturó
+  if (!resultado['fecha']) {
+    const fechaM = texto.match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})\b/)
+    if (fechaM) {
+      const [, d, mo, y] = fechaM
+      const yr = y.length === 2 ? '20' + y : y
+      resultado['fecha'] = `${yr}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`
+    }
+  }
+
+  // 6. Detectar monto $X,XXX.XX si no se capturó
+  if (!resultado['monto_reclamado']) {
+    const montoM = texto.match(/\$\s*([\d,]+(?:\.\d{2})?)\s*(?:MXN|pesos)?/i)
+    if (montoM) resultado['monto_reclamado'] = montoM[1].replace(/,/g, '')
+  }
+
+  return resultado
+}
+
 /* ─── DEFAULTS PRE-LLENADO ───────────────────────────────── */
 const DEFAULTS: Record<string, Record<string, string>> = {
   expediente_financiero: {
@@ -1098,6 +1185,7 @@ export default function NuevoTipoPage() {
   const [parsing, setParsing] = useState(false)
   const [parsed, setParsed] = useState<Record<string, string> | null>(null)
   const [parseError, setParseError] = useState<string | null>(null)
+  const [pdfGenerating, setPdfGenerating] = useState(false)
 
   useEffect(() => {
     if (DEFAULTS[tipo]) setData(prev => Object.keys(prev).length === 0 ? DEFAULTS[tipo] : prev)
@@ -1111,24 +1199,20 @@ export default function NuevoTipoPage() {
     setData(prev => ({ ...prev, [key]: val }))
   }
 
-  async function handleParse() {
+  function handleParse() {
     const transcripcion = data['transcripcion']
     if (!transcripcion?.trim()) return
     setParsing(true)
     setParsed(null)
     setParseError(null)
+
     try {
-      const campos = schema.sections.flatMap(s => s.fields.filter(f => f.key !== 'transcripcion').map(f => ({ key: f.key, label: f.label })))
-      const res = await fetch('/api/parse-transcription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcripcion, campos }),
-      })
-      const json = await res.json()
-      if (json.error) setParseError(json.error)
-      else setParsed(json.data)
-    } catch {
-      setParseError('Error de conexión')
+      const campos = schema.sections.flatMap(s =>
+        s.fields.filter(f => f.key !== 'transcripcion').map(f => ({ key: f.key, label: f.label }))
+      )
+      const resultado = parsearTextoLibre(transcripcion, campos)
+      if (Object.keys(resultado).length === 0) setParseError('No se encontró información reconocible. Intenta usar el formato "Campo: Valor" o encabezados con ###.')
+      else setParsed(resultado)
     } finally {
       setParsing(false)
     }
@@ -1173,25 +1257,85 @@ export default function NuevoTipoPage() {
     setSaving(false)
   }
 
-  function handlePrint() {
+  async function handlePrint() {
     if (!printRef.current) return
-    const html = printRef.current.innerHTML
-    const w = window.open('', '_blank', 'width=900,height=700')
-    if (!w) return
-    w.document.write(`<!DOCTYPE html><html><head>
-      <meta charset="utf-8">
-      <base href="${window.location.origin}">
-      <title>${title}</title>
-      <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
-      <style>
-        *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
-        body{font-family:'IBM Plex Sans',sans-serif;background:white}
-        @media print{@page{margin:0;size:A4}body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
-      </style>
-    </head><body>${html}</body></html>`)
-    w.document.close()
-    w.onload = () => { w.focus(); w.print() }
-    setTimeout(() => { if (!w.closed) { w.focus(); w.print() } }, 2000)
+    setPdfGenerating(true)
+    try {
+      // Espera a que el DOM esté completamente listo
+      await new Promise(r => setTimeout(r, 500))
+
+      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+        import('jspdf'),
+        import('html2canvas'),
+      ])
+      const el = printRef.current
+
+      // Fuerza recalculation de estilos
+      const rect = el.getBoundingClientRect()
+      const computedStyle = window.getComputedStyle(el)
+
+      const canvas = await html2canvas(el, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: el.scrollWidth,
+        height: el.scrollHeight,
+        windowWidth: el.scrollWidth,
+        windowHeight: el.scrollHeight,
+        imageTimeout: 10000,
+      })
+
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+      const margin = 10
+      const pageW = pdf.internal.pageSize.getWidth()
+      const pageH = pdf.internal.pageSize.getHeight()
+      const contentW = pageW - margin * 2
+      const contentH = pageH - margin * 2
+
+      const pxToMm = contentW / canvas.width
+      const totalImgH = canvas.height * pxToMm
+
+      let srcOffsetPx = 0
+      let isFirst = true
+
+      while (srcOffsetPx < canvas.height) {
+        const sliceHeightPx = Math.round(contentH / pxToMm)
+        const actualSlicePx = Math.min(sliceHeightPx, canvas.height - srcOffsetPx)
+
+        const slice = document.createElement('canvas')
+        slice.width = canvas.width
+        slice.height = actualSlicePx
+        const ctx = slice.getContext('2d')!
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, slice.width, actualSlicePx)
+        ctx.drawImage(canvas, 0, srcOffsetPx, canvas.width, actualSlicePx, 0, 0, canvas.width, actualSlicePx)
+
+        const sliceData = slice.toDataURL('image/jpeg', 0.98)
+        const sliceHmm = actualSlicePx * pxToMm
+
+        if (!isFirst) pdf.addPage()
+        pdf.addImage(sliceData, 'JPEG', margin, margin, contentW, sliceHmm)
+
+        srcOffsetPx += actualSlicePx
+        isFirst = false
+
+        if (srcOffsetPx >= canvas.height) break
+      }
+
+      if (totalImgH <= contentH && pdf.getNumberOfPages() > 1) {
+        while (pdf.getNumberOfPages() > 1) pdf.deletePage(pdf.getNumberOfPages())
+      }
+
+      const nombre = (title || tipo).replace(/\s+/g, '_')
+      pdf.save(`${nombre}_${folio || 'borrador'}.pdf`)
+    } catch (error) {
+      console.error('PDF generation error:', error)
+      alert('Error al generar PDF: ' + (error instanceof Error ? error.message : String(error)))
+    } finally {
+      setPdfGenerating(false)
+    }
   }
 
     async function handleDocxDownload() {
@@ -1240,7 +1384,7 @@ export default function NuevoTipoPage() {
       {savedId && (
         <div className="mx-4 mt-3 bg-green-50 border border-green-200 text-green-700 rounded-lg px-3 py-2 text-sm flex items-center justify-between no-print">
           <span>✓ Guardado — <strong>{folio}</strong></span>
-          <button onClick={handlePrint} className="text-green-800 font-semibold underline text-xs">Imprimir PDF</button><button onClick={handleDocxDownload} className="text-blue-800 font-semibold underline text-xs ml-2">⬇ DOCX</button>
+          <button onClick={handlePrint} disabled={pdfGenerating} className="text-green-800 font-semibold underline text-xs disabled:opacity-50">{pdfGenerating ? 'Generando…' : 'Descargar PDF'}</button><button onClick={handleDocxDownload} className="text-blue-800 font-semibold underline text-xs ml-2">⬇ DOCX</button>
         </div>
       )}
 
@@ -1260,6 +1404,8 @@ export default function NuevoTipoPage() {
           </button>
         </div>
         <textarea
+          name="transcripcion"
+          id="transcripcion"
           value={data['transcripcion'] || ''}
           onChange={e => { set('transcripcion', e.target.value); setParsed(null); setParseError(null) }}
           placeholder="Transcribe aquí desde cero o pega contenido: título, fecha, cliente, correos, actas, declaraciones…"
@@ -1293,16 +1439,16 @@ export default function NuevoTipoPage() {
       {showPreview ? (
         /* PREVIEW */
         <div className="p-4">
-          <button onClick={handlePrint}
-            className="w-full mb-4 bg-slate-800 text-white py-3 rounded-xl font-semibold text-sm no-print"
+          <button onClick={handlePrint} disabled={pdfGenerating}
+            className="w-full mb-4 bg-slate-800 text-white py-3 rounded-xl font-semibold text-sm no-print disabled:opacity-60"
           >
-            🖨️ Imprimir / Guardar PDF
+            {pdfGenerating ? 'Generando PDF…' : '⬇ Descargar PDF'}
           </button>
-                  <button onClick={handleDocxDownload}
-                              className="w-full mb-2 bg-blue-900 text-white py-3 rounded-xl font-semibold text-sm no-print"
-                            >
-                            ⬇ Descargar DOCX (Plantilla MICSA)
-                  </button>
+          <button onClick={handleDocxDownload}
+            className="w-full mb-2 bg-blue-900 text-white py-3 rounded-xl font-semibold text-sm no-print"
+          >
+            ⬇ Descargar DOCX (Plantilla MICSA)
+          </button>
           <div ref={printRef}>
             <DocumentPreview tipo={tipo} data={data} fotos={fotos} folio={folio} />
           </div>
@@ -1318,9 +1464,11 @@ export default function NuevoTipoPage() {
               <div className="p-4 space-y-3">
                 {section.fields.map(field => (
                   <div key={field.key}>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">{field.label}</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1" htmlFor={field.key}>{field.label}</label>
                     {field.type === 'textarea' ? (
                       <textarea
+                        id={field.key}
+                        name={field.key}
                         value={data[field.key] || ''}
                         onChange={e => set(field.key, e.target.value)}
                         placeholder={field.placeholder}
@@ -1329,6 +1477,8 @@ export default function NuevoTipoPage() {
                       />
                     ) : (
                       <input
+                        id={field.key}
+                        name={field.key}
                         type={field.type}
                         value={data[field.key] || ''}
                         onChange={e => set(field.key, e.target.value)}
@@ -1370,6 +1520,11 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
   fotos: { url: string }[]
   folio?: string | null
 }) {
+  // Debug
+  if (typeof window !== 'undefined') {
+    console.log('[DocumentPreview] tipo=', tipo, 'data keys=', Object.keys(data).length, 'fotos=', fotos.length)
+  }
+
   const tdL: React.CSSProperties = { padding: '5px 8px', fontWeight: 700, color: '#444', whiteSpace: 'nowrap', width: '100px', fontSize: '10px' }
   const tdV: React.CSSProperties = { padding: '5px 8px', color: '#111', fontSize: '10px', borderLeft: '1px solid #e5e7eb' }
 
@@ -2004,6 +2159,91 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
     )
   }
 
+  if (tipo === 'bitacora' || tipo?.toLowerCase?.()?.includes?.('bitacora')) {
+    const fechaFmt = data.fecha ? new Date(data.fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : '___________________________'
+    const cell = (label: string, value: string, wide?: boolean) => (
+      <td style={{ border:'1px solid #ccc', padding:'5px 8px', verticalAlign:'top', width: wide ? 'auto' : '50%' }}>
+        <div style={{ fontSize:8, fontWeight:700, color:'#666', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:2 }}>{label}</div>
+        <div style={{ fontSize:10, color:'#111', minHeight:14 }}>{value || '—'}</div>
+      </td>
+    )
+    return (
+      <div style={{ fontFamily:"'IBM Plex Sans',sans-serif", fontSize:10.5, color:'#111', background:'white', display:'flex', flexDirection:'column', minHeight:'100%' }}>
+        <Watermark />
+        <div style={{ padding:'14px 20px', flex:1 }}>
+          <Header />
+          {/* FICHA GENERAL */}
+          <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:10 }}>
+            <tbody>
+              <tr>{cell('Proyecto / ET', data.proyecto||'')}{cell('Área de Trabajo', data.area||'')}</tr>
+              <tr>{cell('Supervisor', data.supervisor||'')}{cell('Folio', data.folio||folio||'')}</tr>
+              <tr>
+                {cell('Fecha', fechaFmt)}
+                <td style={{ border:'1px solid #ccc', padding:'5px 8px', verticalAlign:'top' }}>
+                  <div style={{ fontSize:8, fontWeight:700, color:'#666', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:2 }}>Horario</div>
+                  <div style={{ fontSize:10, color:'#111' }}>{data.hora_inicio||'__:__'} — {data.hora_fin||'__:__'} &nbsp;|&nbsp; {data.num_personas||'__'} personas</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          {/* PERMISOS */}
+          <div style={{ background:'#0a1628', color:'#fff', fontWeight:800, fontSize:8.5, letterSpacing:'0.15em', textTransform:'uppercase', padding:'4px 10px', marginBottom:4 }}>Permisos de Trabajo</div>
+          <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:10 }}>
+            <tbody>
+              <tr>
+                {cell('Trabajo en Caliente', data.permiso_caliente||'N/A')}
+                {cell('Trabajo Rojo', data.permiso_rojo||'N/A')}
+                {cell('Trabajo en Alturas', data.permiso_alturas||'N/A')}
+              </tr>
+            </tbody>
+          </table>
+          {/* ACTIVIDADES */}
+          <div style={{ background:'#0a1628', color:'#fff', fontWeight:800, fontSize:8.5, letterSpacing:'0.15em', textTransform:'uppercase', padding:'4px 10px', marginBottom:4 }}>Actividades del Día</div>
+          {data.resumen && (
+            <div style={{ marginBottom:8 }}>
+              <div style={{ fontSize:8.5, fontWeight:700, color:'#444', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:3 }}>Resumen Ejecutivo</div>
+              <div style={{ fontSize:10, lineHeight:1.7, padding:'6px 10px', background:'#f8f9fa', borderLeft:'3px solid #F5B800', whiteSpace:'pre-wrap' }}>{data.resumen}</div>
+            </div>
+          )}
+          {data.actividades_detalle && (
+            <div style={{ marginBottom:10 }}>
+              <div style={{ fontSize:8.5, fontWeight:700, color:'#444', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:3 }}>Detalle de Actividades</div>
+              <div style={{ fontSize:10, lineHeight:1.8, padding:'6px 10px', border:'1px solid #e0e0e0', whiteSpace:'pre-wrap' }}>{data.actividades_detalle}</div>
+            </div>
+          )}
+          {/* TRANSCRIPCIÓN */}
+          {data.transcripcion && (
+            <div style={{ marginBottom:10 }}>
+              <div style={{ background:'#0a1628', color:'#fff', fontWeight:800, fontSize:8.5, letterSpacing:'0.15em', textTransform:'uppercase', padding:'4px 10px', marginBottom:4 }}>Notas / Transcripción</div>
+              <div style={{ fontSize:9.5, lineHeight:1.8, whiteSpace:'pre-wrap', padding:'6px 10px', background:'#f8f9fa', borderLeft:'3px solid #0a1628' }}>{data.transcripcion}</div>
+            </div>
+          )}
+          {/* FIRMAS */}
+          <div style={{ background:'#0a1628', color:'#fff', fontWeight:800, fontSize:8.5, letterSpacing:'0.15em', textTransform:'uppercase', padding:'4px 10px', marginBottom:8, marginTop:10 }}>Firmas</div>
+          <table style={{ width:'100%', borderCollapse:'collapse' }}>
+            <tbody>
+              <tr>
+                <td style={{ border:'1px solid #ccc', padding:'8px', width:'50%', textAlign:'center' }}>
+                  <div style={{ borderTop:'1px solid #555', paddingTop:6, marginTop:36, fontSize:9 }}>
+                    <div style={{ fontWeight:700 }}>{data.supervisor_micsa || data.supervisor || 'Supervisor MICSA'}</div>
+                    <div style={{ color:'#666', fontSize:8.5 }}>Supervisor Grupo MICSA</div>
+                  </div>
+                </td>
+                <td style={{ border:'1px solid #ccc', padding:'8px', width:'50%', textAlign:'center' }}>
+                  <div style={{ borderTop:'1px solid #555', paddingTop:6, marginTop:36, fontSize:9 }}>
+                    <div style={{ fontWeight:700 }}>{data.usuario_cliente || '________________________________'}</div>
+                    <div style={{ color:'#666', fontSize:8.5 }}>Nombre / Firma Cliente</div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <Footer email={MI.emailCot} />
+      </div>
+    )
+  }
+
   // Generic preview for other doc types
   const docTitle = TIPO_TITLES[tipo] || tipo
   const isCorporate = ['manual_integral_seguridad','manual_operativo','propuesta_comercial','codigo_etica','manual_reclutamiento'].includes(tipo)
@@ -2079,6 +2319,11 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
         <Footer />
       </div>
     )
+  }
+
+  // Debug: Log si no se matchea ningún tipo
+  if (typeof window !== 'undefined') {
+    console.warn('[DocumentPreview] No se encontró renderer específico para tipo:', tipo)
   }
 
   return (
