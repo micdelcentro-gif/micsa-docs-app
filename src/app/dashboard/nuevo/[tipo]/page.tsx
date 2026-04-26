@@ -1095,6 +1095,9 @@ export default function NuevoTipoPage() {
   const [saving, setSaving] = useState(false)
   const [savedId, setSavedId] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
+  const [parsing, setParsing] = useState(false)
+  const [parsed, setParsed] = useState<Record<string, string> | null>(null)
+  const [parseError, setParseError] = useState<string | null>(null)
 
   useEffect(() => {
     if (DEFAULTS[tipo]) setData(prev => Object.keys(prev).length === 0 ? DEFAULTS[tipo] : prev)
@@ -1106,6 +1109,35 @@ export default function NuevoTipoPage() {
 
   function set(key: string, val: string) {
     setData(prev => ({ ...prev, [key]: val }))
+  }
+
+  async function handleParse() {
+    const transcripcion = data['transcripcion']
+    if (!transcripcion?.trim()) return
+    setParsing(true)
+    setParsed(null)
+    setParseError(null)
+    try {
+      const campos = schema.sections.flatMap(s => s.fields.filter(f => f.key !== 'transcripcion').map(f => ({ key: f.key, label: f.label })))
+      const res = await fetch('/api/parse-transcription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transcripcion, campos }),
+      })
+      const json = await res.json()
+      if (json.error) setParseError(json.error)
+      else setParsed(json.data)
+    } catch {
+      setParseError('Error de conexión')
+    } finally {
+      setParsing(false)
+    }
+  }
+
+  function applyParsed() {
+    if (!parsed) return
+    setData(prev => ({ ...prev, ...parsed }))
+    setParsed(null)
   }
 
   const [folio, setFolio] = useState<string | null>(null)
@@ -1213,18 +1245,49 @@ export default function NuevoTipoPage() {
       )}
 
       {/* ÁREA DE TRANSCRIPCIÓN — visible para todos los documentos */}
-      <div className="mx-4 mt-3 bg-amber-50 border border-amber-200 rounded-xl overflow-hidden no-print">
-        <div className="px-4 py-2 bg-amber-100 border-b border-amber-200 flex items-center gap-2">
-          <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">Transcripción</span>
-          <span className="text-xs text-amber-700">— título, fecha, datos, correos, actas; aparece en el PDF</span>
+      <div className="mx-4 mt-3 rounded-xl overflow-hidden border border-amber-200 no-print">
+        <div className="px-4 py-2 bg-amber-100 border-b border-amber-200 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">Transcripción</span>
+            <span className="text-xs text-amber-700">— pega texto libre; Claude extrae los campos automáticamente</span>
+          </div>
+          <button
+            onClick={handleParse}
+            disabled={parsing || !data['transcripcion']?.trim()}
+            className="text-xs font-semibold bg-amber-800 text-white px-3 py-1.5 rounded-lg disabled:opacity-40 hover:bg-amber-900"
+          >
+            {parsing ? 'Analizando…' : 'Estructurar'}
+          </button>
         </div>
         <textarea
           value={data['transcripcion'] || ''}
-          onChange={e => set('transcripcion', e.target.value)}
-          placeholder="Transcribe aquí desde cero o pega contenido: título del documento, fecha, datos del cliente, correos, actas, declaraciones…"
-          rows={6}
+          onChange={e => { set('transcripcion', e.target.value); setParsed(null); setParseError(null) }}
+          placeholder="Transcribe aquí desde cero o pega contenido: título, fecha, cliente, correos, actas, declaraciones…"
+          rows={5}
           className="w-full px-4 py-3 text-sm bg-amber-50 text-slate-800 placeholder-amber-400 focus:outline-none focus:bg-white resize-y"
         />
+        {parseError && (
+          <div className="px-4 py-2 bg-red-50 border-t border-red-200 text-xs text-red-700">{parseError}</div>
+        )}
+        {parsed && (
+          <div className="border-t border-amber-200 bg-white">
+            <div className="px-4 py-2 bg-green-50 border-b border-green-200 flex items-center justify-between">
+              <span className="text-xs font-bold text-green-800 uppercase tracking-wide">Información extraída — revisa y confirma</span>
+              <div className="flex gap-2">
+                <button onClick={() => setParsed(null)} className="text-xs text-slate-500 hover:text-slate-800 px-2 py-1 rounded border border-slate-300">Descartar</button>
+                <button onClick={applyParsed} className="text-xs font-semibold bg-green-700 text-white px-3 py-1 rounded hover:bg-green-800">Aplicar al formulario</button>
+              </div>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {Object.entries(parsed).map(([k, v]) => (
+                <div key={k} className="px-4 py-2 flex gap-3 items-start">
+                  <span className="text-xs font-semibold text-slate-500 w-36 shrink-0 pt-0.5 uppercase">{k.replace(/_/g, ' ')}</span>
+                  <span className="text-xs text-slate-800 whitespace-pre-wrap flex-1">{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {showPreview ? (
