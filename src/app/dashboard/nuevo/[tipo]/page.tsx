@@ -1212,6 +1212,23 @@ export default function NuevoTipoPage() {
         </div>
       )}
 
+      {/* ÁREA DE TRANSCRIPCIÓN — siempre visible para expediente_financiero */}
+      {tipo === 'expediente_financiero' && (
+        <div className="mx-4 mt-3 bg-amber-50 border border-amber-200 rounded-xl overflow-hidden no-print">
+          <div className="px-4 py-2 bg-amber-100 border-b border-amber-200 flex items-center gap-2">
+            <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">Transcripción / Inyección de texto</span>
+            <span className="text-xs text-amber-700">— pega correos, actas, declaraciones; aparece en el PDF</span>
+          </div>
+          <textarea
+            value={data['transcripcion'] || ''}
+            onChange={e => set('transcripcion', e.target.value)}
+            placeholder="Pega aquí correos, actas de reunión, transcripciones de llamadas, declaraciones, evidencias textuales…"
+            rows={6}
+            className="w-full px-4 py-3 text-sm bg-amber-50 text-slate-800 placeholder-amber-400 focus:outline-none focus:bg-white resize-y"
+          />
+        </div>
+      )}
+
       {showPreview ? (
         /* PREVIEW */
         <div className="p-4">
