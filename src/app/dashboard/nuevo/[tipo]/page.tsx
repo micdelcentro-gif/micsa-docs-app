@@ -1212,22 +1212,20 @@ export default function NuevoTipoPage() {
         </div>
       )}
 
-      {/* ÁREA DE TRANSCRIPCIÓN — siempre visible para expediente_financiero */}
-      {tipo === 'expediente_financiero' && (
-        <div className="mx-4 mt-3 bg-amber-50 border border-amber-200 rounded-xl overflow-hidden no-print">
-          <div className="px-4 py-2 bg-amber-100 border-b border-amber-200 flex items-center gap-2">
-            <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">Transcripción / Inyección de texto</span>
-            <span className="text-xs text-amber-700">— pega correos, actas, declaraciones; aparece en el PDF</span>
-          </div>
-          <textarea
-            value={data['transcripcion'] || ''}
-            onChange={e => set('transcripcion', e.target.value)}
-            placeholder="Pega aquí correos, actas de reunión, transcripciones de llamadas, declaraciones, evidencias textuales…"
-            rows={6}
-            className="w-full px-4 py-3 text-sm bg-amber-50 text-slate-800 placeholder-amber-400 focus:outline-none focus:bg-white resize-y"
-          />
+      {/* ÁREA DE TRANSCRIPCIÓN — visible para todos los documentos */}
+      <div className="mx-4 mt-3 bg-amber-50 border border-amber-200 rounded-xl overflow-hidden no-print">
+        <div className="px-4 py-2 bg-amber-100 border-b border-amber-200 flex items-center gap-2">
+          <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">Transcripción</span>
+          <span className="text-xs text-amber-700">— título, fecha, datos, correos, actas; aparece en el PDF</span>
         </div>
-      )}
+        <textarea
+          value={data['transcripcion'] || ''}
+          onChange={e => set('transcripcion', e.target.value)}
+          placeholder="Transcribe aquí desde cero o pega contenido: título del documento, fecha, datos del cliente, correos, actas, declaraciones…"
+          rows={6}
+          className="w-full px-4 py-3 text-sm bg-amber-50 text-slate-800 placeholder-amber-400 focus:outline-none focus:bg-white resize-y"
+        />
+      </div>
 
       {showPreview ? (
         /* PREVIEW */
@@ -2009,6 +2007,12 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
             </div>
           ))}
         </div>
+        {data.transcripcion && (
+          <div style={{ marginTop: 16 }}>
+            <div style={{ background: '#0a0a0a', color: '#fff', fontWeight: 800, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '5px 10px', marginBottom: 8 }}>Transcripción / Notas</div>
+            <div style={{ fontSize: 9.5, lineHeight: 1.8, whiteSpace: 'pre-wrap', wordBreak: 'break-word', padding: '10px 14px', background: '#f8f9fa', border: '1px solid #dde3f0', borderLeft: '4px solid #0a0a0a', borderRadius: '0 4px 4px 0' }}>{data.transcripcion}</div>
+          </div>
+        )}
         <Footer />
       </div>
     )
@@ -2022,7 +2026,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
 
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14 }}>
           <tbody>
-            {Object.entries(data).map(([k, v]) => v ? (
+            {Object.entries(data).filter(([k]) => k !== 'transcripcion').map(([k, v]) => v ? (
               <tr key={k}>
                 <td style={tdL}>{k.replace(/_/g, ' ')}:</td>
                 <td style={tdV}>{v}</td>
@@ -2040,6 +2044,13 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
                 <img key={i} src={f.url} alt="" style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: 4 }} />
               ))}
             </div>
+          </div>
+        )}
+
+        {data.transcripcion && (
+          <div style={{ marginTop: 16 }}>
+            <div style={{ fontWeight: 800, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6, paddingBottom: 4, borderBottom: '2px solid #111' }}>Transcripción / Notas</div>
+            <div style={{ fontSize: 9.5, lineHeight: 1.8, whiteSpace: 'pre-wrap', wordBreak: 'break-word', padding: '10px 14px', background: '#f8f9fa', borderLeft: '4px solid #111', borderRadius: '0 4px 4px 0' }}>{data.transcripcion}</div>
           </div>
         )}
       </div>
