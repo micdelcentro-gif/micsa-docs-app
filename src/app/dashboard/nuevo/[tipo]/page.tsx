@@ -1873,33 +1873,15 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
       </div>
     )
     return (
-      <div style={{ fontFamily:"'IBM Plex Sans',sans-serif", fontSize:10.5, color:'#111', background:'white', display:'flex', flexDirection:'column', minHeight:'100%' }}>
-        <Watermark />
-        {/* BANNER HEADER */}
-        <div style={{ background:'#0a1628', padding:'16px 20px 12px' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-micsa-white.png" alt="MICSA" style={{ height:36, filter:'brightness(0) invert(1)' }} onError={(e)=>{(e.target as HTMLImageElement).style.display='none'}} />
-            <div style={{ textAlign:'right' }}>
-              <div style={{ fontSize:8, color:'#aaa', letterSpacing:'0.2em', textTransform:'uppercase' }}>RFC: {MI.rfc || 'MIC230126855'}</div>
-              <div style={{ fontSize:8, color:'#666', marginTop:2 }}>{fechaFmt}</div>
-            </div>
-          </div>
-          <div style={{ marginTop:14, borderTop:'1px solid #2a3a5a', paddingTop:12 }}>
-            <div style={{ fontSize:7, letterSpacing:'0.3em', color:'#F5B800', textTransform:'uppercase', marginBottom:4 }}>Documento Técnico-Financiero Formal</div>
-            <div style={{ fontWeight:900, fontSize:20, color:'#fff', letterSpacing:'0.04em', textTransform:'uppercase', lineHeight:1.1 }}>EXPEDIENTE TÉCNICO-FINANCIERO</div>
-            <div style={{ fontSize:10, color:'#aaa', marginTop:4, fontStyle:'italic' }}>{data.proyecto || 'Reclamación Económica — Carrier CMXA'}</div>
-          </div>
-        </div>
+      <UniformTemplate tipoDocumento="Expediente Técnico-Financiero" folio={folio} fecha={data.fecha}>
         {/* FICHA CONTROL */}
-        <div style={{ background:'#f0f4ff', borderBottom:'3px solid #F5B800', padding:'10px 20px' }}>
+        <div style={{ background:'#f0f4ff', borderBottom:'3px solid #F5B800', padding:'10px 0', marginBottom: 12 }}>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'6px 20px', fontSize:9.5 }}>
             {[['FOLIO',data.folio_exp||folio||'MICSA-EXP-0001'],['CLIENTE',data.cliente||'Carrier México CMXA'],['FECHA',fechaFmt],['ELABORÓ',data.elaboro||'Jordan Nefthali González'],['VERSIÓN',data.version||'V1.0'],['ESTADO','PENDIENTE DE PAGO']].map(([k,v])=>(
               <div key={k}><span style={{ fontWeight:700, color:'#1a2a4a', textTransform:'uppercase', fontSize:8.5, letterSpacing:'0.08em' }}>{k}: </span><span style={{ color:'#333' }}>{v}</span></div>
             ))}
           </div>
         </div>
-        <div style={{ padding:'12px 20px', flex:1 }}>
           {/* RESUMEN */}
           {data.resumen && (<><SEC n="I" title="Resumen Ejecutivo" /><p style={{ margin:'0 0 10px',lineHeight:1.75,textAlign:'justify',fontSize:10,color:'#222' }}>{data.resumen}</p></>)}
           {/* FASES + MONTO */}
@@ -1969,9 +1951,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
             <SEC n="VI" title="Transcripción / Notas Adicionales" />
             <div style={{ fontSize:9.5, lineHeight:1.8, whiteSpace:'pre-wrap', wordBreak:'break-word', marginBottom:10, color:'#222', padding:'10px 14px', background:'#f8f9fa', border:'1px solid #dde3f0', borderLeft:'4px solid #1a2a4a', borderRadius:'0 4px 4px 0', fontFamily:"'IBM Plex Sans',monospace" }}>{data.transcripcion}</div>
           </>)}
-        </div>
-        <Footer email={MI.emailCot} />
-      </div>
+      </UniformTemplate>
     )
   }
 
