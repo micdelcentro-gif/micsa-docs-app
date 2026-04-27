@@ -7,22 +7,23 @@
 'use strict';
 
 // ==================== PRE-CONFIGURED CREDENTIALS ====================
+// NOTE: Store API keys in localStorage or environment variables, not in source code
 (function seedCredentials() {
   if (!localStorage.getItem('gdocs_client_id')) {
-    localStorage.setItem('gdocs_client_id', '714714887434-gugc0m62djle88h4d5bqeeo4ic6338fb.apps.googleusercontent.com');
+    // Initialize with empty - user must configure via UI
+    localStorage.setItem('gdocs_client_id', '');
   }
-  // Always set latest API key (force update)
-  localStorage.setItem('gdocs_api_key', '');
+  if (!localStorage.getItem('gdocs_api_key')) {
+    localStorage.setItem('gdocs_api_key', '');
+  }
   if (!localStorage.getItem('adobe_sign_key')) {
-    localStorage.setItem('adobe_sign_key', 'b9f07d2be0374e2ea9296963fe87e040');
+    localStorage.setItem('adobe_sign_key', '');
   }
-  // Gemini API key — get yours free at aistudio.google.com/app/apikey
-  // Once obtained, it will be saved automatically via the Chat config panel
   if (!localStorage.getItem('ilove_public_key')) {
-    localStorage.setItem('ilove_public_key', 'project_public_4709d3c2d20acb452956fb647c383a0f_ZxhNy7300be4321cc3a4de00a612188799c63');
+    localStorage.setItem('ilove_public_key', '');
   }
   if (!localStorage.getItem('ilove_secret_key')) {
-    localStorage.setItem('ilove_secret_key', 'secret_key_f4f5a0cdfe4f46ee3325f4c6e78cfc15_RtXqz97b166fbb1c800de8443bcc34a77542f');
+    localStorage.setItem('ilove_secret_key', '');
   }
 })();
 
