@@ -982,6 +982,12 @@ const TIPO_TITLES: Record<string, string> = {
   propuesta_comercial: 'Propuesta Comercial',
   codigo_etica: 'Código de Ética y Reglamento',
   manual_reclutamiento: 'Manual de Reclutamiento',
+  cotizacion_fimpress: 'Cotización Soporte Técnico — 3 Especialistas',
+  indice_paquete: 'Índice de Paquete Corporativo',
+  expediente_financiero: 'Expediente Técnico-Financiero',
+  carta_formal_direccion: 'Carta Formal Dirección',
+  carta_respuesta_hallazgos: 'Carta Respuesta Hallazgos',
+  anexo_hallazgos: 'Anexo F — Análisis Fotográfico',
 }
 
 /* ─── PHOTO UPLOADER ─────────────────────────────────────── */
@@ -1281,46 +1287,23 @@ export default function NuevoTipoPage() {
         imageTimeout: 10000,
       })
 
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+      const A4_W_MM = 210
       const margin = 10
-      const pageW = pdf.internal.pageSize.getWidth()
-      const pageH = pdf.internal.pageSize.getHeight()
-      const contentW = pageW - margin * 2
-      const contentH = pageH - margin * 2
+      const contentW = A4_W_MM - margin * 2
 
+      // Altura exacta del contenido — sin saltos ni espacios en blanco
       const pxToMm = contentW / canvas.width
       const totalImgH = canvas.height * pxToMm
+      const pageH = totalImgH + margin * 2
 
-      let srcOffsetPx = 0
-      let isFirst = true
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [A4_W_MM, pageH],
+      })
 
-      while (srcOffsetPx < canvas.height) {
-        const sliceHeightPx = Math.round(contentH / pxToMm)
-        const actualSlicePx = Math.min(sliceHeightPx, canvas.height - srcOffsetPx)
-
-        const slice = document.createElement('canvas')
-        slice.width = canvas.width
-        slice.height = actualSlicePx
-        const ctx = slice.getContext('2d')!
-        ctx.fillStyle = '#ffffff'
-        ctx.fillRect(0, 0, slice.width, actualSlicePx)
-        ctx.drawImage(canvas, 0, srcOffsetPx, canvas.width, actualSlicePx, 0, 0, canvas.width, actualSlicePx)
-
-        const sliceData = slice.toDataURL('image/jpeg', 0.98)
-        const sliceHmm = actualSlicePx * pxToMm
-
-        if (!isFirst) pdf.addPage()
-        pdf.addImage(sliceData, 'JPEG', margin, margin, contentW, sliceHmm)
-
-        srcOffsetPx += actualSlicePx
-        isFirst = false
-
-        if (srcOffsetPx >= canvas.height) break
-      }
-
-      if (totalImgH <= contentH && pdf.getNumberOfPages() > 1) {
-        while (pdf.getNumberOfPages() > 1) pdf.deletePage(pdf.getNumberOfPages())
-      }
+      const imgData = canvas.toDataURL('image/jpeg', 0.98)
+      pdf.addImage(imgData, 'JPEG', margin, margin, contentW, totalImgH)
 
       const nombre = (title || tipo).replace(/\s+/g, '_')
       pdf.save(`${nombre}_${folio || 'borrador'}.pdf`)
@@ -2288,7 +2271,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
         </div>
         {/* Contenido por secciones */}
         <div style={{ background: '#fff', color: '#111', padding: '8px 20px 20px', flex: 1 }}>
-          {schema.sections.map((sec) => (
+          {(SCHEMAS[tipo] || defaultSchema(tipo, TIPO_TITLES[tipo] || tipo)).sections.map((sec) => (
             <div key={sec.label} style={{ marginBottom: 16 }}>
               <div style={{ background: '#0a0a0a', color: '#fff', fontWeight: 800, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '5px 10px', marginBottom: 8 }}>{sec.label}</div>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
