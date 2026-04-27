@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 import { ALCANCES_DEFAULT, INCLUYE_DEFAULT, EXCLUYE_DEFAULT, COND_DEFAULT, NOTA_SUP, LETTERS, LOGO_B64, MI, NAVY, RED, GOLD, fmtDate, fmtMXN } from '@/lib/constants'
@@ -703,6 +703,267 @@ const SCHEMA_MANUAL_RECLUTAMIENTO = {
       { key: 'observaciones', label: 'Observaciones', type: 'textarea', rows: 2 },
     ]},
   ],
+  cotizacion_fimpress: { title: 'Cotización Soporte Técnico — 3 Especialistas', sections: [
+    { label: 'Datos del Documento', fields: [
+      { key: 'fecha', label: 'Fecha Emisión', type: 'date' },
+      { key: 'vigencia', label: 'Vigencia', type: 'text', placeholder: '15 días naturales' },
+      { key: 'cliente', label: 'Cliente (Razón Social)', type: 'text', placeholder: 'CARRIER MÉXICO S. de R.L. de C.V. — Planta A' },
+      { key: 'atencion', label: 'Atención', type: 'text', placeholder: 'Sr. Jesús / Sr. Edén' },
+      { key: 'proyecto', label: 'Proyecto', type: 'text', placeholder: 'Carrier CMXA — Instalación Fimpress' },
+      { key: 'modalidad', label: 'Modalidad', type: 'text', placeholder: 'Soporte técnico especializado — alcance independiente' },
+      { key: 'facturacion', label: 'Facturación', type: 'text', placeholder: 'Directa GRUPO MICSA → Cliente' },
+    ]},
+    { label: 'I. Objeto de la Cotización', fields: [
+      { key: 'objeto', label: 'Descripción del objeto', type: 'textarea', rows: 4, placeholder: 'GRUPO MICSA presenta el servicio de soporte técnico especializado con 3 especialistas...' },
+    ]},
+    { label: 'II. Personal Asignado', fields: [
+      { key: 'rol1', label: 'Rol Especialista 1', type: 'text', placeholder: 'Supervisor de campo' },
+      { key: 'perfil1', label: 'Perfil 1', type: 'text', placeholder: 'Ingeniero mecánico/electromecánico 8+ años' },
+      { key: 'responsabilidades1', label: 'Responsabilidades 1', type: 'text', placeholder: 'Dirección técnica en sitio, interfaz con cliente' },
+      { key: 'rol2', label: 'Rol Especialista 2', type: 'text', placeholder: 'Especialista mecánico' },
+      { key: 'perfil2', label: 'Perfil 2', type: 'text', placeholder: 'Técnico senior en montaje y alineación' },
+      { key: 'responsabilidades2', label: 'Responsabilidades 2', type: 'text', placeholder: 'Montaje, nivelación, anclaje, torques' },
+      { key: 'rol3', label: 'Rol Especialista 3', type: 'text', placeholder: 'Especialista eléctrico / instrumentación' },
+      { key: 'perfil3', label: 'Perfil 3', type: 'text', placeholder: 'Técnico senior en tableros, LOTO, puesta en marcha' },
+      { key: 'responsabilidades3', label: 'Responsabilidades 3', type: 'text', placeholder: 'Conexionado, pruebas, arranque, protocolos LOTO' },
+    ]},
+    { label: 'II. Actividades y Exclusiones', fields: [
+      { key: 'actividades', label: 'Actividades incluidas', type: 'textarea', rows: 5, placeholder: 'Revisión documental previa...\nSoporte en sitio para descarga...' },
+      { key: 'exclusiones', label: 'Exclusiones explícitas', type: 'textarea', rows: 4, placeholder: 'Suministro del equipo...\nPuesta en marcha formal OEM...' },
+    ]},
+    { label: 'III. Fases y Duración', fields: [
+      { key: 'fase1_nombre', label: 'Fase 1 — Nombre', type: 'text', placeholder: 'Pre-arranque documental' },
+      { key: 'fase1_dias', label: 'Fase 1 — Días hábiles', type: 'text', placeholder: '3' },
+      { key: 'fase1_modalidad', label: 'Fase 1 — Modalidad', type: 'text', placeholder: 'Remoto + revisión en sitio' },
+      { key: 'fase2_nombre', label: 'Fase 2 — Nombre', type: 'text', placeholder: 'Recepción y posicionamiento' },
+      { key: 'fase2_dias', label: 'Fase 2 — Días hábiles', type: 'text', placeholder: '5' },
+      { key: 'fase2_modalidad', label: 'Fase 2 — Modalidad', type: 'text', placeholder: '100% en sitio' },
+      { key: 'fase3_nombre', label: 'Fase 3 — Nombre', type: 'text', placeholder: 'Interconexiones y pruebas' },
+      { key: 'fase3_dias', label: 'Fase 3 — Días hábiles', type: 'text', placeholder: '7' },
+      { key: 'fase3_modalidad', label: 'Fase 3 — Modalidad', type: 'text', placeholder: '100% en sitio' },
+      { key: 'fase4_nombre', label: 'Fase 4 — Nombre', type: 'text', placeholder: 'Soporte al arranque OEM' },
+      { key: 'fase4_dias', label: 'Fase 4 — Días hábiles', type: 'text', placeholder: '5' },
+      { key: 'fase4_modalidad', label: 'Fase 4 — Modalidad', type: 'text', placeholder: '100% en sitio' },
+      { key: 'fase5_nombre', label: 'Fase 5 — Nombre', type: 'text', placeholder: 'Cierre documental y dossier' },
+      { key: 'fase5_dias', label: 'Fase 5 — Días hábiles', type: 'text', placeholder: '2' },
+      { key: 'fase5_modalidad', label: 'Fase 5 — Modalidad', type: 'text', placeholder: 'Remoto + firma en sitio' },
+    ]},
+    { label: 'IV. Tarifas', fields: [
+      { key: 'tarifa_sup_dias', label: 'Supervisor — Días', type: 'number', placeholder: '22' },
+      { key: 'tarifa_sup_pu', label: 'Supervisor — P.U. MXN', type: 'number', placeholder: '12500' },
+      { key: 'tarifa_mec_dias', label: 'Esp. Mecánico — Días', type: 'number', placeholder: '22' },
+      { key: 'tarifa_mec_pu', label: 'Esp. Mecánico — P.U. MXN', type: 'number', placeholder: '9500' },
+      { key: 'tarifa_elec_dias', label: 'Esp. Eléctrico — Días', type: 'number', placeholder: '22' },
+      { key: 'tarifa_elec_pu', label: 'Esp. Eléctrico — P.U. MXN', type: 'number', placeholder: '9500' },
+      { key: 'viaticos_paq', label: 'Viáticos — Paquetes', type: 'number', placeholder: '3' },
+      { key: 'viaticos_pu', label: 'Viáticos — P.U. MXN', type: 'number', placeholder: '18000' },
+      { key: 'epp_pu', label: 'EPP y herramienta — Monto', type: 'number', placeholder: '22500' },
+      { key: 'dossier_pu', label: 'Dossier de cierre — Monto', type: 'number', placeholder: '35000' },
+    ]},
+    { label: 'V. Condiciones y Nota Comercial', fields: [
+      { key: 'cond_pago', label: 'Condiciones de pago', type: 'text', placeholder: '50% anticipo — 50% contra dossier de cierre' },
+      { key: 'plazo_pago', label: 'Plazo pago saldo', type: 'text', placeholder: '20 días naturales posteriores a facturación' },
+      { key: 'garantia', label: 'Garantía del servicio', type: 'text', placeholder: '60 días sobre vicios ocultos de mano de obra' },
+      { key: 'horario', label: 'Horario estándar', type: 'text', placeholder: 'Lunes a viernes 7:00–17:00 hrs' },
+      { key: 'nota_comercial', label: 'Nota Comercial', type: 'textarea', rows: 3, placeholder: 'Esta cotización se emite bajo la estructura de facturación directa...' },
+      { key: 'firmante_micsa', label: 'Firmante por MICSA', type: 'text', placeholder: 'Jordan Nefthali González — Dirección General' },
+      { key: 'firmante_cliente', label: 'Firmante por Cliente', type: 'text', placeholder: 'Nombre y cargo' },
+    ]},
+  ]},
+  indice_paquete: { title: 'Índice de Paquete Corporativo', sections: [
+    { label: 'Datos del Documento', fields: [
+      { key: 'proyecto', label: 'Proyecto / Expediente', type: 'text', placeholder: 'Carrier CMXA — Claim Económico' },
+      { key: 'cliente', label: 'Cliente', type: 'text', placeholder: 'CARRIER MÉXICO S. de R.L. de C.V.' },
+      { key: 'fecha', label: 'Fecha', type: 'date' },
+      { key: 'elaboro', label: 'Elaboró', type: 'text', placeholder: 'Jordan Nefthali González' },
+      { key: 'version', label: 'Versión', type: 'text', placeholder: 'V1.0' },
+    ]},
+    { label: 'Frentes del Expediente', fields: [
+      { key: 'frente1_titulo', label: 'Frente 1 — Título', type: 'text', placeholder: 'Contexto y Antecedentes' },
+      { key: 'frente1_docs', label: 'Frente 1 — Documentos', type: 'textarea', rows: 3, placeholder: '01. Carta de presentación\n02. Expediente Técnico-Financiero\n03. Carta Formal MICSA' },
+      { key: 'frente2_titulo', label: 'Frente 2 — Título', type: 'text', placeholder: 'Evidencia Técnica' },
+      { key: 'frente2_docs', label: 'Frente 2 — Documentos', type: 'textarea', rows: 3, placeholder: '04. Análisis fotográfico\n05. Bitácoras diarias' },
+      { key: 'frente3_titulo', label: 'Frente 3 — Título', type: 'text', placeholder: 'Soporte Financiero' },
+      { key: 'frente3_docs', label: 'Frente 3 — Documentos', type: 'textarea', rows: 3, placeholder: '06. Cotización original\n07. Costos adicionales' },
+      { key: 'frente4_titulo', label: 'Frente 4 — Título', type: 'text', placeholder: 'Respuesta a Hallazgos' },
+      { key: 'frente4_docs', label: 'Frente 4 — Documentos', type: 'textarea', rows: 3, placeholder: '08. Carta respuesta hallazgos\n09. Anexo F — Análisis fotográfico' },
+      { key: 'frente5_titulo', label: 'Frente 5 — Título', type: 'text', placeholder: '' },
+      { key: 'frente5_docs', label: 'Frente 5 — Documentos', type: 'textarea', rows: 3, placeholder: '' },
+      { key: 'nota_indice', label: 'Nota al índice', type: 'textarea', rows: 2, placeholder: 'Todos los documentos están firmados en original y digital.' },
+    ]},
+  ]},
+  expediente_financiero: { title: 'Expediente Técnico-Financiero', sections: [
+    { label: 'Datos del Documento', fields: [
+      { key: 'proyecto', label: 'Proyecto', type: 'text', placeholder: 'Carrier CMXA — Reclamación Económica' },
+      { key: 'cliente', label: 'Cliente', type: 'text', placeholder: 'CARRIER MÉXICO S. de R.L. de C.V.' },
+      { key: 'fecha', label: 'Fecha', type: 'date' },
+      { key: 'folio_exp', label: 'Folio Expediente', type: 'text', placeholder: 'MICSA-EXP-0001' },
+      { key: 'elaboro', label: 'Elaboró', type: 'text', placeholder: 'Jordan Nefthali González — Dirección General' },
+      { key: 'version', label: 'Versión', type: 'text', placeholder: 'V2.0' },
+    ]},
+    { label: 'I. Resumen Ejecutivo', fields: [
+      { key: 'resumen', label: 'Resumen Ejecutivo', type: 'textarea', rows: 5, placeholder: 'El presente expediente documenta los trabajos ejecutados por GRUPO MICSA...' },
+      { key: 'monto_reclamado', label: 'Monto Reclamado Total (MXN)', type: 'number', placeholder: '0' },
+    ]},
+    { label: 'II. Fases Ejecutadas', fields: [
+      { key: 'fase1_desc', label: 'Fase 1 — Descripción', type: 'textarea', rows: 2, placeholder: 'Revisión documental y pre-arranque' },
+      { key: 'fase1_monto', label: 'Fase 1 — Monto MXN', type: 'number', placeholder: '0' },
+      { key: 'fase2_desc', label: 'Fase 2 — Descripción', type: 'textarea', rows: 2, placeholder: 'Trabajos en sitio' },
+      { key: 'fase2_monto', label: 'Fase 2 — Monto MXN', type: 'number', placeholder: '0' },
+      { key: 'fase3_desc', label: 'Fase 3 — Descripción', type: 'textarea', rows: 2, placeholder: 'Costos adicionales no previstos' },
+      { key: 'fase3_monto', label: 'Fase 3 — Monto MXN', type: 'number', placeholder: '0' },
+    ]},
+    { label: 'III. Matriz de Hechos', fields: [
+      { key: 'hecho1', label: 'Hecho 1', type: 'textarea', rows: 2, placeholder: 'Fecha — descripción del hecho' },
+      { key: 'hecho2', label: 'Hecho 2', type: 'textarea', rows: 2, placeholder: 'Fecha — descripción del hecho' },
+      { key: 'hecho3', label: 'Hecho 3', type: 'textarea', rows: 2, placeholder: 'Fecha — descripción del hecho' },
+      { key: 'hecho4', label: 'Hecho 4', type: 'textarea', rows: 2, placeholder: 'Fecha — descripción del hecho' },
+      { key: 'hecho5', label: 'Hecho 5', type: 'textarea', rows: 2, placeholder: 'Fecha — descripción del hecho' },
+    ]},
+    { label: 'IV. Impacto Financiero y Declaración', fields: [
+      { key: 'impacto', label: 'Impacto Financiero Detallado', type: 'textarea', rows: 5, placeholder: 'Horas hombre adicionales...\nViáticos no contemplados...' },
+      { key: 'declaracion', label: 'Declaración Final', type: 'textarea', rows: 4, placeholder: 'GRUPO MICSA declara que los trabajos fueron ejecutados conforme a los más altos estándares...' },
+      { key: 'firmante', label: 'Firmante', type: 'text', placeholder: 'Jordan Nefthali González — Dirección General' },
+    ]},
+    { label: 'VI. Transcripción / Notas', fields: [
+      { key: 'transcripcion', label: 'Área de inyección libre — pega aquí correos, actas, declaraciones o cualquier texto', type: 'textarea', rows: 12, placeholder: 'Pega aquí el contenido que deseas incluir en el expediente: correos, actas de reunión, declaraciones, transcripciones de llamadas, evidencias textuales, etc.' },
+    ]},
+  ]},
+  carta_formal_direccion: { title: 'Carta Formal Dirección → Cliente', sections: [
+    { label: 'Encabezado', fields: [
+      { key: 'folio_carta', label: 'Folio de Carta', type: 'text', placeholder: 'MICSA-CAR-0423' },
+      { key: 'fecha', label: 'Fecha', type: 'date' },
+      { key: 'destinatario_nombre', label: 'Nombre Destinatario', type: 'text', placeholder: 'Ing. Roberto Martínez' },
+      { key: 'destinatario_cargo', label: 'Cargo Destinatario', type: 'text', placeholder: 'Director de Operaciones' },
+      { key: 'destinatario_empresa', label: 'Empresa Destinataria', type: 'text', placeholder: 'CARRIER MÉXICO S. de R.L. de C.V.' },
+      { key: 'asunto', label: 'Asunto', type: 'text', placeholder: 'Reclamación económica por trabajos adicionales — Proyecto Fimpress' },
+    ]},
+    { label: 'Cuerpo de la Carta', fields: [
+      { key: 'saludo', label: 'Saludo', type: 'text', placeholder: 'Estimado Ing. Martínez:' },
+      { key: 'parrafo1', label: 'Párrafo 1', type: 'textarea', rows: 4, placeholder: 'Por medio de la presente, GRUPO MICSA se dirige respetuosamente a usted...' },
+      { key: 'parrafo2', label: 'Párrafo 2', type: 'textarea', rows: 4, placeholder: 'En virtud de los trabajos adicionales ejecutados fuera del alcance original...' },
+      { key: 'parrafo3', label: 'Párrafo 3', type: 'textarea', rows: 4, placeholder: 'Por lo anterior, solicitamos atentamente el análisis y validación del monto reclamado...' },
+      { key: 'monto_carta', label: 'Monto Reclamado MXN', type: 'number', placeholder: '0' },
+      { key: 'cierre', label: 'Cierre', type: 'text', placeholder: 'Sin otro particular, quedo a sus órdenes.' },
+      { key: 'firmante', label: 'Firmante', type: 'text', placeholder: 'Jordan Nefthali González — Dirección General' },
+    ]},
+  ]},
+  carta_respuesta_hallazgos: { title: 'Carta Respuesta Hallazgos', sections: [
+    { label: 'Encabezado', fields: [
+      { key: 'folio_carta', label: 'Folio de Carta', type: 'text', placeholder: 'MICSA-RSP-0001' },
+      { key: 'fecha', label: 'Fecha', type: 'date' },
+      { key: 'destinatario_nombre', label: 'Nombre Destinatario', type: 'text', placeholder: 'Ing. Roberto Martínez' },
+      { key: 'destinatario_cargo', label: 'Cargo Destinatario', type: 'text', placeholder: 'Director de Operaciones' },
+      { key: 'destinatario_empresa', label: 'Empresa', type: 'text', placeholder: 'CARRIER MÉXICO S. de R.L. de C.V.' },
+      { key: 'asunto', label: 'Asunto', type: 'text', placeholder: 'Respuesta formal al Reporte Fotográfico de Hallazgos' },
+      { key: 'ref_reporte', label: 'Referencia Reporte', type: 'text', placeholder: 'Carrier — Reporte fotográfico 12 hallazgos' },
+    ]},
+    { label: 'Introducción', fields: [
+      { key: 'intro', label: 'Párrafo introductorio', type: 'textarea', rows: 4, placeholder: 'En respuesta al reporte fotográfico recibido con fecha...' },
+    ]},
+    { label: 'Tabla de Hallazgos', fields: [
+      { key: 'h1_desc', label: 'Hallazgo 1 — Descripción', type: 'text', placeholder: 'Descripción del hallazgo' },
+      { key: 'h1_resp', label: 'Hallazgo 1 — Respuesta MICSA', type: 'textarea', rows: 2, placeholder: 'Posición técnica y argumento' },
+      { key: 'h1_estatus', label: 'Hallazgo 1 — Estatus', type: 'text', placeholder: 'Aceptado / Rechazado / Bajo revisión' },
+      { key: 'h2_desc', label: 'Hallazgo 2 — Descripción', type: 'text', placeholder: '' },
+      { key: 'h2_resp', label: 'Hallazgo 2 — Respuesta MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h2_estatus', label: 'Hallazgo 2 — Estatus', type: 'text', placeholder: '' },
+      { key: 'h3_desc', label: 'Hallazgo 3 — Descripción', type: 'text', placeholder: '' },
+      { key: 'h3_resp', label: 'Hallazgo 3 — Respuesta MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h3_estatus', label: 'Hallazgo 3 — Estatus', type: 'text', placeholder: '' },
+      { key: 'h4_desc', label: 'Hallazgo 4 — Descripción', type: 'text', placeholder: '' },
+      { key: 'h4_resp', label: 'Hallazgo 4 — Respuesta MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h4_estatus', label: 'Hallazgo 4 — Estatus', type: 'text', placeholder: '' },
+      { key: 'h5_desc', label: 'Hallazgo 5 — Descripción', type: 'text', placeholder: '' },
+      { key: 'h5_resp', label: 'Hallazgo 5 — Respuesta MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h5_estatus', label: 'Hallazgo 5 — Estatus', type: 'text', placeholder: '' },
+      { key: 'h6_desc', label: 'Hallazgo 6 — Descripción', type: 'text', placeholder: '' },
+      { key: 'h6_resp', label: 'Hallazgo 6 — Respuesta MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h6_estatus', label: 'Hallazgo 6 — Estatus', type: 'text', placeholder: '' },
+      { key: 'h7_desc', label: 'Hallazgo 7 — Descripción', type: 'text', placeholder: '' },
+      { key: 'h7_resp', label: 'Hallazgo 7 — Respuesta MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h7_estatus', label: 'Hallazgo 7 — Estatus', type: 'text', placeholder: '' },
+      { key: 'h8_desc', label: 'Hallazgo 8 — Descripción', type: 'text', placeholder: '' },
+      { key: 'h8_resp', label: 'Hallazgo 8 — Respuesta MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h8_estatus', label: 'Hallazgo 8 — Estatus', type: 'text', placeholder: '' },
+      { key: 'h9_desc', label: 'Hallazgo 9 — Descripción', type: 'text', placeholder: '' },
+      { key: 'h9_resp', label: 'Hallazgo 9 — Respuesta MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h9_estatus', label: 'Hallazgo 9 — Estatus', type: 'text', placeholder: '' },
+      { key: 'h10_desc', label: 'Hallazgo 10 — Descripción', type: 'text', placeholder: '' },
+      { key: 'h10_resp', label: 'Hallazgo 10 — Respuesta MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h10_estatus', label: 'Hallazgo 10 — Estatus', type: 'text', placeholder: '' },
+    ]},
+    { label: 'Cierre', fields: [
+      { key: 'conclusion', label: 'Conclusión', type: 'textarea', rows: 3, placeholder: 'Con base en los argumentos técnicos expuestos, GRUPO MICSA sustenta su posición...' },
+      { key: 'firmante', label: 'Firmante', type: 'text', placeholder: 'Jordan Nefthali González — Dirección General' },
+    ]},
+  ]},
+  anexo_hallazgos: { title: 'Anexo F — Análisis Fotográfico de Hallazgos', sections: [
+    { label: 'Datos del Documento', fields: [
+      { key: 'proyecto', label: 'Proyecto', type: 'text', placeholder: 'Carrier CMXA — Análisis de Hallazgos' },
+      { key: 'fecha', label: 'Fecha', type: 'date' },
+      { key: 'total_hallazgos', label: 'Total de Hallazgos', type: 'number', placeholder: '10' },
+      { key: 'elaboro', label: 'Elaboró', type: 'text', placeholder: 'Jordan Nefthali González' },
+    ]},
+    { label: 'Hallazgos (1–5)', fields: [
+      { key: 'h1_num', label: 'Hallazgo 1 — No.', type: 'text', placeholder: 'H-01' },
+      { key: 'h1_titulo', label: 'Hallazgo 1 — Título', type: 'text', placeholder: 'Pernos sin torque de apriete' },
+      { key: 'h1_clasif', label: 'Hallazgo 1 — Clasificación', type: 'text', placeholder: 'Responsabilidad del cliente / MICSA / Compartida' },
+      { key: 'h1_analisis', label: 'Hallazgo 1 — Análisis Técnico', type: 'textarea', rows: 3, placeholder: 'Los pernos identificados en la fotografía...' },
+      { key: 'h1_argumento', label: 'Hallazgo 1 — Argumento MICSA', type: 'textarea', rows: 2, placeholder: 'Esta condición fue generada por...' },
+      { key: 'h2_num', label: 'Hallazgo 2 — No.', type: 'text', placeholder: 'H-02' },
+      { key: 'h2_titulo', label: 'Hallazgo 2 — Título', type: 'text', placeholder: '' },
+      { key: 'h2_clasif', label: 'Hallazgo 2 — Clasificación', type: 'text', placeholder: '' },
+      { key: 'h2_analisis', label: 'Hallazgo 2 — Análisis Técnico', type: 'textarea', rows: 3, placeholder: '' },
+      { key: 'h2_argumento', label: 'Hallazgo 2 — Argumento MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h3_num', label: 'Hallazgo 3 — No.', type: 'text', placeholder: 'H-03' },
+      { key: 'h3_titulo', label: 'Hallazgo 3 — Título', type: 'text', placeholder: '' },
+      { key: 'h3_clasif', label: 'Hallazgo 3 — Clasificación', type: 'text', placeholder: '' },
+      { key: 'h3_analisis', label: 'Hallazgo 3 — Análisis Técnico', type: 'textarea', rows: 3, placeholder: '' },
+      { key: 'h3_argumento', label: 'Hallazgo 3 — Argumento MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h4_num', label: 'Hallazgo 4 — No.', type: 'text', placeholder: 'H-04' },
+      { key: 'h4_titulo', label: 'Hallazgo 4 — Título', type: 'text', placeholder: '' },
+      { key: 'h4_clasif', label: 'Hallazgo 4 — Clasificación', type: 'text', placeholder: '' },
+      { key: 'h4_analisis', label: 'Hallazgo 4 — Análisis Técnico', type: 'textarea', rows: 3, placeholder: '' },
+      { key: 'h4_argumento', label: 'Hallazgo 4 — Argumento MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h5_num', label: 'Hallazgo 5 — No.', type: 'text', placeholder: 'H-05' },
+      { key: 'h5_titulo', label: 'Hallazgo 5 — Título', type: 'text', placeholder: '' },
+      { key: 'h5_clasif', label: 'Hallazgo 5 — Clasificación', type: 'text', placeholder: '' },
+      { key: 'h5_analisis', label: 'Hallazgo 5 — Análisis Técnico', type: 'textarea', rows: 3, placeholder: '' },
+      { key: 'h5_argumento', label: 'Hallazgo 5 — Argumento MICSA', type: 'textarea', rows: 2, placeholder: '' },
+    ]},
+    { label: 'Hallazgos (6–10)', fields: [
+      { key: 'h6_num', label: 'Hallazgo 6 — No.', type: 'text', placeholder: 'H-06' },
+      { key: 'h6_titulo', label: 'Hallazgo 6 — Título', type: 'text', placeholder: '' },
+      { key: 'h6_clasif', label: 'Hallazgo 6 — Clasificación', type: 'text', placeholder: '' },
+      { key: 'h6_analisis', label: 'Hallazgo 6 — Análisis Técnico', type: 'textarea', rows: 3, placeholder: '' },
+      { key: 'h6_argumento', label: 'Hallazgo 6 — Argumento MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h7_num', label: 'Hallazgo 7 — No.', type: 'text', placeholder: 'H-07' },
+      { key: 'h7_titulo', label: 'Hallazgo 7 — Título', type: 'text', placeholder: '' },
+      { key: 'h7_clasif', label: 'Hallazgo 7 — Clasificación', type: 'text', placeholder: '' },
+      { key: 'h7_analisis', label: 'Hallazgo 7 — Análisis Técnico', type: 'textarea', rows: 3, placeholder: '' },
+      { key: 'h7_argumento', label: 'Hallazgo 7 — Argumento MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h8_num', label: 'Hallazgo 8 — No.', type: 'text', placeholder: 'H-08' },
+      { key: 'h8_titulo', label: 'Hallazgo 8 — Título', type: 'text', placeholder: '' },
+      { key: 'h8_clasif', label: 'Hallazgo 8 — Clasificación', type: 'text', placeholder: '' },
+      { key: 'h8_analisis', label: 'Hallazgo 8 — Análisis Técnico', type: 'textarea', rows: 3, placeholder: '' },
+      { key: 'h8_argumento', label: 'Hallazgo 8 — Argumento MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h9_num', label: 'Hallazgo 9 — No.', type: 'text', placeholder: 'H-09' },
+      { key: 'h9_titulo', label: 'Hallazgo 9 — Título', type: 'text', placeholder: '' },
+      { key: 'h9_clasif', label: 'Hallazgo 9 — Clasificación', type: 'text', placeholder: '' },
+      { key: 'h9_analisis', label: 'Hallazgo 9 — Análisis Técnico', type: 'textarea', rows: 3, placeholder: '' },
+      { key: 'h9_argumento', label: 'Hallazgo 9 — Argumento MICSA', type: 'textarea', rows: 2, placeholder: '' },
+      { key: 'h10_num', label: 'Hallazgo 10 — No.', type: 'text', placeholder: 'H-10' },
+      { key: 'h10_titulo', label: 'Hallazgo 10 — Título', type: 'text', placeholder: '' },
+      { key: 'h10_clasif', label: 'Hallazgo 10 — Clasificación', type: 'text', placeholder: '' },
+      { key: 'h10_analisis', label: 'Hallazgo 10 — Análisis Técnico', type: 'textarea', rows: 3, placeholder: '' },
+      { key: 'h10_argumento', label: 'Hallazgo 10 — Argumento MICSA', type: 'textarea', rows: 2, placeholder: '' },
+    ]},
+    { label: 'Conclusiones', fields: [
+      { key: 'conclusion_general', label: 'Conclusión General', type: 'textarea', rows: 4, placeholder: 'Con base en el análisis fotográfico detallado...' },
+      { key: 'firmante', label: 'Firmante', type: 'text', placeholder: 'Jordan Nefthali González — Dirección General' },
+    ]},
+  ]},
 }
 
 const TIPO_TITLES: Record<string, string> = {
@@ -789,6 +1050,120 @@ function PhotoUploader({ documentoId, fotos, onFotosChange }: {
   )
 }
 
+/* ─── PARSER DE TEXTO LIBRE (client-side, sin costo) ────────── */
+function normalizar(s: string) {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9\s]/g, ' ').trim()
+}
+
+function parsearTextoLibre(texto: string, campos: { key: string; label: string }[]): Record<string, string> {
+  const resultado: Record<string, string> = {}
+
+  // 1. Extraer bloques markdown: ### **Label**\nValor
+  const mdRegex = /#{1,4}\s*\*{0,2}([^*\n#]+)\*{0,2}\s*\n+([\s\S]*?)(?=\n#{1,4}|\n---|\z|$)/g
+  const bloques: { label: string; valor: string }[] = []
+  let m: RegExpExecArray | null
+  while ((m = mdRegex.exec(texto)) !== null) {
+    const label = m[1].trim()
+    const valor = m[2].replace(/\n+/g, '\n').trim()
+    if (label && valor) bloques.push({ label, valor })
+  }
+
+  // 2. Extraer pares "Label: Valor" de línea simple
+  const lineaRegex = /^([A-ZÁÉÍÓÚÑa-záéíóúñ][^\n:]{2,40}):\s*(.+)$/gm
+  while ((m = lineaRegex.exec(texto)) !== null) {
+    bloques.push({ label: m[1].trim(), valor: m[2].trim() })
+  }
+
+  // 3. Mapa de alias comunes → key de campo
+  const ALIAS: Record<string, string> = {
+    fecha: 'fecha', 'fecha del documento': 'fecha', date: 'fecha',
+    cliente: 'cliente', 'cliente final': 'cliente', company: 'cliente', empresa: 'cliente',
+    proyecto: 'proyecto', 'proyecto / referencia': 'proyecto', 'referencia': 'proyecto',
+    supervisor: 'supervisor',
+    descripcion: 'descripcion', description: 'descripcion',
+    observaciones: 'observaciones', notas: 'observaciones', notes: 'observaciones',
+    monto: 'monto_reclamado', 'monto total': 'monto_reclamado', 'total adeudado': 'monto_reclamado', importe: 'monto_reclamado',
+    folio: 'folio_exp', 'numero de folio': 'folio_exp',
+    'elaboro': 'elaboro', 'elaborado por': 'elaboro', autor: 'elaboro',
+    version: 'version',
+    resumen: 'resumen', summary: 'resumen', 'resumen ejecutivo': 'resumen',
+    declaracion: 'declaracion', 'declaracion final': 'declaracion',
+    firmante: 'firmante', firma: 'firmante',
+    impacto: 'impacto', 'impacto financiero': 'impacto',
+    destinatario: 'destinatario_nombre', 'nombre destinatario': 'destinatario_nombre',
+    cargo: 'destinatario_cargo', puesto: 'destinatario_cargo',
+    asunto: 'asunto',
+    parrafo1: 'parrafo1', 'parrafo 1': 'parrafo1',
+    parrafo2: 'parrafo2', 'parrafo 2': 'parrafo2',
+    parrafo3: 'parrafo3', 'parrafo 3': 'parrafo3',
+  }
+
+  // 4. Para cada bloque, intentar mapear a un campo
+  for (const bloque of bloques) {
+    const normLabel = normalizar(bloque.label)
+    // a) Alias exacto
+    const keyAlias = ALIAS[normLabel]
+    if (keyAlias) { resultado[keyAlias] = bloque.valor; continue }
+    // b) Coincidencia con label del campo del schema
+    let mejorKey = ''
+    let mejorScore = 0
+    for (const campo of campos) {
+      const normCampo = normalizar(campo.label)
+      const palabrasBloque = normLabel.split(/\s+/).filter(p => p.length > 2)
+      const palabrasCampo = normCampo.split(/\s+/).filter(p => p.length > 2)
+      const coincidencias = palabrasBloque.filter(p => palabrasCampo.includes(p)).length
+      const score = coincidencias / Math.max(palabrasBloque.length, 1)
+      if (score > mejorScore && score >= 0.4) { mejorScore = score; mejorKey = campo.key }
+    }
+    if (mejorKey && !resultado[mejorKey]) resultado[mejorKey] = bloque.valor
+  }
+
+  // 5. Detectar fecha suelta si no se capturó
+  if (!resultado['fecha']) {
+    const fechaM = texto.match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})\b/)
+    if (fechaM) {
+      const [, d, mo, y] = fechaM
+      const yr = y.length === 2 ? '20' + y : y
+      resultado['fecha'] = `${yr}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}`
+    }
+  }
+
+  // 6. Detectar monto $X,XXX.XX si no se capturó
+  if (!resultado['monto_reclamado']) {
+    const montoM = texto.match(/\$\s*([\d,]+(?:\.\d{2})?)\s*(?:MXN|pesos)?/i)
+    if (montoM) resultado['monto_reclamado'] = montoM[1].replace(/,/g, '')
+  }
+
+  return resultado
+}
+
+/* ─── DEFAULTS PRE-LLENADO ───────────────────────────────── */
+const DEFAULTS: Record<string, Record<string, string>> = {
+  expediente_financiero: {
+    proyecto: 'Reubicación de Celdas LCV4 y LCH',
+    cliente: 'Carrier México CMXA',
+    folio_exp: 'MICSA-EXP-0001',
+    elaboro: 'Jordan Nefthali González — Dirección General',
+    version: 'V1.0',
+      resumen: 'GRUPO MICSA ejecutó servicios especializados de desmantelamiento, maniobras, izaje y soporte técnico dentro de las instalaciones de Carrier México CMXA, correspondientes al proyecto de reubicación de celdas LCV4 y LCH.\n\nLa ejecución incluyó movilización de personal técnico especializado, uso de equipos de elevación y maniobra, desmantelamiento controlado de componentes industriales, maniobras internas en condiciones de espacio restringido, coordinación operativa en sitio con interferencias activas y soporte técnico continuo durante fases críticas del proyecto.',
+      monto_reclamado: '1715728.92',
+      fase1_desc: 'Ejecución directa del servicio — desmantelamiento, izaje y maniobras en sitio',
+      fase1_monto: '980000',
+      fase2_desc: 'Costos por interferencias operativas, standby y reactivaciones no programadas',
+      fase2_monto: '485728.92',
+      fase3_desc: 'Saldos contractuales pendientes y fases adicionales ejecutadas',
+      fase3_monto: '250000',
+      hecho1: 'El servicio fue ejecutado físicamente dentro de las instalaciones de Carrier México CMXA con recursos humanos y técnicos propios de GRUPO MICSA.',
+      hecho2: 'Se presentaron interferencias operativas por áreas no liberadas, dependencias de terceros para actividades críticas y alteraciones en la secuencia de trabajo planificada.',
+      hecho3: 'Periodos de espera operativa (standby) con personal y equipo movilizado y reactivaciones no programadas que implicaron doble movilización.',
+      hecho4: 'El resultado del trabajo ejecutado permanece actualmente en el sitio y forma parte del estado operativo del proyecto de Carrier.',
+      hecho5: 'AMISA, intermediario contractual, no ha realizado el pago correspondiente. El monto de $1,715,728.92 MXN permanece pendiente de liquidación.',
+      impacto: 'Pérdida de productividad por interferencias operativas.\nExtensión del tiempo de ejecución más allá del programa original.\nIncremento de costos operativos por standby y doble movilización.\nNecesidad de refuerzo de cuadrillas y recursos no contemplados.\n\nCarrier México CMXA es el beneficiario directo del servicio. Mantiene el resultado del trabajo realizado y utiliza el avance generado como parte del proyecto.\n\nEl incumplimiento del intermediario (AMISA) no extingue la obligación de pago. El beneficiario del servicio no puede retener el pago de un trabajo ya ejecutado.',
+      declaracion: 'GRUPO MICSA declara que los trabajos fueron ejecutados conforme a las condiciones disponibles en sitio. Las desviaciones fueron externas al control del contratista y los costos fueron absorbidos para sostener la operación.\n\nEl cliente recibió el beneficio del servicio. No existe fundamento técnico, operativo ni contractual para la retención del pago.\n\nEl pago no está sujeto a validación futura ni a condiciones internas entre terceros. Es una obligación derivada de un servicio ya prestado y exigible de manera inmediata.',
+      firmante: 'Jordan Nefthali González — Dirección General',
+    },
+}
+
 /* ─── MAIN PAGE ──────────────────────────────────────────── */
 export default function NuevoTipoPage() {
   const params = useParams()
@@ -801,6 +1176,14 @@ export default function NuevoTipoPage() {
   const [saving, setSaving] = useState(false)
   const [savedId, setSavedId] = useState<string | null>(null)
   const [showPreview, setShowPreview] = useState(false)
+  const [parsing, setParsing] = useState(false)
+  const [parsed, setParsed] = useState<Record<string, string> | null>(null)
+  const [parseError, setParseError] = useState<string | null>(null)
+  const [pdfGenerating, setPdfGenerating] = useState(false)
+
+  useEffect(() => {
+    if (DEFAULTS[tipo]) setData(prev => Object.keys(prev).length === 0 ? DEFAULTS[tipo] : prev)
+  }, [tipo])
   const printRef = useRef<HTMLDivElement>(null)
 
   const title = TIPO_TITLES[tipo] || tipo
@@ -808,6 +1191,31 @@ export default function NuevoTipoPage() {
 
   function set(key: string, val: string) {
     setData(prev => ({ ...prev, [key]: val }))
+  }
+
+  function handleParse() {
+    const transcripcion = data['transcripcion']
+    if (!transcripcion?.trim()) return
+    setParsing(true)
+    setParsed(null)
+    setParseError(null)
+
+    try {
+      const campos = schema.sections.flatMap(s =>
+        s.fields.filter(f => f.key !== 'transcripcion').map(f => ({ key: f.key, label: f.label }))
+      )
+      const resultado = parsearTextoLibre(transcripcion, campos)
+      if (Object.keys(resultado).length === 0) setParseError('No se encontró información reconocible. Intenta usar el formato "Campo: Valor" o encabezados con ###.')
+      else setParsed(resultado)
+    } finally {
+      setParsing(false)
+    }
+  }
+
+  function applyParsed() {
+    if (!parsed) return
+    setData(prev => ({ ...prev, ...parsed }))
+    setParsed(null)
   }
 
   const [folio, setFolio] = useState<string | null>(null)
@@ -843,23 +1251,85 @@ export default function NuevoTipoPage() {
     setSaving(false)
   }
 
-  function handlePrint() {
+  async function handlePrint() {
     if (!printRef.current) return
-    const html = printRef.current.innerHTML
-    const w = window.open('', '_blank', 'width=900,height=700')
-    if (!w) return
-    w.document.write(`<!DOCTYPE html><html><head>
-      <meta charset="utf-8">
-      <title>${title}</title>
-      <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700;800&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet">
-      <style>
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{font-family:'IBM Plex Sans',sans-serif;background:white}
-        @media print{@page{margin:0;size:A4}}
-      </style>
-    </head><body>${html}</body></html>`)
-    w.document.close()
-    setTimeout(() => { w.focus(); w.print() }, 800)
+    setPdfGenerating(true)
+    try {
+      // Espera a que el DOM esté completamente listo
+      await new Promise(r => setTimeout(r, 500))
+
+      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+        import('jspdf'),
+        import('html2canvas'),
+      ])
+      const el = printRef.current
+
+      // Fuerza recalculation de estilos
+      const rect = el.getBoundingClientRect()
+      const computedStyle = window.getComputedStyle(el)
+
+      const canvas = await html2canvas(el, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: el.scrollWidth,
+        height: el.scrollHeight,
+        windowWidth: el.scrollWidth,
+        windowHeight: el.scrollHeight,
+        imageTimeout: 10000,
+      })
+
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+      const margin = 10
+      const pageW = pdf.internal.pageSize.getWidth()
+      const pageH = pdf.internal.pageSize.getHeight()
+      const contentW = pageW - margin * 2
+      const contentH = pageH - margin * 2
+
+      const pxToMm = contentW / canvas.width
+      const totalImgH = canvas.height * pxToMm
+
+      let srcOffsetPx = 0
+      let isFirst = true
+
+      while (srcOffsetPx < canvas.height) {
+        const sliceHeightPx = Math.round(contentH / pxToMm)
+        const actualSlicePx = Math.min(sliceHeightPx, canvas.height - srcOffsetPx)
+
+        const slice = document.createElement('canvas')
+        slice.width = canvas.width
+        slice.height = actualSlicePx
+        const ctx = slice.getContext('2d')!
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, slice.width, actualSlicePx)
+        ctx.drawImage(canvas, 0, srcOffsetPx, canvas.width, actualSlicePx, 0, 0, canvas.width, actualSlicePx)
+
+        const sliceData = slice.toDataURL('image/jpeg', 0.98)
+        const sliceHmm = actualSlicePx * pxToMm
+
+        if (!isFirst) pdf.addPage()
+        pdf.addImage(sliceData, 'JPEG', margin, margin, contentW, sliceHmm)
+
+        srcOffsetPx += actualSlicePx
+        isFirst = false
+
+        if (srcOffsetPx >= canvas.height) break
+      }
+
+      if (totalImgH <= contentH && pdf.getNumberOfPages() > 1) {
+        while (pdf.getNumberOfPages() > 1) pdf.deletePage(pdf.getNumberOfPages())
+      }
+
+      const nombre = (title || tipo).replace(/\s+/g, '_')
+      pdf.save(`${nombre}_${folio || 'borrador'}.pdf`)
+    } catch (error) {
+      console.error('PDF generation error:', error)
+      alert('Error al generar PDF: ' + (error instanceof Error ? error.message : String(error)))
+    } finally {
+      setPdfGenerating(false)
+    }
   }
 
     async function handleDocxDownload() {
@@ -908,23 +1378,71 @@ export default function NuevoTipoPage() {
       {savedId && (
         <div className="mx-4 mt-3 bg-green-50 border border-green-200 text-green-700 rounded-lg px-3 py-2 text-sm flex items-center justify-between no-print">
           <span>✓ Guardado — <strong>{folio}</strong></span>
-          <button onClick={handlePrint} className="text-green-800 font-semibold underline text-xs">Imprimir PDF</button><button onClick={handleDocxDownload} className="text-blue-800 font-semibold underline text-xs ml-2">⬇ DOCX</button>
+          <button onClick={handlePrint} disabled={pdfGenerating} className="text-green-800 font-semibold underline text-xs disabled:opacity-50">{pdfGenerating ? 'Generando…' : 'Descargar PDF'}</button><button onClick={handleDocxDownload} className="text-blue-800 font-semibold underline text-xs ml-2">⬇ DOCX</button>
         </div>
       )}
+
+      {/* ÁREA DE TRANSCRIPCIÓN — visible para todos los documentos */}
+      <div className="mx-4 mt-3 rounded-xl overflow-hidden border border-amber-200 no-print">
+        <div className="px-4 py-2 bg-amber-100 border-b border-amber-200 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">Transcripción</span>
+            <span className="text-xs text-amber-700">— pega texto libre; Claude extrae los campos automáticamente</span>
+          </div>
+          <button
+            onClick={handleParse}
+            disabled={parsing || !data['transcripcion']?.trim()}
+            className="text-xs font-semibold bg-amber-800 text-white px-3 py-1.5 rounded-lg disabled:opacity-40 hover:bg-amber-900"
+          >
+            {parsing ? 'Analizando…' : 'Estructurar'}
+          </button>
+        </div>
+        <textarea
+          name="transcripcion"
+          id="transcripcion"
+          value={data['transcripcion'] || ''}
+          onChange={e => { set('transcripcion', e.target.value); setParsed(null); setParseError(null) }}
+          placeholder="Transcribe aquí desde cero o pega contenido: título, fecha, cliente, correos, actas, declaraciones…"
+          rows={5}
+          className="w-full px-4 py-3 text-sm bg-amber-50 text-slate-800 placeholder-amber-400 focus:outline-none focus:bg-white resize-y"
+        />
+        {parseError && (
+          <div className="px-4 py-2 bg-red-50 border-t border-red-200 text-xs text-red-700">{parseError}</div>
+        )}
+        {parsed && (
+          <div className="border-t border-amber-200 bg-white">
+            <div className="px-4 py-2 bg-green-50 border-b border-green-200 flex items-center justify-between">
+              <span className="text-xs font-bold text-green-800 uppercase tracking-wide">Información extraída — revisa y confirma</span>
+              <div className="flex gap-2">
+                <button onClick={() => setParsed(null)} className="text-xs text-slate-500 hover:text-slate-800 px-2 py-1 rounded border border-slate-300">Descartar</button>
+                <button onClick={applyParsed} className="text-xs font-semibold bg-green-700 text-white px-3 py-1 rounded hover:bg-green-800">Aplicar al formulario</button>
+              </div>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {Object.entries(parsed).map(([k, v]) => (
+                <div key={k} className="px-4 py-2 flex gap-3 items-start">
+                  <span className="text-xs font-semibold text-slate-500 w-36 shrink-0 pt-0.5 uppercase">{k.replace(/_/g, ' ')}</span>
+                  <span className="text-xs text-slate-800 whitespace-pre-wrap flex-1">{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {showPreview ? (
         /* PREVIEW */
         <div className="p-4">
-          <button onClick={handlePrint}
-            className="w-full mb-4 bg-slate-800 text-white py-3 rounded-xl font-semibold text-sm no-print"
+          <button onClick={handlePrint} disabled={pdfGenerating}
+            className="w-full mb-4 bg-slate-800 text-white py-3 rounded-xl font-semibold text-sm no-print disabled:opacity-60"
           >
-            🖨️ Imprimir / Guardar PDF
+            {pdfGenerating ? 'Generando PDF…' : '⬇ Descargar PDF'}
           </button>
-                  <button onClick={handleDocxDownload}
-                              className="w-full mb-2 bg-blue-900 text-white py-3 rounded-xl font-semibold text-sm no-print"
-                            >
-                            ⬇ Descargar DOCX (Plantilla MICSA)
-                  </button>
+          <button onClick={handleDocxDownload}
+            className="w-full mb-2 bg-blue-900 text-white py-3 rounded-xl font-semibold text-sm no-print"
+          >
+            ⬇ Descargar DOCX (Plantilla MICSA)
+          </button>
           <div ref={printRef}>
             <DocumentPreview tipo={tipo} data={data} fotos={fotos} folio={folio} />
           </div>
@@ -940,9 +1458,11 @@ export default function NuevoTipoPage() {
               <div className="p-4 space-y-3">
                 {section.fields.map(field => (
                   <div key={field.key}>
-                    <label className="block text-xs font-medium text-slate-600 mb-1">{field.label}</label>
+                    <label className="block text-xs font-medium text-slate-600 mb-1" htmlFor={field.key}>{field.label}</label>
                     {field.type === 'textarea' ? (
                       <textarea
+                        id={field.key}
+                        name={field.key}
                         value={data[field.key] || ''}
                         onChange={e => set(field.key, e.target.value)}
                         placeholder={field.placeholder}
@@ -951,6 +1471,8 @@ export default function NuevoTipoPage() {
                       />
                     ) : (
                       <input
+                        id={field.key}
+                        name={field.key}
                         type={field.type}
                         value={data[field.key] || ''}
                         onChange={e => set(field.key, e.target.value)}
@@ -992,6 +1514,11 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
   fotos: { url: string }[]
   folio?: string | null
 }) {
+  // Debug
+  if (typeof window !== 'undefined') {
+    console.log('[DocumentPreview] tipo=', tipo, 'data keys=', Object.keys(data).length, 'fotos=', fotos.length)
+  }
+
   const tdL: React.CSSProperties = { padding: '5px 8px', fontWeight: 700, color: '#444', whiteSpace: 'nowrap', width: '100px', fontSize: '10px' }
   const tdV: React.CSSProperties = { padding: '5px 8px', color: '#111', fontSize: '10px', borderLeft: '1px solid #e5e7eb' }
 
@@ -1149,6 +1676,568 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
     )
   }
 
+  if (tipo === 'cotizacion_fimpress') {
+    const fmtN = (v: string | undefined) => v ? parseFloat(v).toLocaleString('es-MX', { minimumFractionDigits: 2 }) : '0.00'
+    const sup = (parseFloat(data.tarifa_sup_dias||'0') * parseFloat(data.tarifa_sup_pu||'0'))
+    const mec = (parseFloat(data.tarifa_mec_dias||'0') * parseFloat(data.tarifa_mec_pu||'0'))
+    const elec = (parseFloat(data.tarifa_elec_dias||'0') * parseFloat(data.tarifa_elec_pu||'0'))
+    const viat = (parseFloat(data.viaticos_paq||'0') * parseFloat(data.viaticos_pu||'0'))
+    const epp = parseFloat(data.epp_pu||'0')
+    const doss = parseFloat(data.dossier_pu||'0')
+    const subtotal = sup + mec + elec + viat + epp + doss
+    const iva = subtotal * 0.16
+    const total = subtotal + iva
+    const SEC = ({ title }: { title: string }) => (
+      <div style={{ background: '#0a0a0a', color: '#fff', fontWeight: 800, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 10px', marginBottom: 8, marginTop: 14 }}>{title}</div>
+    )
+    const fases = [1,2,3,4,5].map(n => ({ nombre: data[`fase${n}_nombre`], dias: data[`fase${n}_dias`], mod: data[`fase${n}_modalidad`] })).filter(f => f.nombre)
+    return (
+      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 10.5, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+        <Watermark />
+        <div style={{ padding: '14px 20px', flex: 1 }}>
+          <Header />
+          {/* Título */}
+          <div style={{ textAlign: 'center', margin: '10px 0 8px' }}>
+            <div style={{ fontWeight: 900, fontSize: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>COTIZACIÓN COMERCIAL</div>
+            <div style={{ fontStyle: 'italic', fontSize: 10, color: '#555' }}>Servicio de Soporte Técnico — {data.proyecto || 'Instalación y Puesta en Marcha'}</div>
+          </div>
+          {/* Ficha */}
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 10, fontSize: 10 }}>
+            <tbody>
+              {[
+                ['FOLIO', folio || '—'], ['FECHA EMISIÓN', data.fecha ? new Date(data.fecha+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}) : '—'],
+                ['VIGENCIA', data.vigencia || '15 días naturales'], ['EMISOR', 'GRUPO MICSA — Dirección General'],
+                ['CLIENTE', data.cliente || '—'], ['ATENCIÓN', data.atencion || '—'],
+                ['PROYECTO', data.proyecto || '—'], ['MODALIDAD', data.modalidad || '—'],
+                ['FACTURACIÓN', data.facturacion || '—'],
+              ].map(([k,v]) => (
+                <tr key={k}>
+                  <td style={{ padding: '4px 8px', fontWeight: 700, width: '28%', border: '1px solid #ddd', background: '#f8f8f8', fontSize: 9.5 }}>{k}:</td>
+                  <td style={{ padding: '4px 8px', border: '1px solid #ddd' }}>{v}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {/* I. Objeto */}
+          <SEC title="I. Objeto de la Cotización" />
+          <p style={{ margin: '0 0 6px', lineHeight: 1.7, textAlign: 'justify', fontSize: 10 }}>{data.objeto || 'GRUPO MICSA presenta el servicio de soporte técnico especializado con tres (3) especialistas dedicados para la instalación, arranque y seguimiento operativo del equipo.'}</p>
+          {/* II. Personal */}
+          <SEC title="II. Alcance Técnico — Personal Asignado (3 Especialistas)" />
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 8, fontSize: 10 }}>
+            <thead><tr style={{ background: '#222', color: '#fff' }}>
+              <th style={{ padding: '5px 8px', textAlign: 'left', width: '25%' }}>Rol</th>
+              <th style={{ padding: '5px 8px', textAlign: 'left', width: '37%' }}>Perfil</th>
+              <th style={{ padding: '5px 8px', textAlign: 'left' }}>Responsabilidades</th>
+            </tr></thead>
+            <tbody>
+              {[1,2,3].map(n => (
+                <tr key={n} style={{ background: n%2===0 ? '#f9f9f9' : '#fff' }}>
+                  <td style={{ padding: '4px 8px', border: '1px solid #ddd', fontWeight: 700 }}>{data[`rol${n}`] || `Especialista ${n}`}</td>
+                  <td style={{ padding: '4px 8px', border: '1px solid #ddd' }}>{data[`perfil${n}`] || '—'}</td>
+                  <td style={{ padding: '4px 8px', border: '1px solid #ddd' }}>{data[`responsabilidades${n}`] || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {/* Actividades */}
+          {data.actividades && (<><div style={{ fontWeight: 700, fontSize: 10, marginBottom: 4, marginTop: 6 }}>2.2 Actividades incluidas</div>
+          <div style={{ fontSize: 10, lineHeight: 1.7, marginBottom: 6, whiteSpace: 'pre-line' }}>{data.actividades}</div></>)}
+          {data.exclusiones && (<><div style={{ fontWeight: 700, fontSize: 10, marginBottom: 4 }}>2.3 Exclusiones explícitas</div>
+          <div style={{ fontSize: 10, lineHeight: 1.7, marginBottom: 6, whiteSpace: 'pre-line' }}>{data.exclusiones}</div></>)}
+          {/* III. Fases */}
+          {fases.length > 0 && (<>
+            <SEC title="III. Duración Estimada y Modalidad" />
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 8, fontSize: 10 }}>
+              <thead><tr style={{ background: '#222', color: '#fff' }}>
+                <th style={{ padding: '5px 8px', textAlign: 'left' }}>Fase</th>
+                <th style={{ padding: '5px 8px', textAlign: 'center', width: '22%' }}>Días hábiles</th>
+                <th style={{ padding: '5px 8px', textAlign: 'left', width: '35%' }}>Modalidad</th>
+              </tr></thead>
+              <tbody>
+                {fases.map((f,i) => (
+                  <tr key={i} style={{ background: i%2===0 ? '#fff' : '#f9f9f9' }}>
+                    <td style={{ padding: '4px 8px', border: '1px solid #ddd' }}>Fase {i+1} — {f.nombre}</td>
+                    <td style={{ padding: '4px 8px', border: '1px solid #ddd', textAlign: 'center' }}>{f.dias}</td>
+                    <td style={{ padding: '4px 8px', border: '1px solid #ddd' }}>{f.mod}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>)}
+          {/* IV. Tarifas */}
+          <SEC title="IV. Estructura de Tarifas" />
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 8, fontSize: 10 }}>
+            <thead><tr style={{ background: '#222', color: '#fff' }}>
+              <th style={{ padding: '5px 8px', textAlign: 'left' }}>Concepto</th>
+              <th style={{ padding: '5px 8px', textAlign: 'center', width: '12%' }}>Unidad</th>
+              <th style={{ padding: '5px 8px', textAlign: 'center', width: '10%' }}>Cant.</th>
+              <th style={{ padding: '5px 8px', textAlign: 'right', width: '18%' }}>P.U. (MXN)</th>
+              <th style={{ padding: '5px 8px', textAlign: 'right', width: '18%' }}>Subtotal (MXN)</th>
+            </tr></thead>
+            <tbody>
+              {[
+                ['Supervisor de campo — jornada', 'día', data.tarifa_sup_dias||'0', data.tarifa_sup_pu||'0', sup],
+                ['Especialista mecánico — jornada', 'día', data.tarifa_mec_dias||'0', data.tarifa_mec_pu||'0', mec],
+                ['Especialista eléctrico/instr. — jornada', 'día', data.tarifa_elec_dias||'0', data.tarifa_elec_pu||'0', elec],
+                ['Movilización / viáticos / hospedaje', 'paquete', data.viaticos_paq||'0', data.viaticos_pu||'0', viat],
+                ['EPP especializado, herramienta y consumibles', 'paquete', '1', data.epp_pu||'0', epp],
+                ['Dossier de cierre, bitácora fotográfica y memoria técnica', 'paquete', '1', data.dossier_pu||'0', doss],
+              ].map(([c,u,q,pu,st],i) => (
+                <tr key={i} style={{ background: i%2===0 ? '#fff' : '#f9f9f9' }}>
+                  <td style={{ padding: '4px 8px', border: '1px solid #ddd' }}>{c as string}</td>
+                  <td style={{ padding: '4px 8px', border: '1px solid #ddd', textAlign: 'center' }}>{u as string}</td>
+                  <td style={{ padding: '4px 8px', border: '1px solid #ddd', textAlign: 'center' }}>{q as string}</td>
+                  <td style={{ padding: '4px 8px', border: '1px solid #ddd', textAlign: 'right' }}>${fmtN(pu as string)}</td>
+                  <td style={{ padding: '4px 8px', border: '1px solid #ddd', textAlign: 'right', fontWeight: 600 }}>${fmtN(String(st))}</td>
+                </tr>
+              ))}
+              <tr><td colSpan={4} style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 800, border: '1px solid #ddd' }}>SUBTOTAL</td><td style={{ padding: '5px 8px', textAlign: 'right', fontWeight: 800, border: '1px solid #ddd' }}>${fmtN(String(subtotal))}</td></tr>
+              <tr><td colSpan={4} style={{ padding: '5px 8px', textAlign: 'right', border: '1px solid #ddd' }}>IVA 16%</td><td style={{ padding: '5px 8px', textAlign: 'right', border: '1px solid #ddd' }}>${fmtN(String(iva))}</td></tr>
+              <tr style={{ background: '#0a0a0a', color: '#fff' }}><td colSpan={4} style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 900 }}>TOTAL MXN</td><td style={{ padding: '6px 8px', textAlign: 'right', fontWeight: 900 }}>${fmtN(String(total))}</td></tr>
+            </tbody>
+          </table>
+          {/* V. Condiciones */}
+          <SEC title="V. Condiciones Comerciales" />
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 8, fontSize: 10 }}>
+            <tbody>
+              {[
+                ['Condiciones de pago', data.cond_pago || '50% anticipo contra OC — 50% contra dossier de cierre'],
+                ['Plazo pago saldo', data.plazo_pago || '20 días naturales posteriores a la facturación'],
+                ['Garantía del servicio', data.garantia || '60 días sobre vicios ocultos de mano de obra'],
+                ['Horario estándar', data.horario || 'Lunes a viernes 7:00–17:00 hrs'],
+                ['Moneda', 'Pesos Mexicanos (MXN)'],
+                ['Vigencia', data.vigencia || '15 días naturales'],
+              ].map(([k,v]) => (
+                <tr key={k as string}>
+                  <td style={{ padding: '4px 8px', fontWeight: 700, width: '30%', border: '1px solid #ddd', background: '#f8f8f8' }}>{k as string}</td>
+                  <td style={{ padding: '4px 8px', border: '1px solid #ddd' }}>{v as string}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {/* Nota comercial */}
+          {data.nota_comercial && (<>
+            <SEC title="VII. Nota Comercial" />
+            <div style={{ fontStyle: 'italic', fontSize: 10, lineHeight: 1.7, textAlign: 'justify', padding: '8px 12px', border: '1px solid #ddd', background: '#fafafa', marginBottom: 12 }}>{data.nota_comercial}</div>
+          </>)}
+          {/* Firmas */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20, gap: 24 }}>
+            {[['Por GRUPO MICSA', data.firmante_micsa || 'Jordan Nefthali González\nDirección General'], ['Por ' + (data.cliente || 'CLIENTE'), data.firmante_cliente || 'Nombre y cargo']].map(([label, nombre]) => (
+              <div key={label as string} style={{ flex: 1, textAlign: 'center' }}>
+                <div style={{ borderTop: '1.5px solid #111', paddingTop: 6, marginTop: 36 }}>
+                  <div style={{ fontWeight: 800, fontSize: 10 }}>{label as string}</div>
+                  <div style={{ fontSize: 9.5, color: '#444', whiteSpace: 'pre-line' }}>{nombre as string}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <Footer email={MI.emailCot} />
+      </div>
+    )
+  }
+
+  if (tipo === 'indice_paquete') {
+    const frentes = [1,2,3,4,5].map(n => ({ titulo: data[`frente${n}_titulo`], docs: data[`frente${n}_docs`] })).filter(f => f.titulo)
+    const SEC = ({ title }: { title: string }) => (
+      <div style={{ background: '#0a0a0a', color: '#F5B800', fontWeight: 800, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 10px', marginBottom: 8, marginTop: 14 }}>{title}</div>
+    )
+    return (
+      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 10.5, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+        <Watermark />
+        <div style={{ padding: '14px 20px', flex: 1 }}>
+          <Header />
+          <div style={{ textAlign: 'center', margin: '10px 0 8px' }}>
+            <div style={{ fontWeight: 900, fontSize: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>ÍNDICE DE PAQUETE CORPORATIVO</div>
+            <div style={{ fontStyle: 'italic', fontSize: 10, color: '#555' }}>{data.proyecto || 'Expediente Corporativo MICSA'}</div>
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 10, fontSize: 10 }}>
+            <tbody>
+              {[['CLIENTE', data.cliente||'—'],['FECHA', data.fecha ? new Date(data.fecha+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}) : '—'],['ELABORÓ', data.elaboro||'—'],['VERSIÓN', data.version||'V1.0']].map(([k,v]) => (
+                <tr key={k}><td style={{ padding:'4px 8px',fontWeight:700,width:'28%',border:'1px solid #ddd',background:'#f8f8f8',fontSize:9.5 }}>{k}:</td><td style={{ padding:'4px 8px',border:'1px solid #ddd' }}>{v}</td></tr>
+              ))}
+            </tbody>
+          </table>
+          <SEC title="Contenido del Expediente" />
+          {frentes.map((f, i) => (
+            <div key={i} style={{ marginBottom: 10 }}>
+              <div style={{ fontWeight: 800, fontSize: 10.5, background: '#1a1a1a', color: '#F5B800', padding: '4px 10px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Frente {i+1} — {f.titulo}</div>
+              <div style={{ border: '1px solid #ddd', padding: '8px 12px' }}>
+                {(f.docs||'').split('\n').filter(Boolean).map((d,j) => (
+                  <div key={j} style={{ padding: '3px 0', borderBottom: '1px dotted #eee', fontSize: 10 }}>{d}</div>
+                ))}
+              </div>
+            </div>
+          ))}
+          {data.nota_indice && (<div style={{ fontStyle: 'italic', fontSize: 9.5, color: '#555', marginTop: 10, padding: '6px 10px', border: '1px solid #ddd', background: '#fafafa' }}>{data.nota_indice}</div>)}
+        </div>
+        <Footer email={MI.emailCot} />
+      </div>
+    )
+  }
+
+  if (tipo === 'expediente_financiero') {
+    const fmtN = (v: string | undefined) => v ? parseFloat(v).toLocaleString('es-MX', { minimumFractionDigits: 2 }) : '0.00'
+    const montos = [1,2,3].map(n => parseFloat(data[`fase${n}_monto`]||'0'))
+    const total = montos.reduce((a,b) => a+b, 0)
+    const montoFinal = parseFloat(data.monto_reclamado || String(total)) || 0
+    const hechos = [1,2,3,4,5].map(n => data[`hecho${n}`]).filter(Boolean)
+    const fechaFmt = data.fecha ? new Date(data.fecha+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}) : '25 de abril de 2026'
+    const SEC = ({ n, title }: { n: string; title: string }) => (
+      <div style={{ display:'flex', alignItems:'center', gap:10, margin:'16px 0 8px' }}>
+        <div style={{ background:'#F5B800', color:'#0a0a0a', fontWeight:900, fontSize:9, padding:'3px 7px', borderRadius:2, letterSpacing:'0.1em', flexShrink:0 }}>{n}</div>
+        <div style={{ fontWeight:800, fontSize:10.5, color:'#1a2a4a', letterSpacing:'0.06em', textTransform:'uppercase', borderBottom:'2px solid #F5B800', paddingBottom:2, flex:1 }}>{title}</div>
+      </div>
+    )
+    return (
+      <div style={{ fontFamily:"'IBM Plex Sans',sans-serif", fontSize:10.5, color:'#111', background:'white', display:'flex', flexDirection:'column', minHeight:'100%' }}>
+        <Watermark />
+        {/* BANNER HEADER */}
+        <div style={{ background:'#0a1628', padding:'16px 20px 12px' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-micsa-white.png" alt="MICSA" style={{ height:36, filter:'brightness(0) invert(1)' }} onError={(e)=>{(e.target as HTMLImageElement).style.display='none'}} />
+            <div style={{ textAlign:'right' }}>
+              <div style={{ fontSize:8, color:'#aaa', letterSpacing:'0.2em', textTransform:'uppercase' }}>RFC: {MI.rfc || 'MIC230126855'}</div>
+              <div style={{ fontSize:8, color:'#666', marginTop:2 }}>{fechaFmt}</div>
+            </div>
+          </div>
+          <div style={{ marginTop:14, borderTop:'1px solid #2a3a5a', paddingTop:12 }}>
+            <div style={{ fontSize:7, letterSpacing:'0.3em', color:'#F5B800', textTransform:'uppercase', marginBottom:4 }}>Documento Técnico-Financiero Formal</div>
+            <div style={{ fontWeight:900, fontSize:20, color:'#fff', letterSpacing:'0.04em', textTransform:'uppercase', lineHeight:1.1 }}>EXPEDIENTE TÉCNICO-FINANCIERO</div>
+            <div style={{ fontSize:10, color:'#aaa', marginTop:4, fontStyle:'italic' }}>{data.proyecto || 'Reclamación Económica — Carrier CMXA'}</div>
+          </div>
+        </div>
+        {/* FICHA CONTROL */}
+        <div style={{ background:'#f0f4ff', borderBottom:'3px solid #F5B800', padding:'10px 20px' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'6px 20px', fontSize:9.5 }}>
+            {[['FOLIO',data.folio_exp||folio||'MICSA-EXP-0001'],['CLIENTE',data.cliente||'Carrier México CMXA'],['FECHA',fechaFmt],['ELABORÓ',data.elaboro||'Jordan Nefthali González'],['VERSIÓN',data.version||'V1.0'],['ESTADO','PENDIENTE DE PAGO']].map(([k,v])=>(
+              <div key={k}><span style={{ fontWeight:700, color:'#1a2a4a', textTransform:'uppercase', fontSize:8.5, letterSpacing:'0.08em' }}>{k}: </span><span style={{ color:'#333' }}>{v}</span></div>
+            ))}
+          </div>
+        </div>
+        <div style={{ padding:'12px 20px', flex:1 }}>
+          {/* RESUMEN */}
+          {data.resumen && (<><SEC n="I" title="Resumen Ejecutivo" /><p style={{ margin:'0 0 10px',lineHeight:1.75,textAlign:'justify',fontSize:10,color:'#222' }}>{data.resumen}</p></>)}
+          {/* FASES + MONTO */}
+          <SEC n="II" title="Fases Ejecutadas y Estructura Financiera" />
+          <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:0, fontSize:10 }}>
+            <thead>
+              <tr style={{ background:'#1a2a4a', color:'#fff' }}>
+                <th style={{ padding:'6px 10px',textAlign:'left',width:'8%',fontSize:9 }}>FASE</th>
+                <th style={{ padding:'6px 10px',textAlign:'left',fontSize:9 }}>DESCRIPCIÓN</th>
+                <th style={{ padding:'6px 10px',textAlign:'right',width:'24%',fontSize:9 }}>MONTO (MXN)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[1,2,3].map(n => data[`fase${n}_desc`] ? (
+                <tr key={n} style={{ background: n%2===0 ? '#f7f9ff':'#fff' }}>
+                  <td style={{ padding:'6px 10px',border:'1px solid #e0e6ff',fontWeight:800,color:'#1a2a4a',textAlign:'center' }}>{n}</td>
+                  <td style={{ padding:'6px 10px',border:'1px solid #e0e6ff',lineHeight:1.5 }}>{data[`fase${n}_desc`]}</td>
+                  <td style={{ padding:'6px 10px',border:'1px solid #e0e6ff',textAlign:'right',fontWeight:600 }}>${fmtN(data[`fase${n}_monto`])}</td>
+                </tr>
+              ) : null)}
+            </tbody>
+          </table>
+          {/* MONTO DESTACADO */}
+          <div style={{ background:'linear-gradient(135deg,#0a1628 0%,#1a2a4a 100%)', padding:'14px 20px', display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+            <div>
+              <div style={{ fontSize:8, letterSpacing:'0.25em', color:'#F5B800', textTransform:'uppercase', marginBottom:3 }}>Monto Total Reclamado</div>
+              <div style={{ fontSize:7.5, color:'#aaa' }}>Exigible de manera inmediata</div>
+            </div>
+            <div style={{ textAlign:'right' }}>
+              <div style={{ fontWeight:900, fontSize:22, color:'#F5B800', letterSpacing:'0.02em' }}>${fmtN(String(montoFinal))}</div>
+              <div style={{ fontSize:8, color:'#aaa', letterSpacing:'0.1em' }}>PESOS MEXICANOS</div>
+            </div>
+          </div>
+          {/* HECHOS */}
+          {hechos.length > 0 && (<>
+            <SEC n="III" title="Matriz de Hechos" />
+            <div style={{ display:'flex', flexDirection:'column', gap:6, marginBottom:10 }}>
+              {hechos.map((h,i) => (
+                <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start', background: i%2===0?'#f7f9ff':'#fff', padding:'6px 10px', borderLeft:'3px solid #F5B800', borderRadius:'0 4px 4px 0' }}>
+                  <div style={{ minWidth:20, height:20, background:'#1a2a4a', color:'#F5B800', fontWeight:900, fontSize:9, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'50%', flexShrink:0 }}>{i+1}</div>
+                  <div style={{ fontSize:10, lineHeight:1.65, color:'#222' }}>{h}</div>
+                </div>
+              ))}
+            </div>
+          </>)}
+          {/* IMPACTO */}
+          {data.impacto && (<>
+            <SEC n="IV" title="Impacto Financiero" />
+            <div style={{ fontSize:10, lineHeight:1.75, whiteSpace:'pre-line', marginBottom:10, color:'#222', padding:'8px 12px', background:'#fffbf0', borderLeft:'3px solid #F5B800' }}>{data.impacto}</div>
+          </>)}
+          {/* DECLARACIÓN */}
+          {data.declaracion && (<>
+            <SEC n="V" title="Declaración Final" />
+            <div style={{ fontSize:10, lineHeight:1.75, textAlign:'justify', padding:'10px 14px', border:'1px solid #1a2a4a', background:'#f0f4ff', marginBottom:14, borderRadius:4, color:'#1a2a4a', fontStyle:'italic' }}>{data.declaracion}</div>
+          </>)}
+          {/* FIRMA */}
+          <div style={{ display:'flex', justifyContent:'flex-end', marginTop:20 }}>
+            <div style={{ textAlign:'center', minWidth:220 }}>
+              <div style={{ borderTop:'2px solid #1a2a4a', paddingTop:8, marginTop:36 }}>
+                <div style={{ fontWeight:900, fontSize:10, color:'#1a2a4a', letterSpacing:'0.06em' }}>POR GRUPO MICSA</div>
+                <div style={{ fontSize:9.5, color:'#555', whiteSpace:'pre-line', marginTop:2 }}>{data.firmante||'Jordan Nefthali González\nDirección General'}</div>
+              </div>
+            </div>
+          </div>
+          {/* TRANSCRIPCIÓN */}
+          {data.transcripcion && (<>
+            <SEC n="VI" title="Transcripción / Notas Adicionales" />
+            <div style={{ fontSize:9.5, lineHeight:1.8, whiteSpace:'pre-wrap', wordBreak:'break-word', marginBottom:10, color:'#222', padding:'10px 14px', background:'#f8f9fa', border:'1px solid #dde3f0', borderLeft:'4px solid #1a2a4a', borderRadius:'0 4px 4px 0', fontFamily:"'IBM Plex Sans',monospace" }}>{data.transcripcion}</div>
+          </>)}
+        </div>
+        <Footer email={MI.emailCot} />
+      </div>
+    )
+  }
+
+  if (tipo === 'carta_formal_direccion') {
+    const fmtN = (v: string | undefined) => v ? parseFloat(v).toLocaleString('es-MX', { minimumFractionDigits: 2 }) : '0.00'
+    return (
+      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 10.5, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+        <Watermark />
+        <div style={{ padding: '14px 20px', flex: 1 }}>
+          <Header />
+          {/* Datos carta */}
+          <div style={{ marginTop: 14, marginBottom: 10 }}>
+            <div style={{ fontWeight: 700, fontSize: 9.5, color: '#555' }}>FOLIO: {data.folio_carta || '—'}</div>
+            <div style={{ fontWeight: 700, fontSize: 9.5, color: '#555' }}>{data.fecha ? new Date(data.fecha+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}) : '—'}</div>
+          </div>
+          {/* Destinatario */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontWeight: 700 }}>{data.destinatario_nombre || 'A quien corresponda'}</div>
+            {data.destinatario_cargo && <div>{data.destinatario_cargo}</div>}
+            {data.destinatario_empresa && <div style={{ fontWeight: 700 }}>{data.destinatario_empresa}</div>}
+            <div style={{ marginTop: 8, fontWeight: 700, textTransform: 'uppercase', fontSize: 10 }}>ASUNTO: {data.asunto || '—'}</div>
+          </div>
+          {/* Cuerpo */}
+          {data.saludo && <div style={{ marginBottom: 12, fontWeight: 600 }}>{data.saludo}</div>}
+          {data.parrafo1 && <p style={{ marginBottom: 10, lineHeight: 1.8, textAlign: 'justify', fontSize: 10 }}>{data.parrafo1}</p>}
+          {data.parrafo2 && <p style={{ marginBottom: 10, lineHeight: 1.8, textAlign: 'justify', fontSize: 10 }}>{data.parrafo2}</p>}
+          {data.parrafo3 && <p style={{ marginBottom: 10, lineHeight: 1.8, textAlign: 'justify', fontSize: 10 }}>{data.parrafo3}</p>}
+          {data.monto_carta && parseFloat(data.monto_carta) > 0 && (
+            <div style={{ margin: '14px 0', padding: '10px 14px', border: '2px solid #0a0a0a', background: '#f8f8f8', textAlign: 'center' }}>
+              <div style={{ fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#555' }}>MONTO RECLAMADO</div>
+              <div style={{ fontWeight: 900, fontSize: 18 }}>${fmtN(data.monto_carta)} MXN</div>
+            </div>
+          )}
+          {data.cierre && <p style={{ marginBottom: 24, lineHeight: 1.8, fontSize: 10 }}>{data.cierre}</p>}
+          <div style={{ marginTop: 40 }}>
+            <div style={{ borderTop: '1.5px solid #111', paddingTop: 6, maxWidth: 220 }}>
+              <div style={{ fontWeight: 800 }}>Por GRUPO MICSA</div>
+              <div style={{ fontSize: 9.5, color: '#444', whiteSpace: 'pre-line' }}>{data.firmante || 'Jordan Nefthali González\nDirección General'}</div>
+            </div>
+          </div>
+        </div>
+        <Footer email={MI.emailCot} />
+      </div>
+    )
+  }
+
+  if (tipo === 'carta_respuesta_hallazgos') {
+    const hallazgos = Array.from({length:10}, (_,i) => i+1).map(n => ({
+      desc: data[`h${n}_desc`], resp: data[`h${n}_resp`], estatus: data[`h${n}_estatus`]
+    })).filter(h => h.desc)
+    const SEC = ({ title }: { title: string }) => (
+      <div style={{ background: '#0a0a0a', color: '#F5B800', fontWeight: 800, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 10px', marginBottom: 8, marginTop: 14 }}>{title}</div>
+    )
+    const estatusColor = (e: string | undefined) => {
+      if (!e) return '#555'
+      if (e.toLowerCase().includes('acept')) return '#2d6a4f'
+      if (e.toLowerCase().includes('rechaz')) return '#d42b2b'
+      return '#92400e'
+    }
+    return (
+      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 10.5, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+        <Watermark />
+        <div style={{ padding: '14px 20px', flex: 1 }}>
+          <Header />
+          <div style={{ textAlign: 'center', margin: '10px 0 8px' }}>
+            <div style={{ fontWeight: 900, fontSize: 13, letterSpacing: '0.06em', textTransform: 'uppercase' }}>CARTA RESPUESTA A HALLAZGOS</div>
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 10, fontSize: 10 }}>
+            <tbody>
+              {[['FOLIO', data.folio_carta||folio||'—'],['FECHA', data.fecha ? new Date(data.fecha+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}) : '—'],['DESTINATARIO', `${data.destinatario_nombre||''} — ${data.destinatario_cargo||''}`],['EMPRESA', data.destinatario_empresa||'—'],['REF. REPORTE', data.ref_reporte||'—'],['ASUNTO', data.asunto||'—']].map(([k,v]) => (
+                <tr key={k}><td style={{ padding:'4px 8px',fontWeight:700,width:'30%',border:'1px solid #ddd',background:'#f8f8f8',fontSize:9.5 }}>{k}:</td><td style={{ padding:'4px 8px',border:'1px solid #ddd' }}>{v}</td></tr>
+              ))}
+            </tbody>
+          </table>
+          {data.intro && (<><SEC title="Introducción" /><p style={{ lineHeight:1.7,textAlign:'justify',fontSize:10,marginBottom:8 }}>{data.intro}</p></>)}
+          <SEC title="Análisis de Hallazgos" />
+          <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:8, fontSize:9.5 }}>
+            <thead><tr style={{ background:'#111',color:'#fff' }}>
+              <th style={{ padding:'5px 8px',textAlign:'left',width:'4%' }}>#</th>
+              <th style={{ padding:'5px 8px',textAlign:'left',width:'26%' }}>Hallazgo</th>
+              <th style={{ padding:'5px 8px',textAlign:'left',width:'48%' }}>Respuesta MICSA</th>
+              <th style={{ padding:'5px 8px',textAlign:'center',width:'22%' }}>Estatus</th>
+            </tr></thead>
+            <tbody>
+              {hallazgos.map((h,i) => (
+                <tr key={i} style={{ background: i%2===0 ? '#fff':'#f9f9f9' }}>
+                  <td style={{ padding:'5px 8px',border:'1px solid #ddd',fontWeight:800,textAlign:'center' }}>{i+1}</td>
+                  <td style={{ padding:'5px 8px',border:'1px solid #ddd',fontWeight:700 }}>{h.desc}</td>
+                  <td style={{ padding:'5px 8px',border:'1px solid #ddd',lineHeight:1.6 }}>{h.resp}</td>
+                  <td style={{ padding:'5px 8px',border:'1px solid #ddd',textAlign:'center',fontWeight:700,color:estatusColor(h.estatus),fontSize:9 }}>{h.estatus||'—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {data.conclusion && (<><SEC title="Conclusión" /><p style={{ fontStyle:'italic',fontSize:10,lineHeight:1.7,textAlign:'justify',padding:'8px 12px',border:'1px solid #ddd',background:'#fafafa',marginBottom:12 }}>{data.conclusion}</p></>)}
+          <div style={{ marginTop:20, textAlign:'left' }}>
+            <div style={{ borderTop:'1.5px solid #111',paddingTop:6,marginTop:36,display:'inline-block',minWidth:200 }}>
+              <div style={{ fontWeight:800, fontSize:10 }}>Por GRUPO MICSA</div>
+              <div style={{ fontSize:9.5, color:'#444', whiteSpace:'pre-line' }}>{data.firmante||'Jordan Nefthali González\nDirección General'}</div>
+            </div>
+          </div>
+        </div>
+        <Footer email={MI.emailCot} />
+      </div>
+    )
+  }
+
+  if (tipo === 'anexo_hallazgos') {
+    const hallazgos = Array.from({length:10}, (_,i) => i+1).map(n => ({
+      num: data[`h${n}_num`]||`H-0${n}`, titulo: data[`h${n}_titulo`], clasif: data[`h${n}_clasif`],
+      analisis: data[`h${n}_analisis`], argumento: data[`h${n}_argumento`]
+    })).filter(h => h.titulo)
+    const clasifColor = (c: string | undefined) => {
+      if (!c) return '#444'
+      const l = c.toLowerCase()
+      if (l.includes('cliente')) return '#1a3a6b'
+      if (l.includes('micsa')) return '#d42b2b'
+      return '#92400e'
+    }
+    const SEC = ({ title }: { title: string }) => (
+      <div style={{ background: '#0a0a0a', color: '#F5B800', fontWeight: 800, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 10px', marginBottom: 8, marginTop: 14 }}>{title}</div>
+    )
+    return (
+      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 10.5, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+        <Watermark />
+        <div style={{ padding: '14px 20px', flex: 1 }}>
+          <Header />
+          <div style={{ textAlign: 'center', margin: '10px 0 8px' }}>
+            <div style={{ fontWeight: 900, fontSize: 13, letterSpacing: '0.06em', textTransform: 'uppercase' }}>ANEXO F — ANÁLISIS FOTOGRÁFICO DE HALLAZGOS</div>
+            <div style={{ fontStyle: 'italic', fontSize: 10, color: '#555' }}>{data.proyecto || 'Análisis de Hallazgos'}</div>
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 10, fontSize: 10 }}>
+            <tbody>
+              {[['FECHA', data.fecha ? new Date(data.fecha+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}) : '—'],['TOTAL HALLAZGOS', data.total_hallazgos||String(hallazgos.length)],['ELABORÓ', data.elaboro||'—']].map(([k,v]) => (
+                <tr key={k}><td style={{ padding:'4px 8px',fontWeight:700,width:'28%',border:'1px solid #ddd',background:'#f8f8f8',fontSize:9.5 }}>{k}:</td><td style={{ padding:'4px 8px',border:'1px solid #ddd' }}>{v}</td></tr>
+              ))}
+            </tbody>
+          </table>
+          <SEC title="Análisis Detallado por Hallazgo" />
+          {hallazgos.map((h, i) => (
+            <div key={i} style={{ marginBottom: 12, border: '1px solid #ddd', borderRadius: 4, overflow: 'hidden' }}>
+              <div style={{ background: '#1a1a1a', color: '#F5B800', padding: '5px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontWeight: 900, fontSize: 10, letterSpacing: '0.06em' }}>{h.num} — {h.titulo}</span>
+                {h.clasif && <span style={{ fontSize: 9, fontWeight: 700, color: '#fff', background: clasifColor(h.clasif), padding: '2px 6px', borderRadius: 2 }}>{h.clasif}</span>}
+              </div>
+              <div style={{ padding: '8px 10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                {h.analisis && (<div><div style={{ fontWeight:700,fontSize:9,color:'#444',marginBottom:3,textTransform:'uppercase',letterSpacing:'0.08em' }}>Análisis Técnico</div><div style={{ fontSize:9.5,lineHeight:1.6 }}>{h.analisis}</div></div>)}
+                {h.argumento && (<div><div style={{ fontWeight:700,fontSize:9,color:'#1a3a6b',marginBottom:3,textTransform:'uppercase',letterSpacing:'0.08em' }}>Posición MICSA</div><div style={{ fontSize:9.5,lineHeight:1.6 }}>{h.argumento}</div></div>)}
+              </div>
+            </div>
+          ))}
+          {data.conclusion_general && (<><SEC title="Conclusión General" /><p style={{ fontStyle:'italic',fontSize:10,lineHeight:1.7,textAlign:'justify',padding:'8px 12px',border:'1px solid #ddd',background:'#fafafa',marginBottom:12 }}>{data.conclusion_general}</p></>)}
+          <div style={{ marginTop:20 }}>
+            <div style={{ borderTop:'1.5px solid #111',paddingTop:6,marginTop:36,display:'inline-block',minWidth:200 }}>
+              <div style={{ fontWeight:800, fontSize:10 }}>Por GRUPO MICSA</div>
+              <div style={{ fontSize:9.5, color:'#444', whiteSpace:'pre-line' }}>{data.firmante||'Jordan Nefthali González\nDirección General'}</div>
+            </div>
+          </div>
+        </div>
+        <Footer email={MI.emailCot} />
+      </div>
+    )
+  }
+
+  if (tipo === 'bitacora' || tipo?.toLowerCase?.()?.includes?.('bitacora')) {
+    const fechaFmt = data.fecha ? new Date(data.fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) : '___________________________'
+    const cell = (label: string, value: string, wide?: boolean) => (
+      <td style={{ border:'1px solid #ccc', padding:'5px 8px', verticalAlign:'top', width: wide ? 'auto' : '50%' }}>
+        <div style={{ fontSize:8, fontWeight:700, color:'#666', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:2 }}>{label}</div>
+        <div style={{ fontSize:10, color:'#111', minHeight:14 }}>{value || '—'}</div>
+      </td>
+    )
+    return (
+      <div style={{ fontFamily:"'IBM Plex Sans',sans-serif", fontSize:10.5, color:'#111', background:'white', display:'flex', flexDirection:'column', minHeight:'100%' }}>
+        <Watermark />
+        <div style={{ padding:'14px 20px', flex:1 }}>
+          <Header />
+          {/* FICHA GENERAL */}
+          <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:10 }}>
+            <tbody>
+              <tr>{cell('Proyecto / ET', data.proyecto||'')}{cell('Área de Trabajo', data.area||'')}</tr>
+              <tr>{cell('Supervisor', data.supervisor||'')}{cell('Folio', data.folio||folio||'')}</tr>
+              <tr>
+                {cell('Fecha', fechaFmt)}
+                <td style={{ border:'1px solid #ccc', padding:'5px 8px', verticalAlign:'top' }}>
+                  <div style={{ fontSize:8, fontWeight:700, color:'#666', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:2 }}>Horario</div>
+                  <div style={{ fontSize:10, color:'#111' }}>{data.hora_inicio||'__:__'} — {data.hora_fin||'__:__'} &nbsp;|&nbsp; {data.num_personas||'__'} personas</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          {/* PERMISOS */}
+          <div style={{ background:'#0a1628', color:'#fff', fontWeight:800, fontSize:8.5, letterSpacing:'0.15em', textTransform:'uppercase', padding:'4px 10px', marginBottom:4 }}>Permisos de Trabajo</div>
+          <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:10 }}>
+            <tbody>
+              <tr>
+                {cell('Trabajo en Caliente', data.permiso_caliente||'N/A')}
+                {cell('Trabajo Rojo', data.permiso_rojo||'N/A')}
+                {cell('Trabajo en Alturas', data.permiso_alturas||'N/A')}
+              </tr>
+            </tbody>
+          </table>
+          {/* ACTIVIDADES */}
+          <div style={{ background:'#0a1628', color:'#fff', fontWeight:800, fontSize:8.5, letterSpacing:'0.15em', textTransform:'uppercase', padding:'4px 10px', marginBottom:4 }}>Actividades del Día</div>
+          {data.resumen && (
+            <div style={{ marginBottom:8 }}>
+              <div style={{ fontSize:8.5, fontWeight:700, color:'#444', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:3 }}>Resumen Ejecutivo</div>
+              <div style={{ fontSize:10, lineHeight:1.7, padding:'6px 10px', background:'#f8f9fa', borderLeft:'3px solid #F5B800', whiteSpace:'pre-wrap' }}>{data.resumen}</div>
+            </div>
+          )}
+          {data.actividades_detalle && (
+            <div style={{ marginBottom:10 }}>
+              <div style={{ fontSize:8.5, fontWeight:700, color:'#444', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:3 }}>Detalle de Actividades</div>
+              <div style={{ fontSize:10, lineHeight:1.8, padding:'6px 10px', border:'1px solid #e0e0e0', whiteSpace:'pre-wrap' }}>{data.actividades_detalle}</div>
+            </div>
+          )}
+          {/* TRANSCRIPCIÓN */}
+          {data.transcripcion && (
+            <div style={{ marginBottom:10 }}>
+              <div style={{ background:'#0a1628', color:'#fff', fontWeight:800, fontSize:8.5, letterSpacing:'0.15em', textTransform:'uppercase', padding:'4px 10px', marginBottom:4 }}>Notas / Transcripción</div>
+              <div style={{ fontSize:9.5, lineHeight:1.8, whiteSpace:'pre-wrap', padding:'6px 10px', background:'#f8f9fa', borderLeft:'3px solid #0a1628' }}>{data.transcripcion}</div>
+            </div>
+          )}
+          {/* FIRMAS */}
+          <div style={{ background:'#0a1628', color:'#fff', fontWeight:800, fontSize:8.5, letterSpacing:'0.15em', textTransform:'uppercase', padding:'4px 10px', marginBottom:8, marginTop:10 }}>Firmas</div>
+          <table style={{ width:'100%', borderCollapse:'collapse' }}>
+            <tbody>
+              <tr>
+                <td style={{ border:'1px solid #ccc', padding:'8px', width:'50%', textAlign:'center' }}>
+                  <div style={{ borderTop:'1px solid #555', paddingTop:6, marginTop:36, fontSize:9 }}>
+                    <div style={{ fontWeight:700 }}>{data.supervisor_micsa || data.supervisor || 'Supervisor MICSA'}</div>
+                    <div style={{ color:'#666', fontSize:8.5 }}>Supervisor Grupo MICSA</div>
+                  </div>
+                </td>
+                <td style={{ border:'1px solid #ccc', padding:'8px', width:'50%', textAlign:'center' }}>
+                  <div style={{ borderTop:'1px solid #555', paddingTop:6, marginTop:36, fontSize:9 }}>
+                    <div style={{ fontWeight:700 }}>{data.usuario_cliente || '________________________________'}</div>
+                    <div style={{ color:'#666', fontSize:8.5 }}>Nombre / Firma Cliente</div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <Footer email={MI.emailCot} />
+      </div>
+    )
+  }
+
   // Generic preview for other doc types
   const docTitle = TIPO_TITLES[tipo] || tipo
   const isCorporate = ['manual_integral_seguridad','manual_operativo','propuesta_comercial','codigo_etica','manual_reclutamiento'].includes(tipo)
@@ -1215,9 +2304,20 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
             </div>
           ))}
         </div>
+        {data.transcripcion && (
+          <div style={{ marginTop: 16 }}>
+            <div style={{ background: '#0a0a0a', color: '#fff', fontWeight: 800, fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '5px 10px', marginBottom: 8 }}>Transcripción / Notas</div>
+            <div style={{ fontSize: 9.5, lineHeight: 1.8, whiteSpace: 'pre-wrap', wordBreak: 'break-word', padding: '10px 14px', background: '#f8f9fa', border: '1px solid #dde3f0', borderLeft: '4px solid #0a0a0a', borderRadius: '0 4px 4px 0' }}>{data.transcripcion}</div>
+          </div>
+        )}
         <Footer />
       </div>
     )
+  }
+
+  // Debug: Log si no se matchea ningún tipo
+  if (typeof window !== 'undefined') {
+    console.warn('[DocumentPreview] No se encontró renderer específico para tipo:', tipo)
   }
 
   return (
@@ -1228,7 +2328,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
 
         <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14 }}>
           <tbody>
-            {Object.entries(data).map(([k, v]) => v ? (
+            {Object.entries(data).filter(([k]) => k !== 'transcripcion').map(([k, v]) => v ? (
               <tr key={k}>
                 <td style={tdL}>{k.replace(/_/g, ' ')}:</td>
                 <td style={tdV}>{v}</td>
@@ -1246,6 +2346,13 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
                 <img key={i} src={f.url} alt="" style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: 4 }} />
               ))}
             </div>
+          </div>
+        )}
+
+        {data.transcripcion && (
+          <div style={{ marginTop: 16 }}>
+            <div style={{ fontWeight: 800, fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6, paddingBottom: 4, borderBottom: '2px solid #111' }}>Transcripción / Notas</div>
+            <div style={{ fontSize: 9.5, lineHeight: 1.8, whiteSpace: 'pre-wrap', wordBreak: 'break-word', padding: '10px 14px', background: '#f8f9fa', borderLeft: '4px solid #111', borderRadius: '0 4px 4px 0' }}>{data.transcripcion}</div>
           </div>
         )}
       </div>
