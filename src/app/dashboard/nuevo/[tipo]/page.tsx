@@ -2,6 +2,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
+import { generateFolio } from '@/lib/folio-utils'
+import SignaturePad from '@/components/SignaturePad'
 import { ALCANCES_DEFAULT, INCLUYE_DEFAULT, EXCLUYE_DEFAULT, COND_DEFAULT, NOTA_SUP, LETTERS, LOGO_B64, MI, NAVY, RED, GOLD, fmtDate, fmtMXN } from '@/lib/constants'
 
 /* ─── SCHEMAS ─────────────────────────────────────────────── */
@@ -27,7 +29,11 @@ const SCHEMAS: Record<string, { title: string; sections: { label: string; fields
     ]},
     { label: 'Precio', fields: [
       { key: 'monto_usd', label: 'Monto USD (sin IVA)', type: 'number' },
+      { key: 'iva_usd', label: 'IVA USD (16%)', type: 'number' },
+      { key: 'total_usd', label: 'Total USD (con IVA)', type: 'number' },
       { key: 'monto_mxn', label: 'Monto MXN (sin IVA)', type: 'number' },
+      { key: 'iva_mxn', label: 'IVA MXN (16%)', type: 'number' },
+      { key: 'total_mxn', label: 'Total MXN (con IVA)', type: 'number' },
       { key: 'descripcion_precio', label: 'Descripción en tabla de precio', type: 'text' },
     ]},
     { label: 'Formas de Pago', fields: [
@@ -60,7 +66,9 @@ const SCHEMAS: Record<string, { title: string; sections: { label: string; fields
     ]},
     { label: 'Firmas', fields: [
       { key: 'supervisor_micsa', label: 'Supervisor Grupo MICSA', type: 'text' },
+      { key: 'supervisor_firma', label: 'Firma Supervisor MICSA', type: 'signature' },
       { key: 'usuario_cliente', label: 'Nombre Usuario por Cliente', type: 'text' },
+      { key: 'cliente_firma', label: 'Firma Cliente', type: 'signature' },
     ]},
   ]},
   contrato: { title: 'Contrato de Prestación de Servicios', sections: [
@@ -86,6 +94,8 @@ const SCHEMAS: Record<string, { title: string; sections: { label: string; fields
     ]},
     { label: 'Condiciones Económicas', fields: [
       { key: 'monto_total', label: 'Monto Total (sin IVA)', type: 'number' },
+      { key: 'iva_mxn', label: 'IVA (16%)', type: 'number' },
+      { key: 'total_mxn', label: 'Total con IVA', type: 'number' },
       { key: 'moneda', label: 'Moneda', type: 'text', placeholder: 'MXN' },
       { key: 'forma_pago', label: 'Forma de Pago', type: 'textarea', rows: 2, placeholder: '50% anticipo, 50% al finalizar' },
       { key: 'penalizaciones', label: 'Penalizaciones por Retraso', type: 'textarea', rows: 2 },
@@ -99,7 +109,9 @@ const SCHEMAS: Record<string, { title: string; sections: { label: string; fields
     ]},
     { label: 'Firmas', fields: [
       { key: 'firma_contratante', label: 'Nombre del Contratante', type: 'text' },
+      { key: 'firma_contratante_digital', label: 'Firma Digital Contratante', type: 'signature' },
       { key: 'firma_contratista', label: 'Nombre del Contratista (MICSA)', type: 'text' },
+      { key: 'firma_contratista_digital', label: 'Firma Digital Contratista', type: 'signature' },
       { key: 'testigo_1', label: 'Testigo 1', type: 'text' },
       { key: 'testigo_2', label: 'Testigo 2', type: 'text' },
     ]},
@@ -1186,10 +1198,34 @@ export default function NuevoTipoPage() {
   const [parsed, setParsed] = useState<Record<string, string> | null>(null)
   const [parseError, setParseError] = useState<string | null>(null)
   const [pdfGenerating, setPdfGenerating] = useState(false)
+  const [version, setVersion] = useState(1)
+  const [showVersions, setShowVersions] = useState(false)
+  const [versions, setVersions] = useState<Array<{ version: number; timestamp: string; data: Record<string, string> }>>([])
+  const [loadingVersions, setLoadingVersions] = useState(false)
 
   useEffect(() => {
     if (DEFAULTS[tipo]) setData(prev => Object.keys(prev).length === 0 ? DEFAULTS[tipo] : prev)
   }, [tipo])
+
+  // Auto-calculate IVA and totals for cotizaciones
+  useEffect(() => {
+    if (tipo === 'cotizacion' || tipo === 'cotizacion_fimpress' || tipo === 'contrato' || tipo === 'orden_trabajo') {
+      const mxn = parseFloat(data.monto_mxn || '0') || 0
+      const usd = parseFloat(data.monto_usd || '0') || 0
+      const IVA_RATE = 0.16
+
+      if (mxn > 0 || usd > 0) {
+        setData(prev => ({
+          ...prev,
+          iva_mxn: ((mxn * IVA_RATE).toFixed(2)),
+          total_mxn: ((mxn + mxn * IVA_RATE).toFixed(2)),
+          iva_usd: ((usd * IVA_RATE).toFixed(2)),
+          total_usd: ((usd + usd * IVA_RATE).toFixed(2)),
+        }))
+      }
+    }
+  }, [data.monto_mxn, data.monto_usd, tipo])
+
   const printRef = useRef<HTMLDivElement>(null)
 
   const title = TIPO_TITLES[tipo] || tipo
@@ -1226,6 +1262,27 @@ export default function NuevoTipoPage() {
 
   const [folio, setFolio] = useState<string | null>(null)
 
+  async function loadVersions() {
+    if (!savedId) return
+    setLoadingVersions(true)
+    try {
+      const { data: doc } = await supabase.from('documentos').select('version_history, version').eq('id', savedId).single()
+      if (doc) {
+        setVersions(doc.version_history || [])
+        setVersion(doc.version || 1)
+      }
+    } catch (err) {
+      console.error('Error loading versions:', err)
+    } finally {
+      setLoadingVersions(false)
+    }
+  }
+
+  function restoreVersion(versionData: Record<string, string>) {
+    setData(versionData)
+    setShowVersions(false)
+  }
+
   async function handleSave() {
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
@@ -1233,9 +1290,15 @@ export default function NuevoTipoPage() {
     // Generar folio automático solo en el primer guardado
     let docFolio = folio
     if (!savedId && !docFolio) {
-      const { data: folioData } = await supabase.rpc('get_next_folio', { p_tipo: tipo })
-      docFolio = folioData as string
-      setFolio(docFolio)
+      docFolio = await generateFolio(tipo)
+      if (docFolio) setFolio(docFolio)
+    }
+
+    // Crear versión del documento
+    const currentVersion = {
+      version: version,
+      timestamp: new Date().toISOString(),
+      data: { ...data },
     }
 
     const docData = {
@@ -1243,6 +1306,8 @@ export default function NuevoTipoPage() {
       folio: docFolio,
       cliente_nombre: data.cliente || data.proyecto || null,
       datos: { ...data, fotos: fotos.map(f => f.url) },
+      version: version,
+      version_history: savedId ? [...versions, currentVersion] : [currentVersion],
       estado: 'borrador',
       created_by: user?.id,
     }
@@ -1250,9 +1315,14 @@ export default function NuevoTipoPage() {
     if (savedId) {
       const { folio: _f, ...updateData } = docData
       await supabase.from('documentos').update(updateData).eq('id', savedId)
+      // Increment version for next save
+      setVersion(v => v + 1)
     } else {
       const { data: doc } = await supabase.from('documentos').insert(docData).select().single()
-      if (doc) setSavedId(doc.id)
+      if (doc) {
+        setSavedId(doc.id)
+        setVersions([currentVersion])
+      }
     }
     setSaving(false)
   }
@@ -1339,19 +1409,21 @@ export default function NuevoTipoPage() {
     }
 
   return (
-    <div className="max-w-lg mx-auto pb-4">
+    <div className="max-w-lg mx-auto pb-4" style={{ background: '#fafbfc' }}>
       {/* Header */}
-      <div className="sticky top-14 bg-white border-b border-slate-100 px-4 py-3 flex items-center gap-3 z-10 no-print">
-        <button onClick={() => router.back()} className="text-slate-400 hover:text-slate-600 text-xl">←</button>
-        <h2 className="text-base font-bold text-slate-800 flex-1 truncate">{title}</h2>
+      <div className="sticky top-14 bg-white border-b px-4 py-3 flex items-center gap-3 z-10 no-print" style={{ borderColor: GOLD }}>
+        <button onClick={() => router.back()} className="hover:opacity-70 text-xl" style={{ color: NAVY }}>←</button>
+        <h2 className="text-base font-bold flex-1 truncate" style={{ color: NAVY }}>{title}</h2>
         <div className="flex gap-2">
           <button onClick={() => setShowPreview(!showPreview)}
-            className="text-xs border border-slate-300 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-50"
+            className="text-xs px-3 py-1.5 rounded-lg border"
+            style={{ borderColor: NAVY, color: NAVY, background: 'rgba(11,31,58,0.05)' }}
           >
             {showPreview ? 'Editar' : 'Vista previa'}
           </button>
           <button onClick={handleSave} disabled={saving}
-            className="text-xs bg-blue-900 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 disabled:opacity-60"
+            className="text-xs text-white px-3 py-1.5 rounded-lg disabled:opacity-60"
+            style={{ background: NAVY }}
           >
             {saving ? 'Guardando…' : 'Guardar'}
           </button>
@@ -1359,23 +1431,59 @@ export default function NuevoTipoPage() {
       </div>
 
       {savedId && (
-        <div className="mx-4 mt-3 bg-green-50 border border-green-200 text-green-700 rounded-lg px-3 py-2 text-sm flex items-center justify-between no-print">
-          <span>✓ Guardado — <strong>{folio}</strong></span>
-          <button onClick={handlePrint} disabled={pdfGenerating} className="text-green-800 font-semibold underline text-xs disabled:opacity-50">{pdfGenerating ? 'Generando…' : 'Descargar PDF'}</button><button onClick={handleDocxDownload} className="text-blue-800 font-semibold underline text-xs ml-2">⬇ DOCX</button>
-        </div>
+        <>
+          <div className="mx-4 mt-3 bg-green-50 border border-green-200 text-green-700 rounded-lg px-3 py-2 text-sm flex items-center justify-between no-print">
+            <span>✓ Guardado — <strong>{folio}</strong> (v{version})</span>
+            <div className="flex gap-2">
+              <button onClick={() => { setShowVersions(!showVersions); if (!showVersions) loadVersions() }} className="text-green-800 font-semibold underline text-xs">{showVersions ? 'Ocultar' : 'Ver'} historial</button>
+              <button onClick={handlePrint} disabled={pdfGenerating} className="text-green-800 font-semibold underline text-xs disabled:opacity-50">{pdfGenerating ? 'Generando…' : 'Descargar PDF'}</button><button onClick={handleDocxDownload} className="text-blue-800 font-semibold underline text-xs">⬇ DOCX</button>
+            </div>
+          </div>
+          {showVersions && (
+            <div className="mx-4 mt-2 bg-blue-50 border border-blue-200 rounded-lg overflow-hidden no-print">
+              <div className="px-3 py-2 bg-blue-100 border-b border-blue-200">
+                <h4 className="text-xs font-semibold text-blue-900">Historial de Versiones ({versions.length})</h4>
+              </div>
+              <div className="max-h-60 overflow-y-auto">
+                {loadingVersions ? (
+                  <div className="px-3 py-2 text-xs text-blue-700">Cargando...</div>
+                ) : versions.length === 0 ? (
+                  <div className="px-3 py-2 text-xs text-blue-700">Sin versiones</div>
+                ) : (
+                  <div className="divide-y divide-blue-200">
+                    {versions.map((v, i) => (
+                      <div key={i} className="px-3 py-2 text-xs">
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-blue-900">v{v.version} — {new Date(v.timestamp).toLocaleString('es-MX', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                          {i < versions.length - 1 && (
+                            <button onClick={() => restoreVersion(v.data)} className="text-blue-600 hover:text-blue-800 text-xs underline">
+                              Restaurar
+                            </button>
+                          )}
+                        </div>
+                        <div className="text-blue-600 text-xs mt-1 line-clamp-2">{Object.keys(v.data).filter(k => v.data[k]).slice(0, 3).join(', ')}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* ÁREA DE TRANSCRIPCIÓN — visible para todos los documentos */}
-      <div className="mx-4 mt-3 rounded-xl overflow-hidden border border-amber-200 no-print">
-        <div className="px-4 py-2 bg-amber-100 border-b border-amber-200 flex items-center justify-between gap-2">
+      <div className="mx-4 mt-3 rounded-xl overflow-hidden border no-print" style={{ borderColor: GOLD }}>
+        <div className="px-4 py-2 border-b flex items-center justify-between gap-2" style={{ background: NAVY, borderColor: GOLD, color: GOLD }}>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">Transcripción</span>
-            <span className="text-xs text-amber-700">— pega texto libre; Claude extrae los campos automáticamente</span>
+            <span className="text-xs font-bold uppercase tracking-wide">Transcripción</span>
+            <span className="text-xs" style={{ opacity: 0.8 }}>— pega texto libre; Claude extrae los campos automáticamente</span>
           </div>
           <button
             onClick={handleParse}
             disabled={parsing || !data['transcripcion']?.trim()}
-            className="text-xs font-semibold bg-amber-800 text-white px-3 py-1.5 rounded-lg disabled:opacity-40 hover:bg-amber-900"
+            className="text-xs font-semibold text-white px-3 py-1.5 rounded-lg disabled:opacity-40"
+            style={{ background: RED }}
           >
             {parsing ? 'Analizando…' : 'Estructurar'}
           </button>
@@ -1434,34 +1542,48 @@ export default function NuevoTipoPage() {
         /* FORM */
         <div className="p-4 space-y-6">
           {schema.sections.map((section, si) => (
-            <div key={si} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-              <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
-                <h3 className="text-sm font-semibold text-slate-700">{section.label}</h3>
+            <div key={si} className="bg-white rounded-xl shadow-sm border overflow-hidden" style={{ borderColor: GOLD }}>
+              <div className="px-4 py-2.5 border-b" style={{ background: NAVY, color: GOLD, borderColor: GOLD }}>
+                <h3 className="text-sm font-semibold uppercase tracking-wide">{section.label}</h3>
               </div>
               <div className="p-4 space-y-3">
                 {section.fields.map(field => (
                   <div key={field.key}>
-                    <label className="block text-xs font-medium text-slate-600 mb-1" htmlFor={field.key}>{field.label}</label>
-                    {field.type === 'textarea' ? (
-                      <textarea
-                        id={field.key}
-                        name={field.key}
-                        value={data[field.key] || ''}
-                        onChange={e => set(field.key, e.target.value)}
-                        placeholder={field.placeholder}
-                        rows={field.rows || 3}
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                    {field.type === 'signature' ? (
+                      <SignaturePad
+                        label={field.label}
+                        value={data[field.key]}
+                        onSignatureChange={(sig) => set(field.key, sig)}
                       />
                     ) : (
-                      <input
-                        id={field.key}
-                        name={field.key}
-                        type={field.type}
-                        value={data[field.key] || ''}
-                        onChange={e => set(field.key, e.target.value)}
-                        placeholder={field.placeholder}
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                      />
+                      <>
+                        <label className="block text-xs font-medium mb-1" htmlFor={field.key} style={{ color: NAVY }}>{field.label}</label>
+                        {field.type === 'textarea' ? (
+                          <textarea
+                            id={field.key}
+                            name={field.key}
+                            value={data[field.key] || ''}
+                            onChange={e => set(field.key, e.target.value)}
+                            placeholder={field.placeholder}
+                            rows={field.rows || 3}
+                            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none resize-none"
+                            style={{ borderColor: GOLD, color: '#111' }}
+                            onFocus={(e) => { e.currentTarget.style.outlineColor = GOLD; e.currentTarget.style.outlineWidth = '2px'; e.currentTarget.style.outlineStyle = 'solid' }}
+                          />
+                        ) : (
+                          <input
+                            id={field.key}
+                            name={field.key}
+                            type={field.type}
+                            value={data[field.key] || ''}
+                            onChange={e => set(field.key, e.target.value)}
+                            placeholder={field.placeholder}
+                            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none"
+                            style={{ borderColor: GOLD, color: '#111' }}
+                            onFocus={(e) => { e.currentTarget.style.outlineColor = GOLD; e.currentTarget.style.outlineWidth = '2px'; e.currentTarget.style.outlineStyle = 'solid' }}
+                          />
+                        )}
+                      </>
                     )}
                   </div>
                 ))}
@@ -1470,9 +1592,9 @@ export default function NuevoTipoPage() {
           ))}
 
           {/* Photos section */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-            <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
-              <h3 className="text-sm font-semibold text-slate-700">📷 Evidencia Fotográfica</h3>
+          <div className="bg-white rounded-xl shadow-sm border overflow-hidden" style={{ borderColor: GOLD }}>
+            <div className="px-4 py-2.5 border-b" style={{ background: NAVY, color: GOLD, borderColor: GOLD }}>
+              <h3 className="text-sm font-semibold uppercase tracking-wide">📷 Evidencia Fotográfica</h3>
             </div>
             <div className="p-4">
               <PhotoUploader documentoId={savedId || undefined} fotos={fotos} onFotosChange={setFotos} />
@@ -1480,7 +1602,8 @@ export default function NuevoTipoPage() {
           </div>
 
           <button onClick={handleSave} disabled={saving}
-            className="w-full bg-blue-900 text-white py-3 rounded-xl font-semibold disabled:opacity-60"
+            className="w-full text-white py-3 rounded-xl font-semibold disabled:opacity-60"
+            style={{ background: NAVY }}
           >
             {saving ? 'Guardando…' : '💾 Guardar Documento'}
           </button>
