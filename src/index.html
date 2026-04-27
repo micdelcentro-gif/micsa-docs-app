@@ -1,0 +1,1071 @@
+﻿﻿<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MICSA Doc Studio — Editor de Documentos</title>
+  <meta name="description" content="Sistema profesional de creación de documentos para MICSA Industrial S.A. de C.V." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <!-- mammoth.js: LOCAL — convierte .docx a HTML -->
+  <script src="mammoth.browser.min.js"></script>
+  <!-- html2canvas: LOCAL -->
+  <script src="html2canvas.min.js"></script>
+  <!-- jsPDF: LOCAL -->
+  <script src="jspdf.umd.min.js"></script>
+  <!-- html2pdf.js: LOCAL — evita problemas CORS con file:// -->
+  <script src="html2pdf.bundle.min.js"></script>
+  <!-- Nueva estructura uniforme para PDFs -->
+  <script src="pdf-template-base.js"></script>
+  <!-- Paginación inteligente -->
+  <script src="pdf-paginator.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Botón hamburguesa para móvil -->
+  <button id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('mobile-open')" title="Menú">
+    ☰
+  </button>
+
+  <div id="app">
+
+    <!-- ========== SIDEBAR ========== -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">M</div>
+          <div class="logo-text">
+            <span class="logo-title">Doc Studio</span>
+            <span class="logo-sub">MICSA Industrial</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-section">
+        <p class="section-label">Plantillas</p>
+        <button class="template-btn active" onclick="loadTemplate('cotizacion')" data-template="cotizacion">
+          <span class="tmpl-icon">📄</span><span>Cotización</span>
+        </button>
+        <button class="template-btn" onclick="loadTemplate('carta')" data-template="carta">
+          <span class="tmpl-icon">✉️</span><span>Carta Formal</span>
+        </button>
+        <button class="template-btn" onclick="loadTemplate('reporte')" data-template="reporte">
+          <span class="tmpl-icon">📊</span><span>Reporte Técnico</span>
+        </button>
+        <button class="template-btn" onclick="loadTemplate('remision')" data-template="remision">
+          <span class="tmpl-icon">📦</span><span>Remisión</span>
+        </button>
+        <button class="template-btn" onclick="loadTemplate('propuesta')" data-template="propuesta">
+          <span class="tmpl-icon">💼</span><span>Propuesta Comercial</span>
+        </button>
+        <button class="template-btn" onclick="loadTemplate('seguridad')" data-template="seguridad">
+          <span class="tmpl-icon">🛡️</span><span>Política de Seguridad</span>
+        </button>
+        <button class="template-btn" onclick="loadTemplate('desviaciones')" data-template="desviaciones">
+          <span class="tmpl-icon">⚠️</span><span>Informe de Desviaciones</span>
+        </button>
+        <button class="template-btn template-btn--cotizacion" onclick="loadTemplate('cotizacion_formal')"
+          data-template="cotizacion_formal">
+          <span class="tmpl-icon">🧾</span><span>Cotización Formal MICSA</span>
+        </button>
+        <button class="template-btn" onclick="loadTemplate('blank')" data-template="blank">
+          <span class="tmpl-icon">➕</span><span>Documento en blanco</span>
+        </button>
+        <button class="template-btn template-btn--cotizador" onclick="openCotizador()" data-template="cotizador-formal">
+          <span class="tmpl-icon">🧮</span><span>Cotizador Formal</span>
+        </button>
+        <button class="template-btn template-btn--cotizador" onclick="openCarrierCot()" data-template="cotizador-adicionales">
+          <span class="tmpl-icon">🚛</span><span>Cotizador Adicionales</span>
+        </button>
+      </nav>
+
+      <!-- PDF PROFESIONAL SECTION -->
+      <nav class="sidebar-section">
+        <p class="section-label">📄 PDF Profesional</p>
+        <button class="pro-btn" id="btn-pro-pdf" onclick="exportPDF_Professional()"
+          title="Exportar PDF profesional con logo MICSA, Arial, negro, A4 paginado">
+          <span class="pro-btn-icon">🏆</span><span>Generar PDF Pro</span>
+        </button>
+        <button class="pro-btn" onclick="insertEvidenciasBlock()" title="Insertar área de evidencias fotográficas">
+          <span class="pro-btn-icon">📸</span><span>Área de Evidencias</span>
+        </button>
+        <button class="pro-btn" onclick="openAdobeSignPanel()" title="Firma digital Adobe Acrobat Sign">
+          <span class="pro-btn-icon">✍️</span><span>Adobe Sign</span>
+          <span class="ilove-status-dot" id="adobe-dot"></span>
+        </button>
+      </nav>
+
+      <!-- GOOGLE DOCS SECTION -->
+      <nav class="sidebar-section">
+        <p class="section-label">🟦 Google Docs / Drive</p>
+        <button class="gdocs-btn" onclick="openGoogleDocsPanel()" title="Configurar Google Docs API">
+          <span class="gdocs-btn-icon">⚙️</span><span>Configurar API</span>
+          <span class="ilove-status-dot" id="gdocs-dot"></span>
+        </button>
+        <button class="gdocs-btn" onclick="exportToGoogleDocs()" title="Exportar documento actual a Google Docs">
+          <span class="gdocs-btn-icon">📤</span><span>Exportar a Google Docs</span>
+        </button>
+        <button class="gdocs-btn" onclick="importFromGoogleDrive()" title="Importar desde Google Drive">
+          <span class="gdocs-btn-icon">📥</span><span>Importar desde Drive</span>
+        </button>
+      </nav>
+
+      <!-- iLoveAPI PDF Tools Section -->
+      <nav class="sidebar-section">
+        <p class="section-label">🔴 iLoveAPI — Herramientas PDF</p>
+        <button class="ilove-btn" id="ilove-config-btn" onclick="openILoveConfig()"
+          title="Configurar credenciales de iLoveAPI">
+          <span class="ilove-btn-icon">⚙️</span><span>Credenciales API</span>
+          <span class="ilove-status-dot" id="ilove-dot"></span>
+        </button>
+        <button class="ilove-btn" onclick="exportPDF_iLoveAPI()" title="Exportar documento como PDF real via iLoveAPI">
+          <span class="ilove-btn-icon">📥</span><span>Exportar PDF (API)</span>
+        </button>
+        <button class="ilove-btn" onclick="openMergePanel()" title="Combinar múltiples PDFs">
+          <span class="ilove-btn-icon">🔗</span><span>Combinar PDFs</span>
+        </button>
+        <button class="ilove-btn" onclick="compressPDF_iLoveAPI()" title="Comprimir un PDF">
+          <span class="ilove-btn-icon">🗜️</span><span>Comprimir PDF</span>
+        </button>
+        <div id="ilove-credits-bar" class="ilove-credits-bar hidden"></div>
+      </nav>
+
+      <!-- ACCESO RÁPIDO: PLAN DE IZAJE -->
+      <nav class="sidebar-section sidebar-section--highlight">
+        <p class="section-label">🏗️ Seguridad / Maniobras</p>
+        <button class="pro-btn pro-btn--red" onclick="quickPlanIzaje()"
+          title="Crear Plan de Izaje con checklist NOM-006-STPS-2014">
+          <span class="pro-btn-icon">🏗️</span><span>Plan de Izaje</span>
+        </button>
+      </nav>
+
+      <!-- EMAIL / COMPARTIR SECTION -->
+      <nav class="sidebar-section">
+        <p class="section-label">📧 Enviar / Compartir</p>
+        <button class="pro-btn" onclick="openEmailModal()" title="Enviar por Gmail o cliente de correo">
+          <span class="pro-btn-icon">📬</span><span>Enviar por Gmail</span>
+        </button>
+      </nav>
+
+      <!-- GEMINI CONFIG -->
+      <nav class="sidebar-section">
+        <p class="section-label">🤖 IA Gemini</p>
+        <button class="chat-sidebar-btn" onclick="openChatConfig()" title="Configurar API Key de Gemini">
+          <span class="chat-sidebar-icon">⚙️</span><span>Configurar API Key</span>
+          <span class="chat-notif-dot" id="gemini-cfg-dot" style="display:none;"></span>
+        </button>
+        <button class="chat-sidebar-btn" onclick="openAIChat()" title="Abrir chat de IA">
+          <span class="chat-sidebar-icon">💬</span><span>Chat con IA</span>
+          <span class="chat-notif-dot hidden" id="chat-dot"></span>
+        </button>
+      </nav>
+
+      <nav class="sidebar-section sidebar-section--bottom">
+        <p class="section-label">Importar archivo</p>
+        <button class="btn-import" onclick="triggerFileImport()" title="Importar .html, .txt, .docx">
+          <span>📂</span><span>Abrir archivo...</span>
+        </button>
+        <div id="import-info" class="import-info hidden"></div>
+
+        <p class="section-label section-label--mt">Guardados</p>
+        <div id="saved-list">
+          <p class="empty-saved">No hay documentos guardados</p>
+        </div>
+        <button class="btn-secondary full-width btn-secondary--mt" onclick="openNewDocWizard()">✨ Nuevo
+          documento</button>
+      </nav>
+
+      <!-- Input oculto para seleccionar archivos -->
+      <input type="file" id="file-input" accept=".html,.htm,.txt,.docx,.doc,.rtf" class="hidden"
+        onchange="handleFileSelect(this.files[0])" />
+    </aside>
+
+    <!-- ========== MAIN ========== -->
+    <main id="main">
+
+      <!-- TOP BAR -->
+      <header id="topbar">
+        <div class="topbar-left">
+          <div class="topbar-breadcrumb">
+            <span>🏠</span>
+            <span class="sep">/</span>
+            <span>Documentos</span>
+            <span class="sep">/</span>
+          </div>
+          <input id="doc-title" type="text" value="Cotización #001" placeholder="Nombre del documento..." />
+        </div>
+        <div class="topbar-right">
+          <button class="btn-ghost" onclick="openVarPanel()" title="Editar variables del documento (⌘+V)">
+            ⚙ Variables
+          </button>
+          <button class="btn-ghost" onclick="togglePreview()" id="preview-btn">
+            👁 Vista previa
+          </button>
+          <button class="btn-ghost" onclick="saveDocument()">
+            💾 Guardar
+          </button>
+          <button class="btn-ghost" onclick="exportWord()" title="Exportar como archivo Word (.doc)">
+            📝 Word
+          </button>
+          <button class="btn-primary" onclick="exportPDF_Professional()"
+            title="Exportar PDF profesional con logo, Arial, A4">
+            🏆 PDF Pro
+          </button>
+        </div>
+      </header>
+
+      <!-- TOOLBAR -->
+      <div id="toolbar">
+        <div class="toolbar-group">
+          <select id="font-family" onchange="execCmd('fontName', this.value)" title="Fuente">
+            <option value="Arial" selected>Arial</option>
+            <option value="Inter">Inter</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Courier New">Courier New</option>
+          </select>
+          <select id="font-size" onchange="execCmd('fontSize', this.value)" title="Tamaño">
+            <option value="1">8pt</option>
+            <option value="2">10pt</option>
+            <option value="3" selected>11pt</option>
+            <option value="4">14pt</option>
+            <option value="5">18pt</option>
+            <option value="6">24pt</option>
+            <option value="7">36pt</option>
+          </select>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <button class="tb-btn" onclick="execCmd('bold')" title="Negrita (⌘B)"><b>B</b></button>
+          <button class="tb-btn" onclick="execCmd('italic')" title="Cursiva (⌘I)"><i>I</i></button>
+          <button class="tb-btn" onclick="execCmd('underline')" title="Subrayado (⌘U)"><u>U</u></button>
+          <button class="tb-btn" onclick="execCmd('strikeThrough')" title="Tachado"><s>S</s></button>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <button class="tb-btn" onclick="execCmd('justifyLeft')" title="Izquierda">◀</button>
+          <button class="tb-btn" onclick="execCmd('justifyCenter')" title="Centro">☰</button>
+          <button class="tb-btn" onclick="execCmd('justifyRight')" title="Derecha">▶</button>
+          <button class="tb-btn" onclick="execCmd('justifyFull')" title="Justificado">⇔</button>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <button class="tb-btn" onclick="execCmd('insertUnorderedList')" title="Lista">• Lista</button>
+          <button class="tb-btn" onclick="execCmd('insertOrderedList')" title="Numerada">1. Num</button>
+          <button class="tb-btn" onclick="insertBlockquote()" title="Cita / Nota destacada">❝ Nota</button>
+          <button class="tb-btn" onclick="insertHR()" title="Línea divisoria">— HR</button>
+          <button class="tb-btn" onclick="insertTable()" title="Insertar tabla">⊞ Tabla</button>
+          <button class="tb-btn tb-btn--evidencias" onclick="insertEvidenciasBlock()"
+            title="Área de Evidencias Fotográficas">📸 Evidencias</button>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <label title="Color de texto" class="tb-color-label">
+            A <input type="color" id="text-color" value="#000000" class="tb-color-input"
+              onchange="execCmd('foreColor', this.value)" />
+          </label>
+          <label title="Resaltado" class="tb-color-label">
+            HL <input type="color" id="bg-color" value="#fef08a" class="tb-color-input"
+              onchange="execCmd('hiliteColor', this.value)" />
+          </label>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <select onchange="insertHeading(this.value)" title="Estilo de párrafo">
+            <option value="">Estilo…</option>
+            <option value="h1">Título 1</option>
+            <option value="h2">Título 2</option>
+            <option value="h3">Título 3</option>
+            <option value="p">Párrafo</option>
+          </select>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <button class="tb-btn" onclick="execCmd('undo')" title="Deshacer (⌘Z)">↩</button>
+          <button class="tb-btn" onclick="execCmd('redo')" title="Rehacer (⌘Y)">↪</button>
+        </div>
+      </div>
+
+      <!-- EDITOR AREA -->
+      <div id="editor-wrapper" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+        <!-- Drag & Drop overlay -->
+        <div id="drop-overlay">
+          <div class="drop-box">
+            <div class="drop-icon">📂</div>
+            <p class="drop-title">Suelta el archivo aquí</p>
+            <p class="drop-sub">.html &nbsp;·&nbsp; .txt &nbsp;·&nbsp; .docx</p>
+          </div>
+        </div>
+
+        <!-- Skywork-style mini-map -->
+        <div id="minimap"></div>
+
+        <div id="page-shadow">
+          <div id="editor" contenteditable="true" spellcheck="true" oninput="onEditorChange()"
+            onkeydown="handleKeydown(event)" onscroll="updateMinimap()"></div>
+        </div>
+      </div>
+
+      <!-- STATUS BAR -->
+      <div id="statusbar">
+        <span id="word-count">0 palabras</span>
+        <span>·</span>
+        <span id="char-count">0 caracteres</span>
+        <span id="save-status">Sin guardar</span>
+      </div>
+    </main>
+
+    <!-- VARIABLES PANEL -->
+    <div id="var-panel">
+      <div class="var-panel-header">
+        <h3>✏️ Variables del documento</h3>
+        <button onclick="closeVarPanel()" class="btn-ghost btn-close-sm">✕</button>
+      </div>
+      <p class="var-panel-hint">Llena los campos y presiona "Aplicar". Los datos se insertan automáticamente en la
+        plantilla.</p>
+      <div id="var-fields"></div>
+      <button class="btn-primary full-width" onclick="applyVariables()">✅ Aplicar variables</button>
+    </div>
+    <div id="var-overlay" onclick="closeVarPanel()"></div>
+
+    <!-- ========== iLoveAPI CREDENTIALS MODAL ========== -->
+    <div id="ilove-modal-overlay" class="modal-overlay hidden" onclick="closeILoveConfig()"></div>
+    <div id="ilove-modal" class="modal-panel hidden">
+      <div class="modal-header">
+        <div class="modal-brand-row">
+          <div class="ilove-logo-badge">iLove<span>API</span></div>
+          <div>
+            <h3 class="modal-h3">Configuración iLoveAPI</h3>
+            <p class="modal-sub">Obtén tus claves en iloveapi.com/user/projects</p>
+          </div>
+        </div>
+        <button onclick="closeILoveConfig()" class="btn-ghost btn-close-sm btn-ghost-dark">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <label>Public Key (Project ID)</label>
+          <input id="ilove-public-key" type="text" placeholder="project_public_xxxxxxxx" />
+        </div>
+        <div class="modal-field">
+          <label>Secret Key</label>
+          <input id="ilove-secret-key" type="password" placeholder="secret_xxxxxxxxxxxxxxxx" />
+        </div>
+        <div class="modal-hint">
+          <span>💡</span>
+          <span>Las claves se guardan localmente en tu navegador. Nunca se envían a servidores externos salvo a
+            iLoveAPI.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost btn-ghost-dark" onclick="testILoveCredentials()">🔍 Probar conexión</button>
+        <button class="btn-primary btn-primary-red" onclick="saveILoveCredentials()">💾 Guardar credenciales</button>
+      </div>
+    </div>
+
+    <!-- ========== MERGE PDF MODAL ========== -->
+    <div id="merge-modal-overlay" class="modal-overlay hidden" onclick="closeMergePanel()"></div>
+    <div id="merge-modal" class="modal-panel hidden">
+      <div class="modal-header">
+        <h3 class="modal-h3">🔗 Combinar PDFs</h3>
+        <button onclick="closeMergePanel()" class="btn-ghost btn-close-sm btn-ghost-dark">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-hint modal-hint--mb">
+          <span>ℹ️</span><span>Sube 2 o más archivos PDF para combinarlos en uno solo usando iLoveAPI.</span>
+        </div>
+        <div class="merge-drop-zone" id="merge-drop-zone" onclick="document.getElementById('merge-file-input').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')" ondrop="handleMergeDrop(event)">
+          <div class="merge-drop-icon">📄</div>
+          <p class="merge-drop-title">Clic o arrastra PDFs aquí</p>
+          <p class="merge-drop-sub">Solo archivos .pdf</p>
+        </div>
+        <input type="file" id="merge-file-input" accept=".pdf" multiple class="hidden"
+          onchange="handleMergeFileSelect(this.files)" />
+        <div id="merge-file-list" class="merge-file-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost btn-ghost-dark" onclick="closeMergePanel()">Cancelar</button>
+        <button class="btn-primary btn-primary-red" onclick="executeMergePDF()">🔗 Combinar y descargar</button>
+      </div>
+    </div>
+
+    <!-- ========== ADOBE SIGN MODAL ========== -->
+    <div id="adobe-modal-overlay" class="modal-overlay hidden" onclick="closeAdobeSignPanel()"></div>
+    <div id="adobe-modal" class="modal-panel modal-500 hidden">
+      <div class="modal-header">
+        <div class="modal-brand-row">
+          <div class="modal-brand-adobe">Adobe<span>Sign</span></div>
+          <div>
+            <h3 class="modal-h3">Firma Digital Adobe Acrobat Sign</h3>
+            <p class="modal-sub">Solicita firmas electrónicas vinculantes legalmente</p>
+          </div>
+        </div>
+        <button onclick="closeAdobeSignPanel()" class="btn-ghost btn-close-sm btn-ghost-dark">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <label>Integration Key (Adobe Sign API)</label>
+          <input id="adobe-integration-key" type="password" placeholder="3AAABLblqZhA..." />
+        </div>
+        <div class="modal-field">
+          <label>Correo del firmante</label>
+          <input id="adobe-signer-email" type="email" placeholder="firmante@empresa.com" />
+        </div>
+        <div class="modal-field">
+          <label>Nombre del firmante</label>
+          <input id="adobe-signer-name" type="text" placeholder="Ing. Juan López" />
+        </div>
+        <div class="modal-field">
+          <label>Mensaje para el firmante (opcional)</label>
+          <input id="adobe-message" type="text"
+            placeholder="Por favor firma el siguiente documento de MICSA Industrial." />
+        </div>
+        <div class="modal-hint">
+          <span>💡</span>
+          <div>
+            <p class="modal-hint-title">¿Cómo obtener tu Integration Key?</p>
+            <p class="modal-hint-body">1. Ve a <strong>adobesign.com</strong> → Cuenta → Acceso API<br>2. Crea una
+              aplicación y copia la Integration Key</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost btn-ghost-dark" onclick="saveAdobeKey()">💾 Guardar clave</button>
+        <button class="btn-primary btn-primary-adobe" onclick="sendForAdobeSign()">✍️ Enviar para firma</button>
+      </div>
+    </div>
+
+    <!-- COMPRESS PDF: hidden file input -->
+    <input type="file" id="compress-file-input" accept=".pdf" class="hidden"
+      onchange="executeCompressPDF(this.files[0])" />
+
+    <!-- EVIDENCE PHOTOS: hidden file input -->
+    <input type="file" id="evidence-file-input" accept="image/*" multiple class="hidden"
+      onchange="handleEvidencePhotos(this.files)" />
+
+    <!-- ========== GOOGLE DOCS CONFIG MODAL ========== -->
+    <div id="gdocs-modal-overlay" class="modal-overlay hidden" onclick="closeGoogleDocsPanel()"></div>
+    <div id="gdocs-modal" class="modal-panel modal-480 hidden">
+      <div class="modal-header">
+        <div class="modal-brand-row">
+          <div class="modal-brand-google">Google<span> Docs</span></div>
+          <div>
+            <h3 class="modal-h3">Integración Google Docs API</h3>
+            <p class="modal-sub">Necesitas un proyecto en console.cloud.google.com</p>
+          </div>
+        </div>
+        <button onclick="closeGoogleDocsPanel()" class="btn-ghost btn-close-sm btn-ghost-dark">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <label>Client ID (OAuth 2.0)</label>
+          <input id="gdocs-client-id" type="text" placeholder="xxxxx.apps.googleusercontent.com" />
+        </div>
+        <div class="modal-field">
+          <label>API Key</label>
+          <input id="gdocs-api-key" type="password" placeholder="AIzaSyXXXXXXXXXXXXXXXX" />
+        </div>
+        <div class="modal-hint">
+          <span>💡</span>
+          <div>
+            <p class="modal-hint-title">¿Cómo configurar?</p>
+            <p class="modal-hint-body">
+              1. Ve a <strong>console.cloud.google.com</strong><br>
+              2. Crea un proyecto → APIs &amp; Services → Habilita <strong>Drive API</strong> + <strong>Docs
+                API</strong><br>
+              3. Crea credenciales: <strong>OAuth 2.0 Client ID</strong> (tipo Web) + <strong>API Key</strong><br>
+              4. Añade <code>file://</code> a los orígenes autorizados
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost btn-ghost-dark" onclick="closeGoogleDocsPanel()">Cancelar</button>
+        <button class="btn-primary btn-primary-google" onclick="saveGoogleDocsConfig()">💾 Guardar y autenticar</button>
+      </div>
+    </div>
+
+    <!-- ========== COTIZADOR FORMAL MICSA MODAL ========== -->
+    <div id="cot-modal-overlay" class="modal-overlay hidden" onclick="closeCotizador()"></div>
+    <div id="cot-modal" class="modal-panel modal-720 hidden">
+      <div class="modal-header modal-header-sticky">
+        <div class="modal-brand-row">
+          <div class="modal-brand-cot">🧮 Cotizador</div>
+          <div>
+            <h3 class="modal-h3">Cotización Formal MICSA</h3>
+            <p class="modal-sub">Llena los datos — el total se calcula automáticamente</p>
+          </div>
+        </div>
+        <button onclick="closeCotizador()" class="btn-ghost btn-close-sm btn-ghost-dark">✕</button>
+      </div>
+      <div class="modal-body modal-body-padded">
+        <div class="cot-grid-3">
+          <div class="modal-field"><label>Folio</label><input id="cot-folio" type="text" value="COT-2025-001" /></div>
+          <div class="modal-field"><label>Fecha</label><input id="cot-fecha" type="date" /></div>
+          <div class="modal-field"><label>Vigencia</label><input id="cot-vigencia" type="text"
+              value="15 días naturales" /></div>
+        </div>
+        <div class="cot-section-cliente">
+          <p class="cot-section-label-blue">Datos del Cliente</p>
+          <div class="cot-grid-2-1">
+            <div class="modal-field"><label>Razón Social</label><input id="cot-cli-nombre" type="text"
+                placeholder="Empresa S.A. de C.V." /></div>
+            <div class="modal-field"><label>RFC</label><input id="cot-cli-rfc" type="text" placeholder="EMP201001AB1" />
+            </div>
+          </div>
+          <div class="modal-field modal-field-mt"><label>Domicilio</label><input id="cot-cli-dom" type="text"
+              placeholder="Calle, Colonia, Ciudad, Estado" /></div>
+          <div class="modal-field modal-field-mt"><label>Correo firmante (Adobe Sign)</label><input
+              id="cot-signer-email" type="email" placeholder="firma@cliente.com" /></div>
+        </div>
+        <div class="cot-section-proyecto">
+          <p class="cot-section-label-gold">Datos del Proyecto</p>
+          <div class="cot-grid-3-custom">
+            <div class="modal-field"><label>Proyecto / OC</label><input id="cot-proy-nombre" type="text"
+                placeholder="Iron Cast OC43766" /></div>
+            <div class="modal-field"><label>Cliente Final</label><input id="cot-cli-final" type="text"
+                placeholder="IRON CAST" /></div>
+            <div class="modal-field"><label>Servicio</label><input id="cot-servicio" type="text"
+                placeholder="MANTENIMIENTO" /></div>
+          </div>
+          <div class="cot-grid-4">
+            <div class="modal-field"><label>Meses</label><input id="cot-meses" type="number" value="6" min="1"
+                oninput="cotRecalc()" /></div>
+            <div class="modal-field"><label>Semanas</label><input id="cot-semanas" type="number" value="24" min="1"
+                oninput="cotRecalc()" /></div>
+            <div class="modal-field"><label>Personal</label><input id="cot-personal" type="number" value="6" min="1"
+                oninput="cotRecalc()" /></div>
+            <div class="modal-field"><label>Turno</label><input id="cot-turno" type="text" value="DIURNO" /></div>
+          </div>
+        </div>
+        <div class="cot-section-conceptos">
+          <p class="cot-section-label-grey">Conceptos y Precios</p>
+          <div class="cot-conceptos-header">
+            <div class="cot-col-hdr">Concepto</div>
+            <div class="cot-col-hdr-right">Cantidad</div>
+            <div class="cot-col-hdr-right">Precio Unit.</div>
+            <div class="cot-col-hdr-right">Subtotal</div>
+          </div>
+          <div class="cot-row">
+            <div>Nómina y Mano de Obra <small class="cot-small">(pers×sem)</small></div>
+            <div id="cot-q-nomina" class="cot-qty"></div>
+            <div class="modal-field modal-field-0"><input id="cot-precio-nomina" type="number" value="6489.25"
+                step="0.01" class="modal-input-right" oninput="cotRecalc()" /></div>
+            <div id="cot-sub-nomina" class="cot-sub"></div>
+          </div>
+          <div class="cot-row">
+            <div>IMSS y Cargas Sociales <small class="cot-small">(pers×mes)</small></div>
+            <div id="cot-q-imss" class="cot-qty"></div>
+            <div class="modal-field modal-field-0"><input id="cot-precio-imss" type="number" value="1489.25" step="0.01"
+                class="modal-input-right" oninput="cotRecalc()" /></div>
+            <div id="cot-sub-imss" class="cot-sub"></div>
+          </div>
+          <div class="cot-row">
+            <div>EPP — Equipo de Protección Personal</div>
+            <div class="cot-qty">1 kit</div>
+            <div class="modal-field modal-field-0"><input id="cot-precio-epp" type="number" value="16732.54" step="0.01"
+                class="modal-input-right" oninput="cotRecalc()" /></div>
+            <div id="cot-sub-epp" class="cot-sub"></div>
+          </div>
+          <div class="cot-row">
+            <div>Herramientas y Equipo Menor</div>
+            <div class="cot-qty">1 lote</div>
+            <div class="modal-field modal-field-0"><input id="cot-precio-herr" type="number" value="25000" step="0.01"
+                class="modal-input-right" oninput="cotRecalc()" /></div>
+            <div id="cot-sub-herr" class="cot-sub"></div>
+          </div>
+          <div class="cot-row">
+            <div>Logística / Traslados</div>
+            <div class="cot-qty">–</div>
+            <div class="modal-field modal-field-0"><input id="cot-precio-log" type="number" value="0" step="0.01"
+                class="modal-input-right" oninput="cotRecalc()" /></div>
+            <div id="cot-sub-log" class="cot-sub"></div>
+          </div>
+        </div>
+        <div class="cot-section-totales">
+          <div class="cot-total-row"><span>Subtotal Directo:</span><span id="cot-total-directo"></span></div>
+          <div class="cot-total-row"><span class="cot-gestion-span">Gestión MICSA <input id="cot-gestion-pct"
+                type="number" value="15" min="0" max="100" class="cot-gestion-input" oninput="cotRecalc()">
+              %:</span><span id="cot-total-gestion" class="cot-gestion-val"></span></div>
+          <div class="cot-total-row cot-total-sep"><span>Subtotal Base:</span><span id="cot-total-base"></span></div>
+          <div class="cot-total-row"><span>IVA 16%:</span><span id="cot-total-iva"></span></div>
+          <div class="cot-total-final-row">
+            <span class="cot-total-final-label">TOTAL COTIZACIÓN:</span>
+            <span id="cot-total-final" class="cot-total-final-val"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-sticky">
+        <button class="btn-ghost btn-ghost-dark" onclick="closeCotizador()">Cancelar</button>
+        <button class="btn-primary" onclick="generarCotizacion()">📄 Generar en Editor</button>
+        <button class="btn-primary btn-primary-navy" onclick="generarYExportarPDF()">🏆 + PDF Pro</button>
+        <button class="btn-primary btn-primary-adobe" onclick="generarYFirmar()">✍️ + Adobe Sign</button>
+      </div>
+    </div>
+
+    <!-- ========== COTIZADOR DE ADICIONALES / CARRIER ========== -->
+    <div id="carr-modal-overlay" class="modal-overlay hidden" onclick="closeCarrierCot()"></div>
+    <div id="carr-modal" class="modal-panel modal-720 hidden">
+      <div class="modal-header modal-header-sticky">
+        <div class="modal-brand-row">
+          <div class="modal-brand-cot">🚛 Adicionales</div>
+          <div>
+            <h3 class="modal-h3">Cotizador de Servicios Adicionales</h3>
+            <p class="modal-sub">Grúas · Montacargas · Equipos · Logística — Total automático con IVA por partida</p>
+          </div>
+        </div>
+        <button onclick="closeCarrierCot()" class="btn-ghost btn-close-sm btn-ghost-dark">✕</button>
+      </div>
+      <div class="modal-body modal-body-padded">
+
+        <!-- FOLIO / FECHA / VIGENCIA -->
+        <div class="cot-grid-3">
+          <div class="modal-field"><label>Folio</label><input id="carr-folio" type="text" value="COT-2026-001" /></div>
+          <div class="modal-field"><label>Fecha</label><input id="carr-fecha" type="date" /></div>
+          <div class="modal-field"><label>Vigencia</label><input id="carr-vigencia" type="text" value="15 días naturales" /></div>
+        </div>
+
+        <!-- DATOS DEL CLIENTE -->
+        <div class="cot-section-cliente">
+          <p class="cot-section-label-blue">Datos del Cliente</p>
+          <div class="cot-grid-2-1">
+            <div class="modal-field"><label>Cliente / Razón Social</label><input id="carr-cliente" type="text" placeholder="AMISA GROUP INTERNATIONAL" /></div>
+            <div class="modal-field"><label>Referencia</label><input id="carr-referencia" type="text" placeholder="Soporte de desinstalación" /></div>
+          </div>
+          <div class="cot-grid-2-1" style="margin-top:8px">
+            <div class="modal-field"><label>Dirección</label><input id="carr-direccion" type="text" placeholder="Santa Catarina, Nuevo León" /></div>
+            <div class="modal-field"><label>Planta</label><input id="carr-planta" type="text" placeholder="Carrier — Planta A Nuevo León" /></div>
+          </div>
+          <div class="cot-grid-3" style="margin-top:8px">
+            <div class="modal-field"><label>Atención</label><input id="carr-atencion" type="text" placeholder="Ing. Jorge García" /></div>
+            <div class="modal-field"><label>Contacto</label><input id="carr-contacto" type="text" placeholder="818 204 0421" /></div>
+            <div class="modal-field"><label>Correo</label><input id="carr-correo" type="email" placeholder="jgarcia@amisagroup.com" /></div>
+          </div>
+          <div class="modal-field" style="margin-top:8px"><label>Actividad / Descripción del proyecto</label>
+            <input id="carr-actividad" type="text" placeholder="RELOCALIZACIÓN DE CELDAS LCV4 Y LCH" /></div>
+        </div>
+
+        <!-- PARTIDAS DINÁMICAS -->
+        <div class="cot-section-conceptos">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <p class="cot-section-label-grey" style="margin:0">Partidas / Servicios Cotizados</p>
+            <button onclick="carrAddRow()" class="btn-ghost" style="font-size:11px;padding:4px 10px;">＋ Agregar partida</button>
+          </div>
+          <div class="cot-conceptos-header" style="grid-template-columns:3fr 1.2fr 1.4fr 1fr 28px;">
+            <div class="cot-col-hdr">Descripción</div>
+            <div class="cot-col-hdr">Línea-Estación</div>
+            <div class="cot-col-hdr-right">Costo sin IVA</div>
+            <div class="cot-col-hdr">IVA</div>
+            <div></div>
+          </div>
+          <div id="carr-rows">
+            <!-- filas generadas por JS -->
+          </div>
+        </div>
+
+        <!-- NOTA GENERAL -->
+        <div style="margin-top:12px">
+          <p class="cot-section-label-grey">Nota General</p>
+          <textarea id="carr-nota" rows="3" style="width:100%;box-sizing:border-box;font-size:8.5pt;padding:6px 8px;border:1px solid #ccc;border-radius:4px;resize:vertical;font-family:inherit">Los conceptos anteriores se consideran adicionales al alcance principal contratado.
+La ejecución de estos servicios está sujeta a autorización expresa mediante orden de compra adicional.
+Cualquier servicio no descrito explícitamente será considerado como adicional.</textarea>
+        </div>
+
+        <!-- PERSONAL OPCIONAL -->
+        <div style="margin-top:10px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:9pt;cursor:pointer;">
+            <input type="checkbox" id="carr-personal-check" onchange="carrTogglePersonal()" />
+            <strong>Incluir lista de personal asignado</strong>
+          </label>
+          <div id="carr-personal-section" style="display:none;margin-top:10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:8.5pt;color:#555;">Personal asignado a la planta</span>
+              <button onclick="carrAddPersonal()" class="btn-ghost" style="font-size:11px;padding:3px 8px;">＋ Persona</button>
+            </div>
+            <div style="display:grid;grid-template-columns:28px 2fr 1.5fr 2fr 28px;gap:4px;font-size:8pt;font-weight:700;padding:4px 6px;background:#f0f0f0;border-radius:3px;">
+              <div>#</div><div>Nombre completo</div><div>NSS</div><div>CURP</div><div></div>
+            </div>
+            <div id="carr-personal-rows"></div>
+          </div>
+        </div>
+
+        <!-- TOTALES -->
+        <div class="cot-section-totales" style="margin-top:16px">
+          <div class="cot-total-row"><span>Subtotal sin IVA:</span><span id="carr-total-base"></span></div>
+          <div class="cot-total-row"><span>IVA (16%):</span><span id="carr-total-iva"></span></div>
+          <div class="cot-total-final-row">
+            <span class="cot-total-final-label">TOTAL COTIZACIÓN:</span>
+            <span id="carr-total-final" class="cot-total-final-val"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer modal-footer-sticky">
+        <button class="btn-ghost btn-ghost-dark" onclick="closeCarrierCot()">Cancelar</button>
+        <button class="btn-primary" onclick="generarCarrierCot()">📄 Generar en Editor</button>
+        <button class="btn-primary btn-primary-navy" onclick="generarCarrierPDF()">🏆 + PDF Pro</button>
+      </div>
+    </div>
+
+    <!-- ========== AI CHAT PANEL ========== -->
+    <div id="ai-chat-overlay" onclick="closeAIChat()" class="chat-overlay"></div>
+    <div id="ai-chat-panel" class="chat-panel">
+
+      <!-- Header -->
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <div class="chat-logo">🤖</div>
+          <div>
+            <div class="chat-title">Asistente MICSA</div>
+            <div class="chat-subtitle">Powered by Gemini AI</div>
+          </div>
+        </div>
+        <div class="chat-header-actions">
+          <button onclick="openChatConfig()" title="Configurar API Key" class="chat-icon-btn">⚙️</button>
+          <button onclick="clearChatHistory()" title="Limpiar historial" class="chat-icon-btn">🗑️</button>
+          <button onclick="closeAIChat()" class="chat-close-btn">✕</button>
+        </div>
+      </div>
+
+      <!-- Context indicator -->
+      <div id="chat-context-bar" class="chat-context-bar">
+        <span>📄</span><span id="chat-context-label">Sin documento</span>
+        <button onclick="syncChatContext()" class="chat-sync-btn">↻ Sincronizar</button>
+      </div>
+
+      <!-- Messages -->
+      <div id="chat-messages" class="chat-messages">
+        <div class="chat-msg-ai">
+          <div class="chat-avatar">🤖</div>
+          <div class="chat-bubble">
+            ¡Hola! Soy el Asistente MICSA. Puedo ayudarte a <strong>redactar documentos</strong>, <strong>mejorar el
+              contenido</strong> del editor, responder preguntas sobre tus cotizaciones e informes.<br><br>
+            ¿En qué puedo ayudarte hoy?
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div id="chat-quick-actions" class="chat-quick-actions">
+        <button class="chat-quick-btn" onclick="sendQuickPrompt('Mejora la redacción del documento actual')">✨ Mejorar
+          texto</button>
+        <button class="chat-quick-btn" onclick="sendQuickPrompt('Resume el documento en 3 puntos clave')">📋
+          Resumir</button>
+        <button class="chat-quick-btn"
+          onclick="sendQuickPrompt('Agrega una sección de conclusiones profesionales al documento')">➕
+          Conclusiones</button>
+        <button class="chat-quick-btn"
+          onclick="sendQuickPrompt('Traduce el documento al inglés manteniendo el formato profesional')">🌐
+          Traducir</button>
+      </div>
+
+      <!-- Input -->
+      <div class="chat-input-area">
+        <div class="chat-input-row">
+          <textarea id="chat-input" class="chat-textarea" rows="2"
+            placeholder="Escribe tu mensaje o instrucción para el documento..." onkeydown="chatHandleKey(event)"
+            onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#2a3347'"></textarea>
+          <button onclick="sendChatMessage()" id="chat-send-btn" class="chat-send-btn"
+            onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">➤</button>
+        </div>
+        <div class="chat-input-footer">
+          <span class="chat-hint">⏎ Enviar · Shift+⏎ nueva línea</span>
+          <button onclick="insertLastResponseInEditor()" id="chat-insert-btn" class="chat-insert-btn">📥 Insertar en
+            editor</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== AI CHAT CONFIG MODAL ========== -->
+    <div id="chat-config-overlay" onclick="closeChatConfig()" class="chat-cfg-overlay"></div>
+    <div id="chat-config-modal" class="chat-cfg-modal">
+      <div class="chat-cfg-header">
+        <div class="chat-cfg-header-left">
+          <span class="chat-cfg-icon">🔑</span>
+          <div>
+            <div class="chat-cfg-title">Configurar Gemini API</div>
+            <div class="chat-cfg-sub">Gratis en aistudio.google.com</div>
+          </div>
+        </div>
+        <button onclick="closeChatConfig()" class="chat-cfg-close">✕</button>
+      </div>
+      <div class="chat-cfg-field">
+        <label class="chat-cfg-label">Google Gemini API Key</label>
+        <input id="chat-api-key" type="password" placeholder="AIzaSy..." class="chat-cfg-input"
+          onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#2a3347'" />
+      </div>
+      <div class="chat-cfg-field">
+        <label class="chat-cfg-label">Modelo</label>
+        <select id="chat-model" class="chat-cfg-input" title="Seleccionar modelo de IA" aria-label="Modelo de IA">
+          <option value="gemini-1.5-flash">Gemini 1.5 Flash (Recomendado)</option>
+          <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+          <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash Exp (nuevo)</option>
+          <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+        </select>
+      </div>
+      <div class="chat-cfg-tip">
+        💡 Obtén tu API Key gratis:<br>
+        1. Ve a <strong>aistudio.google.com</strong><br>
+        2. Clic en <strong>"Get API Key"</strong><br>
+        3. Crea clave → cópiala aquí
+      </div>
+      <div class="chat-cfg-actions">
+        <button onclick="closeChatConfig()" class="chat-cfg-btn-cancel">Cancelar</button>
+        <button onclick="saveChatConfig()" class="chat-cfg-btn-save">💾 Guardar clave</button>
+      </div>
+    </div>
+
+  </div>
+  <div id="print-area" style="display:none"></div>
+  <div id="import-toast" style="display:none;"></div>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://apis.google.com/js/api.js" async defer></script>
+  <!-- PDF inline — sin dependencia de archivo externo -->
+  <script>
+    (function () {
+      'use strict';
+      
+      const LOGO_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="180" height="60" viewBox="0 0 180 60"><rect width="180" height="60" rx="6" fill="#1e3a5f"/><path d="M25 18h8l5 15 5-15h8v24h-6v-15l-6 16h-2l-6-16v15h-6V18z" fill="#f5a623"/><text x="70" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="800" fill="#f5a623" letter-spacing="1.5">MICSA</text><text x="25" y="52" font-family="Arial, sans-serif" font-size="7" fill="#93c5fd" letter-spacing="0.8">MONTAJES E IZAJES DEL CENTRO S.A. DE C.V.</text></svg>';
+      const LOGO_URL = 'data:image/svg+xml;base64,' + btoa(LOGO_SVG);
+
+      function fmtDate() { 
+        try { return new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }); } 
+        catch (e) { return new Date().toLocaleDateString(); } 
+      }
+      
+      function getFolio() { 
+        try { 
+          let n = parseInt(localStorage.getItem('micsa_f_count') || '0', 10) + 1; 
+          localStorage.setItem('micsa_f_count', n); 
+          return 'MIC-' + new Date().getFullYear() + '-' + String(n).padStart(4, '0'); 
+        } catch (e) { return 'DOC-' + Date.now(); } 
+      }
+      
+      function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+      function injectStyles() {
+        if (document.getElementById('micsa-pdf-styles')) return;
+        const s = document.createElement('style');
+        s.id = 'micsa-pdf-styles';
+        s.textContent = `
+          @media print {
+            body > * { display: none !important; }
+            #micsa-pdf-overlay { 
+              display: block !important; 
+              position: static !important; 
+              width: 100% !important; 
+              background: #fff !important; 
+              padding: 0 !important;
+              margin: 0 !important;
+            }
+            
+            #micsa-pdf-overlay {
+              font-family: "Segoe UI", Roboto, Arial, sans-serif !important;
+              font-size: 10.5pt !important;
+              color: #111 !important;
+            }
+
+            .m-page {
+              width: 100% !important;
+              max-width: 215.9mm !important;
+              margin: 0 auto !important;
+              padding: 0;
+              page-break-after: always;
+              overflow: hidden;
+              box-sizing: border-box;
+            }
+
+            .m-page:last-child { page-break-after: auto; }
+
+            .m-header {
+              text-align: center;
+              border-bottom: 4px solid #1e3a5f;
+              padding-bottom: 20px;
+              margin-bottom: 30px;
+            }
+
+            .m-logo-center img { height: 75px; }
+
+            .m-company-info-center {
+              font-size: 9.5pt;
+              color: #0f172a;
+              line-height: 1.5;
+            }
+
+            .m-doc-title {
+              font-size: 20pt;
+              font-weight: 900;
+              color: #1e3a5f;
+              text-transform: uppercase;
+              margin: 12px 0;
+              letter-spacing: 2px;
+            }
+
+            .m-meta-bar {
+              display: flex;
+              justify-content: space-between;
+              background: #f1f5f9;
+              border-top: 1px solid #cbd5e1;
+              border-bottom: 1px solid #cbd5e1;
+              padding: 12px 25px;
+              margin-bottom: 35px;
+              font-size: 11pt;
+              font-weight: 700;
+            }
+
+            .m-meta-item strong { color: #1e3a5f; }
+
+            .m-content-body {
+              min-height: 500px;
+              text-align: justify;
+              padding: 0 10px;
+            }
+
+            .m-content-body table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 25px 0;
+            }
+
+            .m-content-body th {
+              background: #1e3a5f;
+              color: #fff;
+              padding: 12px;
+              text-align: left;
+              border: 1px solid #1e3a5f;
+            }
+
+            .m-content-body td {
+              padding: 10px;
+              border: 1px solid #e2e8f0;
+            }
+
+            .m-footer {
+              margin-top: 50px;
+              padding-top: 20px;
+              border-top: 3px solid #1e3a5f;
+              display: flex;
+              justify-content: space-between;
+              font-size: 8.5pt;
+              color: #475569;
+            }
+
+            .m-gold-accent {
+              height: 6px;
+              background: #f5a623;
+              margin-top: 6px;
+              width: 100%;
+            }
+
+            @page {
+              size: Letter;
+              margin: 18mm 20mm;
+            }
+
+            tr { page-break-inside: avoid; }
+            thead { display: table-header-group; }
+          }
+        `;
+        document.head.appendChild(s);
+      }
+
+      function buildPageHTML(title, folio, content, date) {
+        return `
+          <div class="m-page">
+            <div class="m-header">
+              <div class="m-logo-center">
+                <img src="${LOGO_URL}" alt="MICSA INDUSTRIAL">
+              </div>
+              <div class="m-company-info-center">
+                <span class="m-doc-title">${esc(title)}</span>
+                <strong>MONTAJES E IZAJES DEL CENTRO S.A. DE C.V.</strong><br>
+                RFC: MIC2301268S5 | Tel: (866) 176-6621<br>
+                Dirección: La Madrid 500, Monclova, Coahuila<br>
+                <em>Líderes en Soluciones de Montaje Industrial</em>
+              </div>
+            </div>
+            
+            <div class="m-meta-bar">
+              <div class="m-meta-item">FOLIO: <strong>${esc(folio)}</strong></div>
+              <div class="m-meta-item">FECHA DE EMISIÓN: <strong>${date}</strong></div>
+            </div>
+
+            <div class="m-content-body">
+              ${content}
+            </div>
+
+            <div class="m-footer">
+              <div>
+                <strong>GRUPO MICSA</strong> - Profesionalismo en Acción<br>
+                contacto@micsa.com.mx | www.micsa.com.mx
+              </div>
+              <div style="text-align: right;">
+                Documento Oficial Generado Digitalmente<br>
+                ISO 9001:2015 MICSA - Ejercicio ${new Date().getFullYear()}
+              </div>
+            </div>
+            <div class="m-gold-accent"></div>
+          </div>
+        `;
+      }
+
+      window.exportPDF_Professional = function (docs) {
+        // Ignorar si el primer argumento es un Evento (llamada desde click directo)
+        const isEvent = docs && (docs.target || docs.preventDefault || docs.stopImmediatePropagation);
+        const actualDocs = isEvent ? null : docs;
+
+        const titleInput = document.getElementById('doc-title');
+        const editor = document.getElementById('editor');
+        
+        if (!editor && !actualDocs) {
+          if (typeof notify === 'function') notify('❌ Error: No hay contenido para exportar', 'error');
+          return;
+        }
+
+        // Si no se pasan documentos (o era un evento), usar el del editor actual
+        const documentList = actualDocs || [{
+          title: (titleInput ? titleInput.value : '').trim() || 'Documento Industrial MICSA',
+          folio: getFolio(),
+          content: editor.innerHTML
+        }];
+
+        if (typeof notify === 'function') notify('📑 Generando Secuencia de Documentos...', 'info');
+
+        injectStyles();
+        
+        const old = document.getElementById('micsa-pdf-overlay');
+        if (old) old.remove();
+
+        const container = document.createElement('div');
+        container.id = 'micsa-pdf-overlay';
+        container.style.display = 'none';
+        
+        const date = fmtDate();
+        let fullHTML = '';
+        
+        documentList.forEach(d => {
+          fullHTML += buildPageHTML(d.title, d.folio, d.content, date);
+        });
+        
+        container.innerHTML = fullHTML;
+        document.body.appendChild(container);
+
+        setTimeout(() => {
+          window.print();
+          setTimeout(() => {
+            const overlay = document.getElementById('micsa-pdf-overlay');
+            if (overlay) overlay.remove();
+          }, 2000);
+        }, 700);
+      };
+
+      window.exportPDF_iLoveAPI = window.exportPDF_Professional;
+      console.log('[MICSA] PDF Sequence Engine v7 ✓');
+    })();
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
