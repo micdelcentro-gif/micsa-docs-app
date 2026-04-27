@@ -1549,6 +1549,42 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
     }} />
   )
 
+  /* ─── UNIFORM COMPONENTS ─────────────────────────────────────────── */
+  const UniformHeader = ({ tipoDocumento, folio: folioVal, fecha }: { tipoDocumento: string; folio?: string | null; fecha?: string }) => (
+    <div style={{ borderBottom: `2.5px solid ${GOLD}`, paddingBottom: 12, marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={LOGO_B64} alt="MICSA" style={{ height: 48, width: 'auto', objectFit: 'contain', flexShrink: 0 }} />
+      <div style={{ flex: 1, textAlign: 'center' }}>
+        <div style={{ fontWeight: 800, fontSize: 13, color: NAVY, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{tipoDocumento}</div>
+        {folioVal && <div style={{ fontSize: 10, color: RED, fontWeight: 700, marginTop: 4 }}>Folio: {folioVal}</div>}
+      </div>
+      <div style={{ textAlign: 'right', fontSize: 8, color: '#666', lineHeight: 1.6, flexShrink: 0 }}>
+        <div>{MI.repse}</div>
+        <div>{MI.tel1} | {MI.tel2}</div>
+        <div>{MI.email}</div>
+        {fecha && <div style={{ marginTop: 4, fontWeight: 600 }}>📅 {fmtDate(fecha)}</div>}
+      </div>
+    </div>
+  )
+
+  const UniformFooter = () => (
+    <div style={{ background: NAVY, color: 'white', padding: '8px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 7.5, marginTop: 20, gap: 12, flexWrap: 'wrap' }}>
+      <span style={{ fontWeight: 600 }}>MICSA Industrial</span>
+      <span>{MI.dir}</span>
+      <span>Tel: {MI.tel1}</span>
+      <span>{MI.email}</span>
+    </div>
+  )
+
+  const UniformTemplate = ({ tipoDocumento, folio: folioVal, fecha, children }: { tipoDocumento: string; folio?: string | null; fecha?: string; children: React.ReactNode }) => (
+    <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 11, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%', position: 'relative', padding: '16px 20px' }}>
+      <Watermark />
+      <UniformHeader tipoDocumento={tipoDocumento} folio={folioVal} fecha={fecha} />
+      <div style={{ flex: 1 }}>{children}</div>
+      <UniformFooter />
+    </div>
+  )
+
   if (tipo === 'cotizacion') {
     const alcances = ALCANCES_DEFAULT
     const incluye = INCLUYE_DEFAULT
@@ -1560,11 +1596,8 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
       : '—'
 
     return (
-      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 11, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%', position: 'relative' }}>
-        <Watermark />
-        <div style={{ padding: '16px 20px', flex: 1 }}>
-          <Header />
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14, fontSize: 11 }}>
+      <UniformTemplate tipoDocumento="Cotización de Servicios" folio={folio} fecha={data.fecha}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 14, fontSize: 11 }}>
             <tbody>
               <tr><td style={tdL}>Cliente:</td><td style={tdV}>{data.cliente || '___'}</td><td style={tdL}>Referencia: {data.referencia || 'Servicio.'}</td></tr>
               <tr><td style={tdL}>Dirección</td><td style={tdV}>{data.direccion_cliente || '___'}</td><td style={tdV}>Planta: {data.planta || '___'}</td></tr>
@@ -1653,9 +1686,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
             <div>Atentamente.</div><br />
             <div style={{ fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase' }}>TU SOCIO ESTRATÉGICO EN INSTALACIÓN DE MAQUINARIA</div>
           </div>
-        </div>
-        <Footer email={MI.emailCot} />
-      </div>
+      </UniformTemplate>
     )
   }
 
@@ -1675,11 +1706,8 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
     )
     const fases = [1,2,3,4,5].map(n => ({ nombre: data[`fase${n}_nombre`], dias: data[`fase${n}_dias`], mod: data[`fase${n}_modalidad`] })).filter(f => f.nombre)
     return (
-      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 10.5, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-        <Watermark />
-        <div style={{ padding: '14px 20px', flex: 1 }}>
-          <Header />
-          {/* Título */}
+      <UniformTemplate tipoDocumento="Cotización Comercial" folio={folio} fecha={data.fecha}>
+        {/* Título */}
           <div style={{ textAlign: 'center', margin: '10px 0 8px' }}>
             <div style={{ fontWeight: 900, fontSize: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>COTIZACIÓN COMERCIAL</div>
             <div style={{ fontStyle: 'italic', fontSize: 10, color: '#555' }}>Servicio de Soporte Técnico — {data.proyecto || 'Instalación y Puesta en Marcha'}</div>
@@ -1814,9 +1842,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
               </div>
             ))}
           </div>
-        </div>
-        <Footer email={MI.emailCot} />
-      </div>
+      </UniformTemplate>
     )
   }
 
@@ -1826,10 +1852,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
       <div style={{ background: '#0a0a0a', color: '#F5B800', fontWeight: 800, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 10px', marginBottom: 8, marginTop: 14 }}>{title}</div>
     )
     return (
-      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 10.5, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-        <Watermark />
-        <div style={{ padding: '14px 20px', flex: 1 }}>
-          <Header />
+      <UniformTemplate tipoDocumento="Índice de Paquete" folio={folio} fecha={data.fecha}>
           <div style={{ textAlign: 'center', margin: '10px 0 8px' }}>
             <div style={{ fontWeight: 900, fontSize: 14, letterSpacing: '0.06em', textTransform: 'uppercase' }}>ÍNDICE DE PAQUETE CORPORATIVO</div>
             <div style={{ fontStyle: 'italic', fontSize: 10, color: '#555' }}>{data.proyecto || 'Expediente Corporativo MICSA'}</div>
@@ -1853,9 +1876,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
             </div>
           ))}
           {data.nota_indice && (<div style={{ fontStyle: 'italic', fontSize: 9.5, color: '#555', marginTop: 10, padding: '6px 10px', border: '1px solid #ddd', background: '#fafafa' }}>{data.nota_indice}</div>)}
-        </div>
-        <Footer email={MI.emailCot} />
-      </div>
+      </UniformTemplate>
     )
   }
 
@@ -1873,33 +1894,15 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
       </div>
     )
     return (
-      <div style={{ fontFamily:"'IBM Plex Sans',sans-serif", fontSize:10.5, color:'#111', background:'white', display:'flex', flexDirection:'column', minHeight:'100%' }}>
-        <Watermark />
-        {/* BANNER HEADER */}
-        <div style={{ background:'#0a1628', padding:'16px 20px 12px' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-micsa-white.png" alt="MICSA" style={{ height:36, filter:'brightness(0) invert(1)' }} onError={(e)=>{(e.target as HTMLImageElement).style.display='none'}} />
-            <div style={{ textAlign:'right' }}>
-              <div style={{ fontSize:8, color:'#aaa', letterSpacing:'0.2em', textTransform:'uppercase' }}>RFC: {MI.rfc || 'MIC230126855'}</div>
-              <div style={{ fontSize:8, color:'#666', marginTop:2 }}>{fechaFmt}</div>
-            </div>
-          </div>
-          <div style={{ marginTop:14, borderTop:'1px solid #2a3a5a', paddingTop:12 }}>
-            <div style={{ fontSize:7, letterSpacing:'0.3em', color:'#F5B800', textTransform:'uppercase', marginBottom:4 }}>Documento Técnico-Financiero Formal</div>
-            <div style={{ fontWeight:900, fontSize:20, color:'#fff', letterSpacing:'0.04em', textTransform:'uppercase', lineHeight:1.1 }}>EXPEDIENTE TÉCNICO-FINANCIERO</div>
-            <div style={{ fontSize:10, color:'#aaa', marginTop:4, fontStyle:'italic' }}>{data.proyecto || 'Reclamación Económica — Carrier CMXA'}</div>
-          </div>
-        </div>
+      <UniformTemplate tipoDocumento="Expediente Técnico-Financiero" folio={folio} fecha={data.fecha}>
         {/* FICHA CONTROL */}
-        <div style={{ background:'#f0f4ff', borderBottom:'3px solid #F5B800', padding:'10px 20px' }}>
+        <div style={{ background:'#f0f4ff', borderBottom:'3px solid #F5B800', padding:'10px 0', marginBottom: 12 }}>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'6px 20px', fontSize:9.5 }}>
             {[['FOLIO',data.folio_exp||folio||'MICSA-EXP-0001'],['CLIENTE',data.cliente||'Carrier México CMXA'],['FECHA',fechaFmt],['ELABORÓ',data.elaboro||'Jordan Nefthali González'],['VERSIÓN',data.version||'V1.0'],['ESTADO','PENDIENTE DE PAGO']].map(([k,v])=>(
               <div key={k}><span style={{ fontWeight:700, color:'#1a2a4a', textTransform:'uppercase', fontSize:8.5, letterSpacing:'0.08em' }}>{k}: </span><span style={{ color:'#333' }}>{v}</span></div>
             ))}
           </div>
         </div>
-        <div style={{ padding:'12px 20px', flex:1 }}>
           {/* RESUMEN */}
           {data.resumen && (<><SEC n="I" title="Resumen Ejecutivo" /><p style={{ margin:'0 0 10px',lineHeight:1.75,textAlign:'justify',fontSize:10,color:'#222' }}>{data.resumen}</p></>)}
           {/* FASES + MONTO */}
@@ -1969,19 +1972,14 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
             <SEC n="VI" title="Transcripción / Notas Adicionales" />
             <div style={{ fontSize:9.5, lineHeight:1.8, whiteSpace:'pre-wrap', wordBreak:'break-word', marginBottom:10, color:'#222', padding:'10px 14px', background:'#f8f9fa', border:'1px solid #dde3f0', borderLeft:'4px solid #1a2a4a', borderRadius:'0 4px 4px 0', fontFamily:"'IBM Plex Sans',monospace" }}>{data.transcripcion}</div>
           </>)}
-        </div>
-        <Footer email={MI.emailCot} />
-      </div>
+      </UniformTemplate>
     )
   }
 
   if (tipo === 'carta_formal_direccion') {
     const fmtN = (v: string | undefined) => v ? parseFloat(v).toLocaleString('es-MX', { minimumFractionDigits: 2 }) : '0.00'
     return (
-      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 10.5, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-        <Watermark />
-        <div style={{ padding: '14px 20px', flex: 1 }}>
-          <Header />
+      <UniformTemplate tipoDocumento="Carta Formal" folio={folio} fecha={data.fecha}>
           {/* Datos carta */}
           <div style={{ marginTop: 14, marginBottom: 10 }}>
             <div style={{ fontWeight: 700, fontSize: 9.5, color: '#555' }}>FOLIO: {data.folio_carta || '—'}</div>
@@ -2012,9 +2010,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
               <div style={{ fontSize: 9.5, color: '#444', whiteSpace: 'pre-line' }}>{data.firmante || 'Jordan Nefthali González\nDirección General'}</div>
             </div>
           </div>
-        </div>
-        <Footer email={MI.emailCot} />
-      </div>
+      </UniformTemplate>
     )
   }
 
@@ -2032,12 +2028,8 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
       return '#92400e'
     }
     return (
-      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 10.5, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-        <Watermark />
-        <div style={{ padding: '14px 20px', flex: 1 }}>
-          <Header />
+      <UniformTemplate tipoDocumento="Carta Respuesta Hallazgos" folio={folio} fecha={data.fecha}>
           <div style={{ textAlign: 'center', margin: '10px 0 8px' }}>
-            <div style={{ fontWeight: 900, fontSize: 13, letterSpacing: '0.06em', textTransform: 'uppercase' }}>CARTA RESPUESTA A HALLAZGOS</div>
           </div>
           <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 10, fontSize: 10 }}>
             <tbody>
@@ -2073,9 +2065,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
               <div style={{ fontSize:9.5, color:'#444', whiteSpace:'pre-line' }}>{data.firmante||'Jordan Nefthali González\nDirección General'}</div>
             </div>
           </div>
-        </div>
-        <Footer email={MI.emailCot} />
-      </div>
+      </UniformTemplate>
     )
   }
 
@@ -2095,14 +2085,11 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
       <div style={{ background: '#0a0a0a', color: '#F5B800', fontWeight: 800, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', padding: '5px 10px', marginBottom: 8, marginTop: 14 }}>{title}</div>
     )
     return (
-      <div style={{ fontFamily: "'IBM Plex Sans',sans-serif", fontSize: 10.5, color: '#111', background: 'white', display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
-        <Watermark />
-        <div style={{ padding: '14px 20px', flex: 1 }}>
-          <Header />
-          <div style={{ textAlign: 'center', margin: '10px 0 8px' }}>
-            <div style={{ fontWeight: 900, fontSize: 13, letterSpacing: '0.06em', textTransform: 'uppercase' }}>ANEXO F — ANÁLISIS FOTOGRÁFICO DE HALLAZGOS</div>
-            <div style={{ fontStyle: 'italic', fontSize: 10, color: '#555' }}>{data.proyecto || 'Análisis de Hallazgos'}</div>
-          </div>
+      <UniformTemplate tipoDocumento="Anexo Hallazgos" folio={folio} fecha={data.fecha}>
+        <div style={{ textAlign: 'center', margin: '10px 0 8px' }}>
+          <div style={{ fontWeight: 900, fontSize: 13, letterSpacing: '0.06em', textTransform: 'uppercase' }}>ANEXO F — ANÁLISIS FOTOGRÁFICO DE HALLAZGOS</div>
+          <div style={{ fontStyle: 'italic', fontSize: 10, color: '#555', marginTop: 4 }}>{data.proyecto || 'Análisis de Hallazgos'}</div>
+        </div>
           <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 10, fontSize: 10 }}>
             <tbody>
               {[['FECHA', data.fecha ? new Date(data.fecha+'T12:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'}) : '—'],['TOTAL HALLAZGOS', data.total_hallazgos||String(hallazgos.length)],['ELABORÓ', data.elaboro||'—']].map(([k,v]) => (
@@ -2130,9 +2117,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
               <div style={{ fontSize:9.5, color:'#444', whiteSpace:'pre-line' }}>{data.firmante||'Jordan Nefthali González\nDirección General'}</div>
             </div>
           </div>
-        </div>
-        <Footer email={MI.emailCot} />
-      </div>
+      </UniformTemplate>
     )
   }
 
@@ -2145,10 +2130,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
       </td>
     )
     return (
-      <div style={{ fontFamily:"'IBM Plex Sans',sans-serif", fontSize:10.5, color:'#111', background:'white', display:'flex', flexDirection:'column', minHeight:'100%' }}>
-        <Watermark />
-        <div style={{ padding:'14px 20px', flex:1 }}>
-          <Header />
+      <UniformTemplate tipoDocumento="Bitácora de Actividades" folio={folio} fecha={data.fecha}>
           {/* FICHA GENERAL */}
           <table style={{ width:'100%', borderCollapse:'collapse', marginBottom:10 }}>
             <tbody>
@@ -2215,9 +2197,7 @@ function DocumentPreview({ tipo, data, fotos, folio }: {
               </tr>
             </tbody>
           </table>
-        </div>
-        <Footer email={MI.emailCot} />
-      </div>
+      </UniformTemplate>
     )
   }
 
