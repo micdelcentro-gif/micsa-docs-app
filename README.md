@@ -1,6 +1,6 @@
 # MICSA Docs — Setup Guide
 
-App completa: Next.js + Supabase + Vercel
+App completa: Next.js + Supabase + Netlify
 Login, roles, historial de documentos, fotos desde celular, impresión a PDF.
 
 ---
@@ -63,16 +63,21 @@ Abre http://localhost:3002
 
 ---
 
-## PASO 3 — Deploy en Vercel
+## PASO 3 — Despliegue en Netlify
 
-1. Subir el proyecto a GitHub (repo nuevo o existente)
-2. Ir a https://vercel.com → **New Project** → importar el repo
-3. En **Environment Variables** agregar:
-   - `NEXT_PUBLIC_SUPABASE_URL` = tu URL de Supabase
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = tu anon key
-4. Click **Deploy**
+1. Sube el proyecto a GitHub (repositorio nuevo o existente)
+2. Ve a https://app.netlify.com → **New site from Git** → selecciona tu repositorio
+3. **Build settings:**
+   - Build command: `npm run build`
+      - Publish directory: `.next`
+      4. **Environment variables** - agrega:
+         - `NEXT_PUBLIC_SUPABASE_URL` = tu URL de Supabase
+            - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = tu clave anónima
+            5. Haz clic en **Deploy site**
 
-¡Listo! La app estará en `https://micsa-docs.vercel.app` (o el nombre que elijas)
+            ¡Listo! La aplicación estará en el URL que Netlify te asigne (ej: `https://micsa-docs.netlify.app`)
+
+            ---
 
 ---
 
